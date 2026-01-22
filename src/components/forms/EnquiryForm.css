@@ -1,0 +1,115 @@
+.enquiry-form {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.enquiry-form__speaker-context {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-xl);
+  background-color: var(--color-accent-light);
+  border-radius: var(--radius-lg);
+}
+
+.enquiry-form__speaker-photo {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+}
+
+.enquiry-form__speaker-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.enquiry-form__speaker-name {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.enquiry-form__section {
+  margin-bottom: var(--space-2xl);
+  padding-bottom: var(--space-2xl);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.enquiry-form__section:last-of-type {
+  border-bottom: none;
+}
+
+.enquiry-form__section-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin-bottom: var(--space-lg);
+  color: var(--color-text-primary);
+}
+
+.enquiry-form__row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-lg);
+}
+
+@media (max-width: 540px) {
+  .enquiry-form__row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.enquiry-form__footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.enquiry-form__checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.enquiry-form__checkbox input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-accent);
+}
+
+.enquiry-form__status {
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+}
+
+.enquiry-form__status--success {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--color-success);
+  border: 1px solid var(--color-success);
+}
+
+.enquiry-form__status--error {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
+}
+
+.enquiry-form__submit {
+  width: 100%;
+}
+
+.enquiry-form__submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.enquiry-form__privacy {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  text-align: center;
+}

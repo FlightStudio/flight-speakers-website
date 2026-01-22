@@ -1,0 +1,118 @@
+.ai-search {
+  width: 100%;
+  max-width: 720px;
+}
+
+.ai-search--hero {
+  margin: 0 auto;
+}
+
+.ai-search__form {
+  width: 100%;
+}
+
+.ai-search__input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-sm) var(--space-sm) var(--space-lg);
+  background-color: var(--color-bg-secondary);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-md);
+}
+
+.ai-search__input-wrapper--focused {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-lg), 0 0 0 4px var(--color-accent-light);
+}
+
+.ai-search__icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  color: var(--color-accent);
+}
+
+.ai-search__input {
+  flex: 1;
+  padding: var(--space-md) 0;
+  font-size: var(--font-size-lg);
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--color-text-primary);
+}
+
+.ai-search__input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.ai-search__button {
+  flex-shrink: 0;
+  padding: var(--space-md) var(--space-xl);
+}
+
+.ai-search__examples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+  justify-content: center;
+}
+
+.ai-search__examples-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
+.ai-search__example {
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-input);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.ai-search__example:hover {
+  background-color: var(--color-accent-light);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+@media (max-width: 640px) {
+  .ai-search__input-wrapper {
+    flex-direction: column;
+    padding: var(--space-md);
+    gap: var(--space-md);
+  }
+
+  .ai-search__icon {
+    display: none;
+  }
+
+  .ai-search__input {
+    width: 100%;
+    text-align: center;
+    font-size: var(--font-size-base);
+  }
+
+  .ai-search__button {
+    width: 100%;
+  }
+
+  .ai-search__examples {
+    gap: var(--space-xs);
+  }
+
+  .ai-search__example {
+    font-size: var(--font-size-xs);
+    padding: var(--space-xs) var(--space-sm);
+  }
+}
