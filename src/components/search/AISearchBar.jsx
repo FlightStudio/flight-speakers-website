@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import './AISearchBar.css'
 
-function AISearchBar({ variant = 'hero', initialQuery = '', onSearch }) {
+function AISearchBar({ variant = 'default', initialQuery = '', onSearch }) {
   const [query, setQuery] = useState(initialQuery)
   const [isFocused, setIsFocused] = useState(false)
   const navigate = useNavigate()
@@ -18,20 +19,14 @@ function AISearchBar({ variant = 'hero', initialQuery = '', onSearch }) {
     }
   }
 
-  const exampleQueries = [
-    "500 women in business conference in Boston",
-    "AI keynote for tech leadership summit",
-    "Leadership speaker for sales kickoff event",
-    "Wellness expert for corporate retreat"
-  ]
-
   return (
-    <div className={`ai-search ${variant === 'hero' ? 'ai-search--hero' : ''}`}>
+    <div className={`ai-search ai-search--${variant}`}>
       <form onSubmit={handleSubmit} className="ai-search__form">
-        <div className={`ai-search__input-wrapper ${isFocused ? 'ai-search__input-wrapper--focused' : ''}`}>
+        <div className={`ai-search__container ${isFocused ? 'ai-search__container--focused' : ''}`}>
           <div className="ai-search__icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path d="M8.25 14.25C11.5637 14.25 14.25 11.5637 14.25 8.25C14.25 4.93629 11.5637 2.25 8.25 2.25C4.93629 2.25 2.25 4.93629 2.25 8.25C2.25 11.5637 4.93629 14.25 8.25 14.25Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M15.75 15.75L12.4875 12.4875" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
           <input
@@ -43,30 +38,20 @@ function AISearchBar({ variant = 'hero', initialQuery = '', onSearch }) {
             placeholder="Describe your event and ideal speaker..."
             className="ai-search__input"
           />
-          <button type="submit" className="btn btn-primary ai-search__button">
+          <motion.button
+            type="submit"
+            className="ai-search__button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            disabled={!query.trim()}
+          >
             Find Speakers
-          </button>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2.5 7H11.5M11.5 7L7 2.5M11.5 7L7 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </motion.button>
         </div>
       </form>
-
-      {variant === 'hero' && (
-        <div className="ai-search__examples">
-          <span className="ai-search__examples-label">Try:</span>
-          {exampleQueries.map((example, index) => (
-            <button
-              key={index}
-              type="button"
-              className="ai-search__example"
-              onClick={() => {
-                setQuery(example)
-                navigate(`/search?q=${encodeURIComponent(example)}`)
-              }}
-            >
-              {example}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   )
 }

@@ -1,54 +1,177 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import './Header.css'
 
 function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [location])
+
+  const navItems = [
+    { path: '/', label: 'Speakers' },
+    { path: '/about', label: 'About' },
+  ]
 
   return (
-    <header className="header">
-      <div className="container">
-        <nav className="nav">
-          <Link to="/" className="logo">
-            <div className="logo-mark">
-              <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 24L16 6L24 24L16 18L8 24Z" fill="currentColor" fillOpacity="0.9"/>
-                <circle cx="16" cy="12" r="3" fill="#6366f1"/>
-              </svg>
+    <>
+      <motion.header
+        className={`header ${scrolled ? 'header--scrolled' : ''}`}
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <div className="container">
+          <nav className="nav">
+            <Link to="/" className="logo">
+              <motion.div
+                className="logo-mark"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M8 24L16 6L24 24L16 18L8 24Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </motion.div>
+              <span className="logo-text">
+                Flight Story
+              </span>
+            </Link>
+
+            <div className="nav-center hide-mobile">
+              {navItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`nav-link ${location.pathname === item.path ? 'nav-link--active' : ''}`}
+                >
+                  {item.label}
+                </Link>
+              ))}
             </div>
-            <span className="logo-text">Flight Story <span className="logo-accent">Speakers</span></span>
-          </Link>
 
-          <div className={`nav-links ${mobileMenuOpen ? 'nav-links--open' : ''}`}>
-            <Link to="/" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Speakers</Link>
-            <Link to="/search" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Find a Speaker</Link>
-            <Link to="/about" className="nav-link" onClick={() => setMobileMenuOpen(false)}>About</Link>
-            <button
-              className="btn btn-primary btn-sm nav-cta"
-              onClick={() => {
-                setMobileMenuOpen(false)
-                navigate('/enquiry')
-              }}
-            >
-              Submit Brief
-            </button>
-          </div>
+            <div className="nav-right">
+              <motion.button
+                className="btn btn-primary nav-cta hide-mobile"
+                onClick={() => navigate('/enquiry')}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Book a Speaker
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 7H13M13 7L7 1M13 7L7 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </motion.button>
 
-          <button
-            className="mobile-menu-toggle"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
+              <button
+                className="mobile-menu-toggle hide-desktop"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label="Toggle menu"
+              >
+                <div className={`hamburger ${mobileMenuOpen ? 'hamburger--open' : ''}`}>
+                  <span></span>
+                  <span></span>
+                </div>
+              </button>
+            </div>
+          </nav>
+        </div>
+      </motion.header>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            className="mobile-menu"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
           >
-            <span className={`hamburger ${mobileMenuOpen ? 'hamburger--open' : ''}`}>
-              <span></span>
-              <span></span>
-              <span></span>
-            </span>
-          </button>
-        </nav>
-      </div>
-    </header>
+            <motion.div
+              className="mobile-menu-content"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="mobile-menu-header">
+                <Link to="/" className="logo" onClick={() => setMobileMenuOpen(false)}>
+                  <div className="logo-mark">
+                    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M8 24L16 6L24 24L16 18L8 24Z" fill="currentColor"/>
+                    </svg>
+                  </div>
+                  <span className="logo-text">Flight Story</span>
+                </Link>
+              </div>
+
+              <div className="mobile-menu-nav">
+                {navItems.map((item, i) => (
+                  <motion.div
+                    key={item.path}
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + i * 0.05, duration: 0.4 }}
+                  >
+                    <Link
+                      to={item.path}
+                      className={`mobile-nav-link ${location.pathname === item.path ? 'mobile-nav-link--active' : ''}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {item.label}
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+
+              <motion.div
+                className="mobile-menu-footer"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.4 }}
+              >
+                <button
+                  className="btn btn-primary btn-lg w-full"
+                  onClick={() => {
+                    setMobileMenuOpen(false)
+                    navigate('/enquiry')
+                  }}
+                >
+                  Book a Speaker
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M1 7H13M13 7L7 1M13 7L7 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                <div className="mobile-menu-contact">
+                  <a href="mailto:speakers@flightstory.com">speakers@flightstory.com</a>
+                </div>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   )
 }
 

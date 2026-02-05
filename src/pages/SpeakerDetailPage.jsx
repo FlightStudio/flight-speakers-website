@@ -1,5 +1,6 @@
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useMemo } from 'react'
+import { motion } from 'framer-motion'
 import { speakers } from '../data/speakers'
 import SpeakerGrid from '../components/speakers/SpeakerGrid'
 import './SpeakerDetailPage.css'
@@ -18,18 +19,22 @@ function SpeakerDetailPage() {
     return speakers
       .filter(s => s.id !== speaker.id)
       .filter(s => s.topics.some(t => speaker.topics.includes(t)))
-      .slice(0, 4)
+      .slice(0, 3)
   }, [speaker])
 
   if (!speaker) {
     return (
       <div className="speaker-detail-page">
         <div className="container">
-          <div className="speaker-not-found">
+          <motion.div
+            className="speaker-not-found"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
             <h1>Speaker Not Found</h1>
-            <p>The speaker you're looking for doesn't exist.</p>
+            <p>The speaker you're looking for doesn't exist or may have moved.</p>
             <Link to="/" className="btn btn-primary">Browse All Speakers</Link>
-          </div>
+          </motion.div>
         </div>
       </div>
     )
@@ -37,52 +42,90 @@ function SpeakerDetailPage() {
 
   return (
     <div className="speaker-detail-page">
-      {/* Breadcrumb */}
-      <div className="breadcrumb">
+      {/* Back nav */}
+      <motion.div
+        className="speaker-nav"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+      >
         <div className="container">
-          <Link to="/">Speakers</Link>
-          <span className="breadcrumb__separator">/</span>
-          <span>{speaker.name}</span>
+          <Link to="/" className="speaker-nav__back">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            All Speakers
+          </Link>
         </div>
-      </div>
+      </motion.div>
 
       {/* Hero Section */}
       <section className="speaker-hero">
         <div className="container">
           <div className="speaker-hero__grid">
-            <div className="speaker-hero__image-wrapper">
-              <img
-                src={speaker.photo}
-                alt={speaker.name}
-                className="speaker-hero__image"
-              />
+            {/* Image Side */}
+            <motion.div
+              className="speaker-hero__image-col"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="speaker-hero__image-wrapper">
+                <img
+                  src={speaker.photo}
+                  alt={speaker.name}
+                  className="speaker-hero__image"
+                />
+              </div>
               {speaker.featured && (
-                <span className="speaker-hero__badge">Featured Speaker</span>
+                <span className="speaker-hero__badge">Featured</span>
               )}
-            </div>
+            </motion.div>
 
-            <div className="speaker-hero__content">
+            {/* Content Side */}
+            <motion.div
+              className="speaker-hero__content"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              <span className="speaker-hero__label">Speaker Profile</span>
+
               <h1 className="speaker-hero__name">{speaker.name}</h1>
+
               <p className="speaker-hero__headline">{speaker.headline}</p>
 
               <div className="speaker-hero__topics">
                 {speaker.topics.map((topic, index) => (
-                  <span key={index} className="tag tag-accent">{topic}</span>
+                  <span key={index} className="speaker-hero__topic">
+                    {topic}
+                  </span>
                 ))}
               </div>
 
               <div className="speaker-hero__actions">
-                <button
+                <motion.button
                   onClick={() => navigate(`/enquiry/${speaker.id}`)}
                   className="btn btn-primary btn-lg"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  Enquire About {speaker.name.split(' ')[0]}
-                </button>
-                <a href="#video" className="btn btn-secondary btn-lg">
-                  Watch Reel
-                </a>
+                  Enquire Now
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </motion.button>
+
+                {speaker.videoUrl && (
+                  <a href="#video" className="btn btn-secondary btn-lg">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <path d="M3 2.5V11.5L11.5 7L3 2.5Z" fill="currentColor"/>
+                    </svg>
+                    Watch Reel
+                  </a>
+                )}
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -91,24 +134,34 @@ function SpeakerDetailPage() {
       <section className="section speaker-bio-section">
         <div className="container">
           <div className="speaker-bio-grid">
-            <div className="speaker-bio">
+            <motion.div
+              className="speaker-bio"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
               <h2>About {speaker.name}</h2>
-              {speaker.bio.split('\n\n').map((paragraph, index) => (
-                <p key={index}>{paragraph}</p>
-              ))}
-            </div>
 
-            <aside className="speaker-sidebar">
+              <div className="speaker-bio__content">
+                {speaker.bio.split('\n\n').map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.aside
+              className="speaker-sidebar"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
               <div className="sidebar-card">
                 <h3>Key Topics</h3>
                 <ul className="sidebar-list">
                   {speaker.topics.map((topic, index) => (
-                    <li key={index}>
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <path d="M13.5 4.5L6.5 11.5L3 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      {topic}
-                    </li>
+                    <li key={index}>{topic}</li>
                   ))}
                 </ul>
               </div>
@@ -116,7 +169,7 @@ function SpeakerDetailPage() {
               {speaker.audiences && (
                 <div className="sidebar-card">
                   <h3>Ideal Audiences</h3>
-                  <ul className="sidebar-list sidebar-list--simple">
+                  <ul className="sidebar-list">
                     {speaker.audiences.map((audience, index) => (
                       <li key={index}>{audience}</li>
                     ))}
@@ -125,16 +178,19 @@ function SpeakerDetailPage() {
               )}
 
               <div className="sidebar-card sidebar-card--cta">
-                <h3>Interested in {speaker.name.split(' ')[0]}?</h3>
-                <p>Get in touch to check availability and discuss your event needs.</p>
+                <h3>Ready to Book?</h3>
+                <p>Get in touch to discuss your event.</p>
                 <button
                   onClick={() => navigate(`/enquiry/${speaker.id}`)}
-                  className="btn btn-primary"
+                  className="btn btn-primary w-full"
                 >
                   Submit Enquiry
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M2.5 7H11.5M11.5 7L7 2.5M11.5 7L7 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 </button>
               </div>
-            </aside>
+            </motion.aside>
           </div>
         </div>
       </section>
@@ -143,8 +199,22 @@ function SpeakerDetailPage() {
       {speaker.videoUrl && (
         <section id="video" className="section speaker-video-section">
           <div className="container">
-            <h2 className="section-title text-center">Watch {speaker.name.split(' ')[0]} in Action</h2>
-            <div className="video-wrapper">
+            <motion.div
+              className="video-header"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2>{speaker.name.split(' ')[0]} in Action</h2>
+            </motion.div>
+
+            <motion.div
+              className="video-wrapper"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
               <iframe
                 src={speaker.videoUrl}
                 title={`${speaker.name} Speaker Reel`}
@@ -152,7 +222,7 @@ function SpeakerDetailPage() {
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               ></iframe>
-            </div>
+            </motion.div>
           </div>
         </section>
       )}
@@ -161,14 +231,46 @@ function SpeakerDetailPage() {
       {relatedSpeakers.length > 0 && (
         <section className="section related-speakers-section">
           <div className="container">
-            <div className="section-header">
-              <h2 className="section-title">You Might Also Like</h2>
-              <p className="section-subtitle">Speakers with similar expertise</p>
-            </div>
+            <motion.div
+              className="section-header"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <span className="section-label">Explore More</span>
+              <h2 className="section-title">Similar Speakers</h2>
+              <p className="section-subtitle">Speakers with complementary expertise</p>
+            </motion.div>
             <SpeakerGrid speakers={relatedSpeakers} />
           </div>
         </section>
       )}
+
+      {/* Final CTA */}
+      <section className="section speaker-final-cta">
+        <div className="container">
+          <motion.div
+            className="final-cta__content"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2>Ready to elevate your event?</h2>
+            <p>Let's discuss how {speaker.name} can inspire your audience.</p>
+            <motion.button
+              onClick={() => navigate(`/enquiry/${speaker.id}`)}
+              className="btn btn-primary btn-lg"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Start Your Enquiry
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </motion.button>
+          </motion.div>
+        </div>
+      </section>
     </div>
   )
 }

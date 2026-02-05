@@ -24,7 +24,6 @@ function Footer() {
               <h4 className="footer-heading">Platform</h4>
               <ul>
                 <li><Link to="/">Browse Speakers</Link></li>
-                <li><Link to="/search">Find a Speaker</Link></li>
                 <li><Link to="/enquiry">Submit Brief</Link></li>
               </ul>
             </div>
