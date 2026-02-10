@@ -4,7 +4,7 @@ import { searchSuggest } from '../db/queries.js'
 
 const router = express.Router()
 
-// Semantic search via Claude 4.5 Sonnet
+// Semantic search via Claude
 router.get('/', async (req, res, next) => {
   try {
     const { q, limit = 8 } = req.query

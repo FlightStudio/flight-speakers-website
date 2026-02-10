@@ -168,8 +168,15 @@ router.post('/', async (req, res) => {
   }
 })
 
-// Get all enquiries (admin endpoint - would need auth in production)
+// Get all enquiries (admin endpoint)
 router.get('/', (req, res) => {
+  const adminKey = process.env.ADMIN_API_KEY
+  const provided = req.headers['x-admin-key']
+
+  if (!adminKey || provided !== adminKey) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' })
+  }
+
   res.json({
     success: true,
     count: enquiries.length,
