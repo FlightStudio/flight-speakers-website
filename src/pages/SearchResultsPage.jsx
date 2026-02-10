@@ -3,8 +3,6 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import AISearchBar from '../components/search/AISearchBar'
 import SpeakerGrid from '../components/speakers/SpeakerGrid'
-import { speakers } from '../data/speakers'
-import { matchSpeakers } from '../utils/aiMatching'
 import './SearchResultsPage.css'
 
 function SearchResultsPage() {
@@ -16,17 +14,32 @@ function SearchResultsPage() {
   const [results, setResults] = useState({ speakers: [], reasonings: {} })
 
   useEffect(() => {
-    if (query) {
-      setIsLoading(true)
-      const timer = setTimeout(() => {
-        const matched = matchSpeakers(query, speakers)
-        setResults(matched)
-        setIsLoading(false)
-      }, 1200)
-      return () => clearTimeout(timer)
-    } else {
+    if (!query) {
       setResults({ speakers: [], reasonings: {} })
+      return
     }
+
+    const controller = new AbortController()
+    setIsLoading(true)
+
+    fetch(`/api/search?q=${encodeURIComponent(query)}&limit=8`, {
+      signal: controller.signal,
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setResults({ speakers: data.speakers, reasonings: data.reasonings })
+        }
+        setIsLoading(false)
+      })
+      .catch(err => {
+        if (err.name !== 'AbortError') {
+          console.error('Search failed:', err)
+          setIsLoading(false)
+        }
+      })
+
+    return () => controller.abort()
   }, [query])
 
   const handleSearch = (newQuery) => {

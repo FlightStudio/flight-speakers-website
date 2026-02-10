@@ -1,7 +1,6 @@
 import { useParams, useSearchParams } from 'react-router-dom'
-import { useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import EnquiryForm from '../components/forms/EnquiryForm'
-import { speakers } from '../data/speakers'
 import './EnquiryPage.css'
 
 function EnquiryPage() {
@@ -9,10 +8,18 @@ function EnquiryPage() {
   const [searchParams] = useSearchParams()
   const brief = searchParams.get('brief') || ''
 
-  const speaker = useMemo(() =>
-    speakerId ? speakers.find(s => s.id === speakerId) : null,
-    [speakerId]
-  )
+  const [speaker, setSpeaker] = useState(null)
+
+  useEffect(() => {
+    if (!speakerId) return
+
+    fetch(`/api/speakers/${encodeURIComponent(speakerId)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) setSpeaker(data.speaker)
+      })
+      .catch(err => console.error('Failed to load speaker:', err))
+  }, [speakerId])
 
   return (
     <div className="enquiry-page">

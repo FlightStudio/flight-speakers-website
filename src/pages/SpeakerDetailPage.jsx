@@ -1,7 +1,6 @@
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { speakers } from '../data/speakers'
 import SpeakerGrid from '../components/speakers/SpeakerGrid'
 import './SpeakerDetailPage.css'
 
@@ -9,18 +8,45 @@ function SpeakerDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
 
-  const speaker = useMemo(() =>
-    speakers.find(s => s.id === id),
-    [id]
-  )
+  const [speaker, setSpeaker] = useState(null)
+  const [relatedSpeakers, setRelatedSpeakers] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  const relatedSpeakers = useMemo(() => {
-    if (!speaker) return []
-    return speakers
-      .filter(s => s.id !== speaker.id)
-      .filter(s => s.topics.some(t => speaker.topics.includes(t)))
-      .slice(0, 3)
-  }, [speaker])
+  useEffect(() => {
+    setLoading(true)
+    setSpeaker(null)
+    setRelatedSpeakers([])
+
+    fetch(`/api/speakers/${encodeURIComponent(id)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setSpeaker(data.speaker)
+          setRelatedSpeakers(data.relatedSpeakers || [])
+        }
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error('Failed to load speaker:', err)
+        setLoading(false)
+      })
+  }, [id])
+
+  if (loading) {
+    return (
+      <div className="speaker-detail-page">
+        <div className="container">
+          <motion.div
+            className="speaker-not-found"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <p>Loading speaker...</p>
+          </motion.div>
+        </div>
+      </div>
+    )
+  }
 
   if (!speaker) {
     return (
