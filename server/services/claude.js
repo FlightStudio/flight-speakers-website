@@ -13,13 +13,16 @@ Rules:
 - Rank speakers by genuine relevance to the brief — not by order presented
 - Return between 1 and the requested limit of speakers, only including those with a credible match
 - For each speaker, write a specific 1-2 sentence reasoning explaining the connection between the client's needs and that speaker's expertise
+- For each speaker, provide a matchScore from 0 to 100 representing how well they fit the brief. Be calibrated: a perfect topical match with relevant experience should be 90-99, a good thematic fit 75-89, a reasonable but not ideal match 60-74
 - Do not invent or fabricate details about speakers — only reference information provided in their profiles
+- If a client budget is provided, prefer speakers whose fee fits within budget. Lower matchScore by 10-15 points for speakers whose minimum fee significantly exceeds the stated budget.
+- When a client's brief references demographic preferences (e.g., 'women in business', 'diverse voices', 'Black speakers'), boost speakers whose demographic attributes match. Never penalise speakers for not matching a demographic — only boost those who do.
 - Respond with valid JSON only, no other text
 
 Response format:
 {
   "matches": [
-    { "id": "speaker-id", "reasoning": "Why this speaker matches the brief." }
+    { "id": "speaker-id", "reasoning": "Why this speaker matches the brief.", "matchScore": 95 }
   ]
 }`
 
@@ -28,8 +31,8 @@ const cache = new Map()
 const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 const CACHE_MAX_SIZE = 100
 
-function getCacheKey(query, limit) {
-  return `${query.toLowerCase().trim()}:${limit}`
+function getCacheKey(query, limit, budget) {
+  return `${query.toLowerCase().trim()}:${limit}:${budget || ''}`
 }
 
 function getCached(key) {
@@ -67,13 +70,22 @@ function buildSpeakerSummaries(speakers) {
       parts.push(`   Audiences: ${s.audiences.join(', ')}`)
     }
 
+    if (s.feeMin != null) {
+      parts.push(`   Fee Range: $${s.feeMin.toLocaleString()}+`)
+    }
+
+    if (s.gender) parts.push(`   Gender: ${s.gender}`)
+    if (s.nationality) parts.push(`   Nationality: ${s.nationality}`)
+    if (s.location) parts.push(`   Location: ${s.location}`)
+
     return parts.join('\n')
   }).join('\n\n')
 }
 
-async function callClaude(query, speakerSummaries, limit) {
+async function callClaude(query, speakerSummaries, limit, budget) {
+  const budgetLine = budget ? `\nClient budget: $${budget}\n` : ''
   const userMessage = `Client brief: "${query}"
-
+${budgetLine}
 Available speakers:
 
 ${speakerSummaries}
@@ -82,7 +94,7 @@ Return the top ${limit} most relevant speakers as JSON.`
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-5-20250929',
-    max_tokens: 1500,
+    max_tokens: 800,
     temperature: 0.2,
     system: SYSTEM_PROMPT,
     messages: [{ role: 'user', content: userMessage }],
@@ -99,7 +111,7 @@ Return the top ${limit} most relevant speakers as JSON.`
   return JSON.parse(jsonMatch[0])
 }
 
-async function vectorRetrieveThenRerank(query, limit) {
+async function vectorRetrieveThenRerank(query, limit, budget) {
   const embeddingCount = await getEmbeddingCount()
 
   if (embeddingCount === 0 || !process.env.VOYAGE_API_KEY) {
@@ -118,7 +130,7 @@ async function vectorRetrieveThenRerank(query, limit) {
 
   // Rerank candidates with Claude
   const speakerSummaries = buildSpeakerSummaries(candidates)
-  const result = await callClaude(query, speakerSummaries, limit)
+  const result = await callClaude(query, speakerSummaries, limit, budget)
 
   if (!result.matches || !Array.isArray(result.matches)) {
     throw new Error('Invalid response structure from Claude')
@@ -127,11 +139,15 @@ async function vectorRetrieveThenRerank(query, limit) {
   const validIds = new Set(candidates.map(s => s.id))
   const matchedIds = []
   const reasonings = {}
+  const scores = {}
 
   for (const match of result.matches) {
     if (match.id && validIds.has(match.id) && typeof match.reasoning === 'string') {
       matchedIds.push(match.id)
       reasonings[match.id] = match.reasoning
+      if (typeof match.matchScore === 'number') {
+        scores[match.id] = match.matchScore
+      }
     }
   }
 
@@ -152,22 +168,22 @@ async function vectorRetrieveThenRerank(query, limit) {
     .filter(Boolean)
     .slice(0, limit)
 
-  return { speakers, reasonings }
+  return { speakers, reasonings, scores }
 }
 
-export async function semanticSearch(query, limit = 8) {
+export async function semanticSearch(query, limit = 8, budget) {
   if (!query || !query.trim()) {
     return { speakers: [], reasonings: {} }
   }
 
   // Check cache
-  const cacheKey = getCacheKey(query, limit)
+  const cacheKey = getCacheKey(query, limit, budget)
   const cached = getCached(cacheKey)
   if (cached) return cached
 
   // Try vector retrieve-then-rerank first
   try {
-    const vectorResult = await vectorRetrieveThenRerank(query, limit)
+    const vectorResult = await vectorRetrieveThenRerank(query, limit, budget)
     if (vectorResult) {
       setCache(cacheKey, vectorResult)
       return vectorResult
@@ -185,10 +201,11 @@ export async function semanticSearch(query, limit = 8) {
 
   let matchedIds = []
   let reasonings = {}
+  let scores = {}
 
   try {
     const speakerSummaries = buildSpeakerSummaries(speakerProfiles)
-    const result = await callClaude(query, speakerSummaries, limit)
+    const result = await callClaude(query, speakerSummaries, limit, budget)
 
     if (!result.matches || !Array.isArray(result.matches)) {
       throw new Error('Invalid response structure from Claude')
@@ -200,6 +217,9 @@ export async function semanticSearch(query, limit = 8) {
       if (match.id && validIds.has(match.id) && typeof match.reasoning === 'string') {
         matchedIds.push(match.id)
         reasonings[match.id] = match.reasoning
+        if (typeof match.matchScore === 'number') {
+          scores[match.id] = match.matchScore
+        }
       }
     }
   } catch (err) {
@@ -219,13 +239,13 @@ export async function semanticSearch(query, limit = 8) {
     .filter(Boolean)
     .slice(0, limit)
 
-  const result = { speakers, reasonings }
+  const result = { speakers, reasonings, scores }
   setCache(cacheKey, result)
 
   return result
 }
 
-async function generateReasonings(query, speakers) {
+async function generateReasoningsAndScores(query, speakers) {
   try {
     const speakerSummaries = buildSpeakerSummaries(speakers)
     const result = await callClaude(query, speakerSummaries, speakers.length)
@@ -235,13 +255,17 @@ async function generateReasonings(query, speakers) {
     }
 
     const reasonings = {}
+    const scores = {}
     for (const match of result.matches) {
       if (match.id && typeof match.reasoning === 'string') {
         reasonings[match.id] = match.reasoning
+        if (typeof match.matchScore === 'number') {
+          scores[match.id] = match.matchScore
+        }
       }
     }
 
-    return Object.keys(reasonings).length > 0 ? reasonings : null
+    return Object.keys(reasonings).length > 0 ? { reasonings, scores } : null
   } catch (err) {
     console.error('Failed to generate reasonings:', err.message)
     return null
@@ -254,13 +278,17 @@ async function fullTextFallback(query, limit) {
   // If full-text search returns nothing, return featured speakers
   if (speakers.length === 0) {
     const featured = await getAllSpeakers({ featured: true, limit })
-    const reasonings = await generateReasonings(query, featured)
+    const result = await generateReasoningsAndScores(query, featured)
+    const reasonings = result?.reasonings
       || Object.fromEntries(featured.map(s => [s.id, 'Featured speaker who may bring valuable perspective.']))
-    return { speakers: featured, reasonings }
+    const scores = result?.scores || {}
+    return { speakers: featured, reasonings, scores }
   }
 
-  const reasonings = await generateReasonings(query, speakers)
+  const result = await generateReasoningsAndScores(query, speakers)
+  const reasonings = result?.reasonings
     || Object.fromEntries(speakers.map(s => [s.id, 'Matched based on relevance to your search.']))
+  const scores = result?.scores || {}
 
-  return { speakers, reasonings }
+  return { speakers, reasonings, scores }
 }

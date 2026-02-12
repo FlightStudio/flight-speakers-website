@@ -1,13 +1,14 @@
 import express from 'express'
 import { semanticSearch } from '../services/claude.js'
 import { searchSuggest } from '../db/queries.js'
+import pool from '../db/connection.js'
 
 const router = express.Router()
 
 // Semantic search via Claude
 router.get('/', async (req, res, next) => {
   try {
-    const { q, limit = 8 } = req.query
+    const { q, limit = 8, budget } = req.query
 
     if (!q || !q.trim()) {
       return res.status(400).json({
@@ -16,7 +17,7 @@ router.get('/', async (req, res, next) => {
       })
     }
 
-    const results = await semanticSearch(q, parseInt(limit, 10))
+    const results = await semanticSearch(q, parseInt(limit, 10), budget || undefined)
 
     console.log('SEARCH:', {
       query: q,
@@ -24,12 +25,21 @@ router.get('/', async (req, res, next) => {
       timestamp: new Date().toISOString(),
     })
 
+    // Fire-and-forget: track recommendations
+    if (results.speakers.length > 0) {
+      const values = results.speakers.map((_, i) => `($${i * 2 + 1}, $${i * 2 + 2})`).join(', ')
+      const params = results.speakers.flatMap(s => [s.id, q])
+      pool.query(`INSERT INTO speaker_recommendations (speaker_id, query) VALUES ${values}`, params)
+        .catch(err => console.error('Failed to track recommendations:', err.message))
+    }
+
     res.json({
       success: true,
       query: q,
       count: results.speakers.length,
       speakers: results.speakers,
       reasonings: results.reasonings,
+      scores: results.scores || {},
     })
   } catch (err) {
     next(err)

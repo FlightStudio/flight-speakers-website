@@ -1,12 +1,17 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import speakersRouter from './routes/speakers.js'
 import enquiryRouter from './routes/enquiry.js'
 import searchRouter from './routes/search.js'
+import parseBriefRouter from './routes/parseBrief.js'
+import adminRouter from './routes/admin.js'
+import portalRouter from './routes/portal.js'
 import pool from './db/connection.js'
+import { startDailyRefresh } from './services/socialStats.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -21,8 +26,10 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 
 app.use(cors({
   origin: allowedOrigins,
+  credentials: true,
 }))
 app.use(express.json())
+app.use(cookieParser())
 
 // Request logging
 app.use((req, res, next) => {
@@ -34,6 +41,9 @@ app.use((req, res, next) => {
 app.use('/api/speakers', speakersRouter)
 app.use('/api/enquiry', enquiryRouter)
 app.use('/api/search', searchRouter)
+app.use('/api/parse-brief', parseBriefRouter)
+app.use('/api/admin', adminRouter)
+app.use('/api/portal', portalRouter)
 
 // API dashboard
 app.get('/api', async (req, res) => {
@@ -188,6 +198,7 @@ app.use('/api/{*path}', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
   console.log(`API available at http://localhost:${PORT}/api`)
+  startDailyRefresh()
 })
 
 export default app

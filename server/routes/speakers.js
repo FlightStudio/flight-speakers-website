@@ -6,6 +6,7 @@ import {
   getAllTopics,
   getAllAudiences,
 } from '../db/queries.js'
+import pool from '../db/connection.js'
 
 const router = express.Router()
 
@@ -72,6 +73,19 @@ router.get('/:id', async (req, res, next) => {
     })
   } catch (err) {
     next(err)
+  }
+})
+
+// Track speaker view (fire-and-forget from frontend)
+router.post('/:id/view', async (req, res) => {
+  try {
+    await pool.query(
+      'INSERT INTO speaker_views (speaker_id) VALUES ($1)',
+      [req.params.id]
+    )
+    res.json({ success: true })
+  } catch {
+    res.json({ success: false })
   }
 })
 

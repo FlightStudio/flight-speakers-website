@@ -7,6 +7,15 @@
   background: var(--color-white);
 }
 
+/* Warm hero gradient — inheriting homepage beige feel */
+.speaker-detail-page .speaker-hero {
+  background: linear-gradient(180deg, #faf8f2 0%, var(--color-white) 100%);
+}
+
+.speaker-detail-page .speaker-nav {
+  background: linear-gradient(180deg, #faf8f2 0%, #faf8f2 100%);
+}
+
 .speaker-not-found {
   padding: 200px 0;
   text-align: center;
@@ -72,7 +81,7 @@
 .speaker-hero__grid {
   display: grid;
   grid-template-columns: 1fr 1.2fr;
-  gap: 88px;
+  gap: clamp(48px, 5vw, 100px);
   align-items: start;
 }
 
@@ -158,6 +167,68 @@
   max-width: 520px;
 }
 
+/* Social Reach Bar */
+.speaker-hero__social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.speaker-hero__social-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 550;
+  color: var(--color-gray-500);
+  background: var(--color-gray-100);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  transition: all 0.2s ease;
+}
+
+.speaker-hero__social-pill svg {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.speaker-hero__social-pill:hover {
+  color: var(--color-charcoal);
+  border-color: var(--color-gray-300);
+}
+
+.speaker-hero__social-pill--instagram:hover {
+  color: #E4405F;
+  border-color: #E4405F;
+  background: #fef2f4;
+}
+
+.speaker-hero__social-pill--x:hover {
+  color: #000;
+  border-color: #000;
+  background: #f5f5f5;
+}
+
+.speaker-hero__social-pill--linkedin:hover {
+  color: #0A66C2;
+  border-color: #0A66C2;
+  background: #f0f7ff;
+}
+
+.speaker-hero__social-pill--youtube:hover {
+  color: #FF0000;
+  border-color: #FF0000;
+  background: #fff0f0;
+}
+
+.speaker-hero__social-pill--tiktok:hover {
+  color: #000;
+  border-color: #000;
+  background: #f5f5f5;
+}
+
 .speaker-hero__topics {
   display: flex;
   flex-wrap: wrap;
@@ -232,6 +303,45 @@
 
 .speaker-bio__content p:last-child {
   margin-bottom: 0;
+}
+
+/* AI Reasoning Block */
+.speaker-bio__reasoning {
+  margin-top: 32px;
+  padding: 24px 28px;
+  background: linear-gradient(135deg, #faf8f2 0%, #f8f4eb 100%);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+}
+
+.speaker-bio__reasoning-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-charcoal);
+  margin-bottom: 12px;
+}
+
+.speaker-bio__reasoning-header svg {
+  flex-shrink: 0;
+  color: #22c55e;
+}
+
+.speaker-bio__reasoning-score {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: #22c55e;
+}
+
+.speaker-bio__reasoning-text {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--color-gray-600);
+  font-style: italic;
+  margin: 0;
 }
 
 /* Sidebar Cards */
@@ -353,7 +463,7 @@
    ================================ */
 
 .related-speakers-section {
-  background: var(--color-off-white);
+  background: linear-gradient(180deg, var(--color-off-white) 0%, #faf8f2 100%);
 }
 
 /* ================================
@@ -361,7 +471,7 @@
    ================================ */
 
 .speaker-final-cta {
-  background: var(--color-white);
+  background: linear-gradient(180deg, var(--color-white) 0%, #faf8f2 100%);
   border-top: 1px solid var(--color-border);
 }
 
@@ -434,6 +544,16 @@
 
   .speaker-hero__headline {
     font-size: 16px;
+  }
+
+  .speaker-hero__social {
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  .speaker-hero__social-pill {
+    padding: 5px 10px;
+    font-size: 11px;
   }
 
   .speaker-hero__topics {

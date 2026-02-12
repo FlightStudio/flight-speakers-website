@@ -20,6 +20,11 @@ export function buildSpeakerText(speaker) {
     parts.push(`Audiences: ${speaker.audiences.join(', ')}`)
   }
 
+  if (speaker.gender) parts.push(`Gender: ${speaker.gender}`)
+  if (speaker.ethnicity) parts.push(`Ethnicity: ${speaker.ethnicity}`)
+  if (speaker.nationality) parts.push(`Nationality: ${speaker.nationality}`)
+  if (speaker.location) parts.push(`Location: ${speaker.location}`)
+
   return parts.filter(Boolean).join('\n')
 }
 

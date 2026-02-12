@@ -16,6 +16,19 @@ Steven speaks openly about leadership, pressure, mental health, trust, and ambit
     speakingFormat: '45 minute fireside moderated conversation + 15 minutes Q&A',
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     featured: true,
+    feeMin: 50000,
+
+    gender: 'Male',
+    nationality: 'British',
+    location: 'London, UK',
+
+    socialProfiles: {
+      instagram: 'stevenbartlett',
+      x: 'SteveBartlettSC',
+      linkedin: 'stevenbartlett',
+      youtube: 'TheDiaryOfACEO',
+      tiktok: 'stevenbartlett',
+    },
   },
   {
     id: 'jordan-schwarzenberger',
@@ -30,6 +43,17 @@ Jordan understands how attention becomes loyalty and how loyalty becomes enterpr
     keynotes: ['How the Internet Actually Builds Brands', 'From Audience to Asset', 'The Quiet Power of Community'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     featured: true,
+    feeMin: 15000,
+
+    gender: 'Male',
+    nationality: 'British',
+    location: 'London, UK',
+    socialProfiles: {
+      instagram: 'jordanschwarzen',
+      x: 'JordanSchwarz',
+      linkedin: 'jordanschwarzenberger',
+      youtube: 'ArcadeMedia',
+    },
   },
   {
     id: 'harry-stebbings',
@@ -44,6 +68,18 @@ Harry has seen hundreds of companies at their earliest stages and followed them 
     keynotes: ['How the Best Founders Actually Make Decisions', 'Why Most Scaling Advice Is Wrong', 'Building for the Long Game'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     featured: true,
+    feeMin: 25000,
+
+    gender: 'Male',
+    nationality: 'British',
+    location: 'London, UK',
+    socialProfiles: {
+      instagram: 'harrystebbings',
+      x: 'HarryStebbings',
+      linkedin: 'harrystebbings',
+      youtube: '20VC',
+      tiktok: 'harrystebbings',
+    },
   },
   {
     id: 'vanessa-van-edwards',
@@ -58,6 +94,18 @@ Vanessa focuses on the subtle signals that shape credibility, confidence, and co
     keynotes: ['Why People Decide in the First Five Seconds', 'The Hidden Signals You\'re Sending at Work', 'Communication That Actually Changes Outcomes'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     featured: true,
+    feeMin: 20000,
+
+    gender: 'Female',
+    nationality: 'American',
+    location: 'Portland, OR, USA',
+    socialProfiles: {
+      instagram: 'vanessavanedwards',
+      x: 'vaborators',
+      linkedin: 'vanessavanedwards',
+      youtube: 'ScienceofPeople',
+      tiktok: 'vanessavanedwards',
+    },
   },
   {
     id: 'nischa-shah',
@@ -72,6 +120,18 @@ Nischa brings clarity and calm authority to topics many organisations struggle t
     keynotes: ['What We Get Wrong About Success', 'Money, Pressure, and the Modern Career', 'Rethinking Ambition'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     featured: false,
+    feeMin: 10000,
+
+    gender: 'Female',
+    nationality: 'British',
+    location: 'London, UK',
+    socialProfiles: {
+      instagram: 'nischashah',
+      x: 'naborators',
+      linkedin: 'nischashah',
+      youtube: 'NischaShah',
+      tiktok: 'nischashah',
+    },
   },
   {
     id: 'kristen-holmes',
@@ -86,6 +146,16 @@ As Global Head of Human Performance at WHOOP, Kristen translates physiological d
     keynotes: ['Why Pushing Harder Isn\'t the Answer', 'Recovery Is a Skill', 'Performing Well Without Breaking Yourself'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     featured: true,
+    feeMin: 20000,
+
+    gender: 'Female',
+    nationality: 'American',
+    location: 'Boston, MA, USA',
+    socialProfiles: {
+      instagram: 'kristenholmes',
+      x: 'KristenHolmes',
+      linkedin: 'kristenholmes',
+    },
   },
   {
     id: 'davina-mccall',
@@ -100,6 +170,17 @@ In recent years, Davina has become a leading advocate for women's health, menopa
     keynotes: ['The Conversation We\'ve Been Avoiding', 'Health Isn\'t a Side Project', 'Confidence After Change'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     featured: true,
+    feeMin: 30000,
+
+    gender: 'Female',
+    nationality: 'British',
+    location: 'London, UK',
+    socialProfiles: {
+      instagram: 'davinamccall',
+      x: 'ThisisDavina',
+      linkedin: 'davinamccall',
+      tiktok: 'davinamccall',
+    },
   },
   {
     id: 'paul-c-brunson',
@@ -114,6 +195,18 @@ With a background as an entrepreneur and former athlete, Paul speaks naturally t
     keynotes: ['How You Love Is How You Lead', 'The Cost of Emotional Avoidance', 'Success Without Connection Isn\'t Success'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     featured: false,
+    feeMin: 15000,
+
+    gender: 'Male',
+    nationality: 'American',
+    location: 'London, UK',
+    socialProfiles: {
+      instagram: 'paulcbrunson',
+      x: 'PaulCBrunson',
+      linkedin: 'paulcbrunson',
+      youtube: 'PaulCBrunson',
+      tiktok: 'paulcbrunson',
+    },
   },
   {
     id: 'nir-eyal',
@@ -128,6 +221,17 @@ Nir's talks are thoughtful, balanced, and quietly confronting. He challenges the
     keynotes: ['Why We Keep Doing Things We Don\'t Want to Do', 'Attention Is a Choice', 'Designing a Life You Can Focus On'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     featured: true,
+    feeMin: 30000,
+
+    gender: 'Male',
+    nationality: 'American',
+    location: 'New York, NY, USA',
+    socialProfiles: {
+      instagram: 'naborators',
+      x: 'naborators',
+      linkedin: 'nireyal',
+      youtube: 'NirEyal',
+    },
   },
   {
     id: 'cliff-weitzman',
@@ -142,6 +246,17 @@ He speaks powerfully about inclusion, resilience, and building technology with e
     keynotes: ['Accessibility Is Innovation', 'Turning a Personal Problem into a Global Product', 'Constraint as a Competitive Advantage'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     featured: false,
+    feeMin: 15000,
+
+    gender: 'Male',
+    nationality: 'American',
+    location: 'San Francisco, CA, USA',
+    socialProfiles: {
+      instagram: 'cliffweitzman',
+      x: 'CliffWeitzman',
+      linkedin: 'cliffweitzman',
+      tiktok: 'cliffweitzman',
+    },
   },
   {
     id: 'vonda-wright',
@@ -156,6 +271,17 @@ Her talks are science-led, energetic, and highly practical, reframing ageing as 
     keynotes: ['Your Body Is Not the Bottleneck', 'The Myth of Inevitable Decline', 'Building a Career That Lasts'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     featured: false,
+    feeMin: 20000,
+
+    gender: 'Female',
+    nationality: 'American',
+    location: 'Pittsburgh, PA, USA',
+    socialProfiles: {
+      instagram: 'drvondawright',
+      x: 'DrVondaWright',
+      linkedin: 'vondawright',
+      youtube: 'DrVondaWright',
+    },
   },
   {
     id: 'evy-poumpouras',
@@ -170,6 +296,18 @@ Her talks are gripping, grounded, and deeply practical, translating extreme expe
     keynotes: ['What Pressure Reveals About Leadership', 'Making Decisions When There\'s No Perfect Answer', 'Leading When Things Go Wrong'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     featured: true,
+    feeMin: 25000,
+
+    gender: 'Female',
+    nationality: 'American',
+    location: 'New York, NY, USA',
+    socialProfiles: {
+      instagram: 'evypoumpouras',
+      x: 'EvyPoumpouras',
+      linkedin: 'evypoumpouras',
+      youtube: 'EvyPoumpouras',
+      tiktok: 'evypoumpouras',
+    },
   },
   {
     id: 'paul-scanlon',
@@ -184,6 +322,16 @@ Paul's talks are honest, reflective, and quietly powerful. He avoids clichés, f
     keynotes: ['Who Are You When the Plan Falls Apart?', 'Resilience Without the Clichés', 'Pressure, Identity, and Starting Again'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     featured: false,
+    feeMin: 8000,
+
+    gender: 'Male',
+    nationality: 'British',
+    location: 'Manchester, UK',
+    socialProfiles: {
+      instagram: 'paulscanlon',
+      x: 'PaulScanlon',
+      linkedin: 'paulscanlon',
+    },
   },
   {
     id: 'maggie-sellers',
@@ -200,6 +348,17 @@ On stage, Maggie is warm, direct, and highly relatable. Her talks feel like perm
     keynotes: ['Redefining Success on Your Own Terms', 'Ambition Without Apology', 'What No One Tells You About Betting on Yourself'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     featured: false,
+    feeMin: 8000,
+
+    gender: 'Female',
+    nationality: 'American',
+    location: 'Los Angeles, CA, USA',
+    socialProfiles: {
+      instagram: 'maggiesellers',
+      x: 'MaggieSellers',
+      linkedin: 'maggiesellers',
+      tiktok: 'maggiesellers',
+    },
   }
 ]
 

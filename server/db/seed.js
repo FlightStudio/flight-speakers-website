@@ -13,8 +13,8 @@ async function seed() {
 
   for (const speaker of speakers) {
     await pool.query(
-      `INSERT INTO speakers (id, name, headline, photo, bio, topics, audiences, keynotes, speaking_format, video_url, featured)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      `INSERT INTO speakers (id, name, headline, photo, bio, topics, audiences, keynotes, speaking_format, video_url, featured, social_profiles, fee_min, gender, nationality, location)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
        ON CONFLICT (id) DO UPDATE SET
          name = EXCLUDED.name,
          headline = EXCLUDED.headline,
@@ -26,6 +26,11 @@ async function seed() {
          speaking_format = EXCLUDED.speaking_format,
          video_url = EXCLUDED.video_url,
          featured = EXCLUDED.featured,
+         social_profiles = EXCLUDED.social_profiles,
+         fee_min = EXCLUDED.fee_min,
+         gender = EXCLUDED.gender,
+         nationality = EXCLUDED.nationality,
+         location = EXCLUDED.location,
          updated_at = NOW()`,
       [
         speaker.id,
@@ -39,6 +44,11 @@ async function seed() {
         speaker.speakingFormat || null,
         speaker.videoUrl,
         speaker.featured,
+        JSON.stringify(speaker.socialProfiles || {}),
+        speaker.feeMin || null,
+        speaker.gender || null,
+        speaker.nationality || null,
+        speaker.location || null,
       ]
     )
 

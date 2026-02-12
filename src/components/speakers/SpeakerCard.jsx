@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useState, useRef, useCallback } from 'react'
+import { prefetchSpeaker, prefetchParseBrief } from '../../utils/prefetch'
 import './SpeakerCard.css'
 
-function SpeakerCard({ speaker, showReasoning = false, reasoning = '' }) {
+function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScore, searchBrief = '' }) {
   const [isHovered, setIsHovered] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const cardRef = useRef(null)
+  const prefetchedRef = useRef(false)
   const topicsToShow = speaker.topics.slice(0, 2)
 
   const handleMouseMove = useCallback((e) => {
@@ -25,9 +27,16 @@ function SpeakerCard({ speaker, showReasoning = false, reasoning = '' }) {
     >
       <Link
         ref={cardRef}
-        to={`/speakers/${speaker.id}`}
+        to={`/speakers/${speaker.id}${searchBrief ? `?brief=${encodeURIComponent(searchBrief)}` : ''}`}
         className="speaker-card"
-        onMouseEnter={() => setIsHovered(true)}
+        onMouseEnter={() => {
+          setIsHovered(true)
+          if (!prefetchedRef.current) {
+            prefetchedRef.current = true
+            prefetchSpeaker(speaker.id)
+            if (searchBrief) prefetchParseBrief(searchBrief)
+          }
+        }}
         onMouseLeave={() => setIsHovered(false)}
         onMouseMove={handleMouseMove}
       >
@@ -73,7 +82,17 @@ function SpeakerCard({ speaker, showReasoning = false, reasoning = '' }) {
         </div>
 
         <div className="speaker-card__content">
-          <h3 className="speaker-card__name">{speaker.name}</h3>
+          <div className="speaker-card__name-row">
+            <h3 className="speaker-card__name">{speaker.name}</h3>
+            {matchScore != null && (
+              <span className="speaker-card__match" title="AI semantic match score">
+                <svg className="speaker-card__match-star" width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                  <path d="M6 0L7.76 3.58L11.71 4.15L8.85 6.95L9.53 10.88L6 9.02L2.47 10.88L3.15 6.95L0.29 4.15L4.24 3.58L6 0Z"/>
+                </svg>
+                {matchScore}% match
+              </span>
+            )}
+          </div>
           <p className="speaker-card__headline">{speaker.headline}</p>
 
           <div className="speaker-card__topics">
@@ -95,7 +114,10 @@ function SpeakerCard({ speaker, showReasoning = false, reasoning = '' }) {
           </div>
 
           {showReasoning && reasoning && (
-            <p className="speaker-card__reasoning">{reasoning}</p>
+            <div className="speaker-card__reasoning-section">
+              <span className="speaker-card__reasoning-label">Custom Why</span>
+              <p className="speaker-card__reasoning">{reasoning}</p>
+            </div>
           )}
 
           <motion.div

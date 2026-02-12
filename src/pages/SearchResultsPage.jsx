@@ -1,9 +1,84 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import AISearchBar from '../components/search/AISearchBar'
 import SpeakerGrid from '../components/speakers/SpeakerGrid'
+import BriefActions from '../components/brief/BriefActions'
 import './SearchResultsPage.css'
+
+const EASE = [0.16, 1, 0.3, 1]
+
+// Animated analyzing orb — morphing gradient blob
+function AnalyzingOrb() {
+  return (
+    <div className="analyzing-orb">
+      <motion.div
+        className="analyzing-orb__ring analyzing-orb__ring--outer"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+      />
+      <motion.div
+        className="analyzing-orb__ring analyzing-orb__ring--inner"
+        animate={{ rotate: -360 }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
+      />
+      <motion.div
+        className="analyzing-orb__core"
+        animate={{ scale: [1, 1.15, 1] }}
+        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+      />
+    </div>
+  )
+}
+
+// Cycling status messages — plays once through, then holds last message
+function AnalyzingMessages({ query }) {
+  const [messageIndex, setMessageIndex] = useState(0)
+  const messages = useMemo(() => [
+    'Reading your brief',
+    'Understanding your audience',
+    'Matching speaker expertise',
+    'Ranking best fits',
+  ], [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMessageIndex(prev => {
+        if (prev >= messages.length - 1) {
+          clearInterval(interval)
+          return prev
+        }
+        return prev + 1
+      })
+    }, 2200)
+    return () => clearInterval(interval)
+  }, [messages.length])
+
+  return (
+    <div className="analyzing-messages">
+      <AnimatePresence mode="wait">
+        <motion.p
+          key={messageIndex}
+          className="analyzing-messages__text"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.4, ease: EASE }}
+        >
+          {messages[messageIndex]}
+        </motion.p>
+      </AnimatePresence>
+      <motion.p
+        className="analyzing-messages__query"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6, duration: 0.5 }}
+      >
+        "{query}"
+      </motion.p>
+    </div>
+  )
+}
 
 function SearchResultsPage() {
   const [searchParams] = useSearchParams()
@@ -11,7 +86,7 @@ function SearchResultsPage() {
   const query = searchParams.get('q') || ''
 
   const [isLoading, setIsLoading] = useState(false)
-  const [results, setResults] = useState({ speakers: [], reasonings: {} })
+  const [results, setResults] = useState({ speakers: [], reasonings: {}, scores: {} })
 
   useEffect(() => {
     if (!query) {
@@ -28,7 +103,7 @@ function SearchResultsPage() {
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          setResults({ speakers: data.speakers, reasonings: data.reasonings })
+          setResults({ speakers: data.speakers, reasonings: data.reasonings, scores: data.scores || {} })
         }
         setIsLoading(false)
       })
@@ -55,6 +130,38 @@ function SearchResultsPage() {
 
   return (
     <div className="search-results-page">
+      {/* Full-screen analyzing overlay */}
+      <AnimatePresence>
+        {isLoading && query && (
+          <motion.div
+            className="analyzing-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.5, ease: EASE } }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.div
+              className="analyzing-overlay__content"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 1.05, opacity: 0 }}
+              transition={{ duration: 0.5, ease: EASE }}
+            >
+              <AnalyzingOrb />
+              <motion.h2
+                className="analyzing-overlay__title"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.5, ease: EASE }}
+              >
+                Analyzing your brief
+              </motion.h2>
+              <AnalyzingMessages query={query} />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Hero Search Section */}
       <section className="search-hero">
         <div className="container">
@@ -137,26 +244,21 @@ function SearchResultsPage() {
                 </div>
               </motion.div>
             ) : isLoading ? (
+              /* Invisible placeholder while overlay is showing */
               <motion.div
                 key="loading"
-                className="search-loading"
+                style={{ minHeight: 200 }}
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                animate={{ opacity: 0 }}
                 exit={{ opacity: 0 }}
-              >
-                <div className="search-loading__spinner">
-                  <div className="search-loading__dot" />
-                  <div className="search-loading__dot" />
-                  <div className="search-loading__dot" />
-                </div>
-                <p className="search-loading__text">Analyzing your brief</p>
-              </motion.div>
+              />
             ) : (
               <motion.div
                 key="results"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
+                transition={{ duration: 0.6, ease: EASE }}
               >
                 <div className="search-results__header">
                   <div className="search-results__info">
@@ -164,17 +266,25 @@ function SearchResultsPage() {
                       {results.speakers.length} speaker{results.speakers.length !== 1 ? 's' : ''} found
                     </h2>
                     <p className="search-results__query">for "{query}"</p>
+                    <span className="search-results__ai-badge">
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                        <path d="M6 0L7.76 3.58L11.71 4.15L8.85 6.95L9.53 10.88L6 9.02L2.47 10.88L3.15 6.95L0.29 4.15L4.24 3.58L6 0Z"/>
+                      </svg>
+                      Ranked by AI semantic analysis — scores reflect how closely each speaker matches your brief
+                    </span>
                   </div>
 
-                  <Link
-                    to={`/enquiry?brief=${encodeURIComponent(query)}`}
-                    className="btn btn-primary"
-                  >
-                    Submit This Brief
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path d="M2.5 7H11.5M11.5 7L7 2.5M11.5 7L7 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </Link>
+                  <div className="search-results__actions">
+                    <Link
+                      to={`/enquiry?brief=${encodeURIComponent(query)}`}
+                      className="btn btn-primary"
+                    >
+                      Submit This Brief
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M2.5 7H11.5M11.5 7L7 2.5M11.5 7L7 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </Link>
+                  </div>
                 </div>
 
                 {results.speakers.length > 0 ? (
@@ -187,6 +297,8 @@ function SearchResultsPage() {
                       speakers={results.speakers}
                       showReasoning={true}
                       reasonings={results.reasonings}
+                      scores={results.scores}
+                      searchBrief={query}
                     />
                   </motion.div>
                 ) : (
@@ -210,6 +322,22 @@ function SearchResultsPage() {
           </AnimatePresence>
         </div>
       </section>
+
+      {/* Sticky Brief Button */}
+      {query && !isLoading && results.speakers.length > 0 && (
+        <BriefActions
+          speaker={results.speakers[0]}
+          reasoning={results.reasonings[results.speakers[0]?.id]}
+          matchScore={results.scores[results.speakers[0]?.id]}
+          otherSpeakers={results.speakers.slice(1).map(s => ({
+            ...s,
+            reasoning: results.reasonings[s.id],
+            matchScore: results.scores[s.id],
+          }))}
+          query={query}
+          variant="sticky"
+        />
+      )}
 
       {/* Browse All CTA */}
       {query && !isLoading && (

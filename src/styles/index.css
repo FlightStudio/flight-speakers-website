@@ -83,17 +83,17 @@
      ================================ */
   --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
-  /* Font sizes */
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.25rem;
-  --text-2xl: 1.5rem;
-  --text-3xl: 2rem;
-  --text-4xl: 2.5rem;
-  --text-5xl: 3.5rem;
-  --text-6xl: 4.5rem;
+  /* Font sizes — fluid between laptop and external display */
+  --text-xs: clamp(0.68rem, 0.55vw, 0.82rem);
+  --text-sm: clamp(0.8rem, 0.65vw, 0.95rem);
+  --text-base: clamp(0.9rem, 0.72vw, 1.08rem);
+  --text-lg: clamp(1rem, 0.8vw, 1.2rem);
+  --text-xl: clamp(1.1rem, 0.9vw, 1.35rem);
+  --text-2xl: clamp(1.3rem, 1.1vw, 1.65rem);
+  --text-3xl: clamp(1.65rem, 1.4vw, 2.2rem);
+  --text-4xl: clamp(2rem, 1.8vw, 2.75rem);
+  --text-5xl: clamp(2.75rem, 2.4vw, 3.8rem);
+  --text-6xl: clamp(3.5rem, 3vw, 5rem);
   --text-hero: clamp(3rem, 8vw, 5.5rem);
 
   /* ================================
@@ -104,22 +104,22 @@
   --space-3: 0.75rem;
   --space-4: 1rem;
   --space-5: 1.25rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-  --space-10: 2.5rem;
-  --space-12: 3rem;
-  --space-16: 4rem;
-  --space-20: 5rem;
-  --space-24: 6rem;
-  --space-32: 8rem;
+  --space-6: clamp(1.25rem, 1vw, 1.75rem);
+  --space-8: clamp(1.5rem, 1.3vw, 2.25rem);
+  --space-10: clamp(2rem, 1.6vw, 2.8rem);
+  --space-12: clamp(2.25rem, 2vw, 3.5rem);
+  --space-16: clamp(3rem, 2.6vw, 4.5rem);
+  --space-20: clamp(3.5rem, 3.2vw, 5.5rem);
+  --space-24: clamp(4.5rem, 4vw, 7rem);
+  --space-32: clamp(6rem, 5.2vw, 9rem);
   --space-section: clamp(6rem, 12vw, 10rem);
 
   /* ================================
      LAYOUT
      ================================ */
-  --max-width: 1400px;
-  --content-width: 1200px;
-  --header-height: 80px;
+  --max-width: clamp(1200px, 88vw, 1800px);
+  --content-width: clamp(1000px, 78vw, 1600px);
+  --header-height: clamp(64px, 5vw, 88px);
 
   /* ================================
      BORDER RADIUS
@@ -691,4 +691,134 @@ p {
 .focus-visible:focus-visible {
   outline: 2px solid var(--color-charcoal);
   outline-offset: 2px;
+}
+
+/* ================================
+   BRIEF ACTIONS (Download/Email)
+   ================================ */
+
+.brief-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brief-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--color-charcoal);
+  background: var(--color-off-white);
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 150ms ease;
+  text-decoration: none;
+}
+
+.brief-btn:hover {
+  background: #f0f0ee;
+  border-color: #d4d4d4;
+  transform: translateY(-1px);
+}
+
+.brief-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.brief-btn--small {
+  padding: 7px 14px;
+  font-size: 13px;
+  border-radius: 8px;
+}
+
+.brief-btn--secondary {
+  color: #737373;
+}
+
+.brief-btn--secondary:hover {
+  color: var(--color-charcoal);
+}
+
+/* Sticky Brief Button */
+.brief-sticky {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.brief-sticky__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  color: #fff;
+  background: var(--color-charcoal);
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 200ms ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.brief-sticky__trigger:hover {
+  background: #000;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25), 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.brief-sticky__trigger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.brief-sticky__menu {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  min-width: 180px;
+}
+
+.brief-sticky__option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--color-charcoal);
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 150ms ease;
+  text-align: left;
+}
+
+.brief-sticky__option:hover {
+  background: var(--color-cream);
+}
+
+.brief-sticky__option:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

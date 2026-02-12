@@ -532,12 +532,42 @@ function HomePage() {
               </div>
             </motion.div>
 
+            {/* How It Works — compact inline strip */}
+            <motion.div
+              className="hero-how"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.95 }}
+            >
+              {[
+                { num: '1', label: 'Describe your event', icon: (
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4H14M2 8H10M2 12H12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                )},
+                { num: '2', label: 'AI matches speakers', icon: (
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L9.76 5.58L14.71 6.15L11.35 9.45L12.18 14.38L8 12.02L3.82 14.38L4.65 9.45L1.29 6.15L6.24 5.58L8 1Z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                )},
+                { num: '3', label: 'Book with confidence', icon: (
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8L7 11L12 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                )},
+              ].map((step, i) => (
+                <div key={i} className="hero-how__step">
+                  <span className="hero-how__icon">{step.icon}</span>
+                  <span className="hero-how__label">{step.label}</span>
+                  {i < 2 && (
+                    <span className="hero-how__connector">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </span>
+                  )}
+                </div>
+              ))}
+            </motion.div>
+
             {/* Stats */}
             <motion.div
               className="hero__stats"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 1 }}
+              transition={{ duration: 0.6, delay: 1.05 }}
             >
               {stats.map((stat, i) => (
                 <div key={i} className="hero__stat">
@@ -552,10 +582,7 @@ function HomePage() {
         </motion.div>
       </section>
 
-      {/* ========== SOCIAL PROOF BAR ========== */}
-      <SocialProofBar />
-
-      {/* ========== AI MATCHING DEMO (How It Works integrated) ========== */}
+      {/* ========== AI MATCHING DEMO (How It Works) ========== */}
       <section className="section ai-demo-section">
         <div className="container">
           <motion.div
@@ -575,6 +602,9 @@ function HomePage() {
           <EnhancedAIDemo />
         </div>
       </section>
+
+      {/* ========== TRUSTED PARTNERS ========== */}
+      <SocialProofBar />
 
       {/* ========== SPEAKER GRID (Bento/Masonry) ========== */}
       <section className="section speakers-section">
@@ -635,7 +665,7 @@ function HomePage() {
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
           >
-            <Link to="/search" className="btn btn-secondary btn-lg">
+            <Link to="/speakers" className="btn btn-secondary btn-lg">
               Explore All Speakers
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
