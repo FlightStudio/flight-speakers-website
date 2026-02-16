@@ -1,26 +1,128 @@
-import { useParams, Link, useNavigate } from 'react-router-dom'
-import { useMemo } from 'react'
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { speakers } from '../data/speakers'
 import SpeakerGrid from '../components/speakers/SpeakerGrid'
+import { prefetchSpeaker, prefetchParseBrief } from '../utils/prefetch'
 import './SpeakerDetailPage.css'
+
+function formatFollowers(n) {
+  if (!n || n === 0) return '0'
+  if (n >= 1_000_000) return `${(Math.floor(n / 100_000) / 10).toFixed(1).replace(/\.0$/, '')}M`
+  if (n >= 1_000) return `${(Math.floor(n / 100) / 10).toFixed(1).replace(/\.0$/, '')}K`
+  return n.toString()
+}
+
+const DISPLAY_PLATFORMS = new Set(['instagram', 'x', 'youtube', 'tiktok'])
+
+const PLATFORM_URLS = {
+  instagram: (handle) => `https://instagram.com/${handle}`,
+  x: (handle) => `https://x.com/${handle}`,
+  youtube: (handle) => `https://youtube.com/@${handle}`,
+  tiktok: (handle) => `https://tiktok.com/@${handle}`,
+}
+
+const platformIcons = {
+  instagram: (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5"/>
+    </svg>
+  ),
+  x: (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+    </svg>
+  ),
+  youtube: (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+    </svg>
+  ),
+  tiktok: (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+    </svg>
+  ),
+}
 
 function SpeakerDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const brief = searchParams.get('brief') || ''
 
-  const speaker = useMemo(() =>
-    speakers.find(s => s.id === id),
-    [id]
-  )
+  const enquiryPath = `/enquiry/${id}${brief ? `?brief=${encodeURIComponent(brief)}` : ''}`
 
-  const relatedSpeakers = useMemo(() => {
-    if (!speaker) return []
-    return speakers
-      .filter(s => s.id !== speaker.id)
-      .filter(s => s.topics.some(t => speaker.topics.includes(t)))
-      .slice(0, 3)
-  }, [speaker])
+  const [speaker, setSpeaker] = useState(null)
+  const [relatedSpeakers, setRelatedSpeakers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [briefReasoning, setBriefReasoning] = useState('')
+  const [briefScore, setBriefScore] = useState(null)
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    setLoading(true)
+    setSpeaker(null)
+    setRelatedSpeakers([])
+
+    fetch(`/api/speakers/${encodeURIComponent(id)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setSpeaker(data.speaker)
+          setRelatedSpeakers(data.relatedSpeakers || [])
+          // Fire-and-forget view tracking
+          fetch(`/api/speakers/${encodeURIComponent(id)}/view`, { method: 'POST' })
+        }
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error('Failed to load speaker:', err)
+        setLoading(false)
+      })
+  }, [id])
+
+  // Fetch AI reasoning when arriving from search
+  useEffect(() => {
+    if (!brief || !id) return
+    const controller = new AbortController()
+    fetch(`/api/search?q=${encodeURIComponent(brief)}&limit=8`, { signal: controller.signal })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          if (data.reasonings?.[id]) setBriefReasoning(data.reasonings[id])
+          if (data.scores?.[id] != null) setBriefScore(data.scores[id])
+        }
+      })
+      .catch(() => {})
+    return () => controller.abort()
+  }, [brief, id])
+
+  // Prefetch on hover over any "Enquire" button
+  const handleEnquireHover = useCallback(() => {
+    prefetchSpeaker(id)
+    if (brief) prefetchParseBrief(brief)
+  }, [id, brief])
+
+  // Navigate with speaker data in route state
+  const handleEnquireClick = useCallback(() => {
+    navigate(enquiryPath, { state: { speaker } })
+  }, [navigate, enquiryPath, speaker])
+
+  if (loading) {
+    return (
+      <div className="speaker-detail-page">
+        <div className="container">
+          <motion.div
+            className="speaker-not-found"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <p>Loading speaker...</p>
+          </motion.div>
+        </div>
+      </div>
+    )
+  }
 
   if (!speaker) {
     return (
@@ -95,6 +197,57 @@ function SpeakerDetailPage() {
 
               <p className="speaker-hero__headline">{speaker.headline}</p>
 
+              {speaker.socialStats && Object.keys(speaker.socialStats).length > 0 && (() => {
+                const profiles = speaker.socialProfiles || {}
+                const platformOrder = ['youtube', 'instagram', 'tiktok', 'x']
+                const statsMap = speaker.socialStats
+                const entries = platformOrder
+                  .filter(platform => statsMap[platform])
+                  .map(platform => {
+                    const data = statsMap[platform]
+                    const count = data.followers ?? data.subscribers ?? 0
+                    return {
+                      platform,
+                      count,
+                      url: profiles[platform] && PLATFORM_URLS[platform] ? PLATFORM_URLS[platform](profiles[platform]) : null,
+                    }
+                  })
+                  .filter(e => e.count > 0)
+                const totalFollowing = entries.reduce((sum, e) => sum + e.count, 0)
+
+                return (
+                  <motion.div
+                    className="speaker-hero__social"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    {totalFollowing > 0 && (
+                      <span className="speaker-hero__social-total">
+                        {formatFollowers(totalFollowing)} total following
+                      </span>
+                    )}
+                    <div className="speaker-hero__social-pills">
+                      {entries.map(({ platform, count, url }, i) => (
+                        <motion.a
+                          key={platform}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`speaker-hero__social-pill speaker-hero__social-pill--${platform}`}
+                          initial={{ opacity: 0, scale: 0.85 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.35, delay: 0.4 + i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                        >
+                          {platformIcons[platform]}
+                          {formatFollowers(count)}
+                        </motion.a>
+                      ))}
+                    </div>
+                  </motion.div>
+                )
+              })()}
+
               <div className="speaker-hero__topics">
                 {speaker.topics.map((topic, index) => (
                   <span key={index} className="speaker-hero__topic">
@@ -105,7 +258,8 @@ function SpeakerDetailPage() {
 
               <div className="speaker-hero__actions">
                 <motion.button
-                  onClick={() => navigate(`/enquiry/${speaker.id}`)}
+                  onClick={handleEnquireClick}
+                  onMouseEnter={handleEnquireHover}
                   className="btn btn-primary btn-lg"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -148,6 +302,26 @@ function SpeakerDetailPage() {
                   <p key={index}>{paragraph}</p>
                 ))}
               </div>
+
+              {briefReasoning && (
+                <motion.div
+                  className="speaker-bio__reasoning"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2, duration: 0.4 }}
+                >
+                  <div className="speaker-bio__reasoning-header">
+                    <svg width="14" height="14" viewBox="0 0 12 12" fill="currentColor">
+                      <path d="M6 0L7.76 3.58L11.71 4.15L8.85 6.95L9.53 10.88L6 9.02L2.47 10.88L3.15 6.95L0.29 4.15L4.24 3.58L6 0Z"/>
+                    </svg>
+                    <span>Why {speaker.name} matches your brief</span>
+                    {briefScore != null && (
+                      <span className="speaker-bio__reasoning-score">{briefScore}% match</span>
+                    )}
+                  </div>
+                  <p className="speaker-bio__reasoning-text">{briefReasoning}</p>
+                </motion.div>
+              )}
             </motion.div>
 
             <motion.aside
@@ -181,7 +355,8 @@ function SpeakerDetailPage() {
                 <h3>Ready to Book?</h3>
                 <p>Get in touch to discuss your event.</p>
                 <button
-                  onClick={() => navigate(`/enquiry/${speaker.id}`)}
+                  onClick={handleEnquireClick}
+                  onMouseEnter={handleEnquireHover}
                   className="btn btn-primary w-full"
                 >
                   Submit Enquiry
@@ -196,7 +371,7 @@ function SpeakerDetailPage() {
       </section>
 
       {/* Video Section */}
-      {speaker.videoUrl && (
+      {speaker.videoUrl && /^https?:\/\//.test(speaker.videoUrl) && (
         <section id="video" className="section speaker-video-section">
           <div className="container">
             <motion.div
@@ -258,7 +433,8 @@ function SpeakerDetailPage() {
             <h2>Ready to elevate your event?</h2>
             <p>Let's discuss how {speaker.name} can inspire your audience.</p>
             <motion.button
-              onClick={() => navigate(`/enquiry/${speaker.id}`)}
+              onClick={handleEnquireClick}
+              onMouseEnter={handleEnquireHover}
               className="btn btn-primary btn-lg"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}

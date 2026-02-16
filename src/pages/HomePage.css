@@ -248,16 +248,28 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.hero-search__button svg {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .hero-search__button:hover:not(:disabled) {
   background: var(--color-black);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+.hero-search__button:hover:not(:disabled) svg {
+  transform: translateX(3px);
 }
 
 .hero-search__button:disabled {
   opacity: 0.4;
   cursor: default;
+  box-shadow: none;
 }
 
 /* Example Queries */
@@ -300,6 +312,58 @@
   color: var(--color-charcoal);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* How It Works — inline hero strip */
+.hero-how {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 48px;
+  padding: 14px 28px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 100px;
+  display: inline-flex;
+}
+
+.hero-how__step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-how__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-charcoal);
+  color: var(--color-white);
+  flex-shrink: 0;
+}
+
+.hero-how__icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.hero-how__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-gray-600);
+  white-space: nowrap;
+}
+
+.hero-how__connector {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  color: var(--color-gray-300);
 }
 
 /* Stats */
@@ -1335,42 +1399,67 @@
 .btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   padding: 14px 28px;
   font-size: 14px;
   font-weight: 500;
   border-radius: 100px;
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn svg {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn:hover svg {
+  transform: translateX(3px);
 }
 
 .btn-lg {
-  padding: 18px 36px;
+  padding: 18px 40px;
   font-size: 15px;
+  letter-spacing: -0.01em;
 }
 
 .btn-primary {
   background: var(--color-charcoal);
   color: var(--color-white);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .btn-primary:hover {
   background: var(--color-black);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 .btn-secondary {
-  background: transparent;
+  background: var(--color-white);
   color: var(--color-charcoal);
-  border: 1px solid var(--color-gray-300);
+  border: 1px solid var(--color-gray-200);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 .btn-secondary:hover {
-  background: var(--color-gray-100);
-  border-color: var(--color-gray-400);
+  background: var(--color-white);
+  border-color: var(--color-charcoal);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+}
+
+.btn-secondary:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 /* ================================
@@ -1473,6 +1562,36 @@
   .hero-examples__item {
     padding: 6px 12px;
     font-size: 12px;
+  }
+
+  .hero-how {
+    flex-wrap: wrap;
+    border-radius: 20px;
+    padding: 12px 20px;
+    gap: 4px;
+    justify-content: center;
+  }
+
+  .hero-how__connector {
+    display: none;
+  }
+
+  .hero-how__step {
+    gap: 6px;
+  }
+
+  .hero-how__label {
+    font-size: 12px;
+  }
+
+  .hero-how__icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .hero-how__icon svg {
+    width: 12px;
+    height: 12px;
   }
 
   .hero__stats {

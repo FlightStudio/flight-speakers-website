@@ -1,85 +1,8 @@
 import express from 'express'
-import nodemailer from 'nodemailer'
+import { createEnquiry } from '../db/enquiry-queries.js'
+import { notifyKlaviyo } from '../services/notifications.js'
 
 const router = express.Router()
-
-// In-memory storage for MVP (would be database in production)
-const enquiries = []
-
-// Email configuration (would use real SMTP in production)
-// For MVP, we'll log emails instead of sending them
-const sendEmail = async (enquiryData) => {
-  console.log('='.repeat(50))
-  console.log('NEW ENQUIRY RECEIVED')
-  console.log('='.repeat(50))
-  console.log('From:', enquiryData.name, `<${enquiryData.email}>`)
-  console.log('Organization:', enquiryData.organization)
-  console.log('Phone:', enquiryData.phone || 'Not provided')
-  console.log('-'.repeat(50))
-  console.log('Event Type:', enquiryData.eventType || 'Not specified')
-  console.log('Event Date:', enquiryData.eventDate || 'Not specified')
-  console.log('Location:', enquiryData.eventLocation || 'Not specified')
-  console.log('Audience Size:', enquiryData.audienceSize || 'Not specified')
-  console.log('Budget Range:', enquiryData.budgetRange || 'Not specified')
-  if (enquiryData.speakerName) {
-    console.log('Speaker Interest:', enquiryData.speakerName)
-  }
-  console.log('-'.repeat(50))
-  console.log('Brief:')
-  console.log(enquiryData.brief)
-  console.log('-'.repeat(50))
-  console.log('Newsletter Opt-in:', enquiryData.newsletter ? 'Yes' : 'No')
-  console.log('='.repeat(50))
-
-  // In production, uncomment this to send real emails:
-  /*
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    secure: true,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  })
-
-  await transporter.sendMail({
-    from: process.env.FROM_EMAIL,
-    to: 'speakers@flightstory.com',
-    subject: `New Speaker Enquiry from ${enquiryData.name} - ${enquiryData.organization}`,
-    html: generateEmailHTML(enquiryData),
-  })
-  */
-
-  return true
-}
-
-// Generate email HTML (for production use)
-const generateEmailHTML = (data) => {
-  return `
-    <h1>New Speaker Enquiry</h1>
-    <h2>Contact Details</h2>
-    <ul>
-      <li><strong>Name:</strong> ${data.name}</li>
-      <li><strong>Organization:</strong> ${data.organization}</li>
-      <li><strong>Email:</strong> ${data.email}</li>
-      <li><strong>Phone:</strong> ${data.phone || 'Not provided'}</li>
-    </ul>
-    <h2>Event Details</h2>
-    <ul>
-      <li><strong>Event Type:</strong> ${data.eventType || 'Not specified'}</li>
-      <li><strong>Date:</strong> ${data.eventDate || 'Not specified'}</li>
-      <li><strong>Location:</strong> ${data.eventLocation || 'Not specified'}</li>
-      <li><strong>Audience Size:</strong> ${data.audienceSize || 'Not specified'}</li>
-      <li><strong>Budget Range:</strong> ${data.budgetRange || 'Not specified'}</li>
-      ${data.speakerName ? `<li><strong>Speaker Interest:</strong> ${data.speakerName}</li>` : ''}
-    </ul>
-    <h2>Brief</h2>
-    <p>${data.brief.replace(/\n/g, '<br>')}</p>
-    <hr>
-    <p><em>Newsletter Opt-in: ${data.newsletter ? 'Yes' : 'No'}</em></p>
-  `
-}
 
 // Submit enquiry
 router.post('/', async (req, res) => {
@@ -98,17 +21,29 @@ router.post('/', async (req, res) => {
       speakerId,
       speakerName,
       newsletter,
+      additionalSpeakerIds,
+      currency,
+      engagementType,
+      hasBudget,
+      proBonoFlexible,
+      recommendations,
     } = req.body
 
     // Validation
     if (!name || !email || !organization || !brief) {
       return res.status(400).json({
         success: false,
-        message: 'Please fill in all required fields (name, email, organization, brief)',
+        message: 'Please fill in all required fields (name, email, organisation, brief)',
       })
     }
 
-    // Email validation
+    if (!eventType || !eventDate || !eventLocation || !audienceSize) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please fill in all required event details (type, date, location, audience size)',
+      })
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
       return res.status(400).json({
@@ -117,42 +52,53 @@ router.post('/', async (req, res) => {
       })
     }
 
-    // Create enquiry object
-    const enquiry = {
-      id: `enq_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    if (brief.length > 5000 || name.length > 200 || organization.length > 200) {
+      return res.status(400).json({
+        success: false,
+        message: 'One or more fields exceed the maximum length',
+      })
+    }
+
+    // Validate secondary field lengths
+    if ((phone && phone.length > 30) || (eventLocation && eventLocation.length > 200) ||
+        (budgetRange && budgetRange.length > 100) || (eventType && eventType.length > 100) ||
+        (audienceSize && String(audienceSize).length > 20)) {
+      return res.status(400).json({
+        success: false,
+        message: 'One or more fields exceed the maximum length',
+      })
+    }
+
+    // Persist to database
+    const enquiry = await createEnquiry({
       name,
       organization,
       email,
-      phone: phone || null,
-      eventDate: eventDate || null,
-      eventLocation: eventLocation || null,
-      audienceSize: audienceSize || null,
-      budgetRange: budgetRange || null,
-      eventType: eventType || null,
+      phone,
+      eventDate,
+      eventLocation,
+      audienceSize,
+      budgetRange,
+      eventType,
       brief,
-      speakerId: speakerId || null,
-      speakerName: speakerName || null,
-      newsletter: newsletter || false,
-      createdAt: new Date().toISOString(),
-      status: 'new',
-    }
+      speakerId,
+      speakerName,
+      newsletter,
+      additionalSpeakerIds,
+      currency,
+      engagementType,
+      hasBudget,
+      proBonoFlexible,
+      recommendations,
+    })
 
-    // Store enquiry
-    enquiries.push(enquiry)
+    console.log('NEW ENQUIRY:', enquiry.id)
 
-    // Send email notification
-    await sendEmail(enquiry)
-
-    // In production, this would also:
-    // 1. Add to Klaviyo list for CRM
-    // 2. Trigger webhook to Slack/other notification system
-    // 3. Store in database
-
-    // Log for Klaviyo integration (MVP placeholder)
+    // Klaviyo stubs
     if (newsletter) {
-      console.log('KLAVIYO: Add to speaker-newsletter list:', email)
+      await notifyKlaviyo(email, 'speaker-newsletter', { name })
     }
-    console.log('KLAVIYO: Add to speaker-enquiries list:', email)
+    await notifyKlaviyo(email, 'speaker-enquiries', { name, organization })
 
     res.status(201).json({
       success: true,
@@ -166,15 +112,6 @@ router.post('/', async (req, res) => {
       message: 'Failed to submit enquiry. Please try again.',
     })
   }
-})
-
-// Get all enquiries (admin endpoint - would need auth in production)
-router.get('/', (req, res) => {
-  res.json({
-    success: true,
-    count: enquiries.length,
-    enquiries,
-  })
 })
 
 export default router

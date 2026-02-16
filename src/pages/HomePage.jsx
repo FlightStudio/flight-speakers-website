@@ -5,7 +5,7 @@ import SpeakerCard from '../components/speakers/SpeakerCard'
 import GradientMesh from '../components/effects/GradientMesh'
 import { useSmoothScroll } from '../hooks/useSmoothScroll'
 import { useMagneticEffect } from '../hooks/useMagneticEffect'
-import { speakers } from '../data/speakers'
+import { EASE } from '../constants/animation'
 import './HomePage.css'
 
 // Magnetic button wrapper
@@ -35,7 +35,7 @@ function RevealText({ children, delay = 0 }) {
       <motion.span
         initial={{ y: '100%' }}
         animate={isInView ? { y: 0 } : { y: '100%' }}
-        transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.8, delay, ease: EASE }}
       >
         {children}
       </motion.span>
@@ -299,13 +299,13 @@ function FeaturedSpotlight({ speaker }) {
 
           <div className="spotlight__info">
             <span className="spotlight__label">Featured Speaker</span>
-            <h3 className="spotlight__name">{speaker?.name || 'Dr. Sarah Chen'}</h3>
+            <h3 className="spotlight__name">{speaker?.name || 'Steven Bartlett'}</h3>
             <blockquote className="spotlight__quote">
-              "The future of work isn't about replacing humans with AI—it's about
-              amplifying human potential in ways we've never imagined."
+              "Real leadership isn't about having all the answers—it's about being
+              honest enough to share what you've actually learned."
             </blockquote>
             <div className="spotlight__meta">
-              <span className="spotlight__role">{speaker?.title || 'AI Research Director, Former Google'}</span>
+              <span className="spotlight__role">{speaker?.headline || 'Founder & CEO, FlightStory | Host of The Diary of a CEO'}</span>
               <Link to={`/speakers/${speaker?.id || '1'}`} className="spotlight__link">
                 View Full Profile
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -339,10 +339,21 @@ function HomePage() {
   const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -100])
   const springY = useSpring(heroY, { stiffness: 100, damping: 30 })
 
-  const featuredSpeakers = useMemo(() => speakers.filter(s => s.featured).slice(0, 8), [])
-  const spotlightSpeaker = useMemo(() => speakers.find(s => s.featured), [])
+  const [speakers, setSpeakers] = useState([])
 
-  const filterOptions = ['all', 'technology', 'leadership', 'innovation', 'sustainability']
+  useEffect(() => {
+    fetch('/api/speakers?featured=true&limit=8')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) setSpeakers(data.speakers)
+      })
+      .catch(err => console.error('Failed to load speakers:', err))
+  }, [])
+
+  const featuredSpeakers = useMemo(() => speakers.filter(s => s.featured).slice(0, 8), [speakers])
+  const spotlightSpeaker = useMemo(() => speakers.find(s => s.featured), [speakers])
+
+  const filterOptions = ['all', 'leadership', 'entrepreneurship', 'performance', 'wellness']
 
   const filteredSpeakers = useMemo(() => {
     if (activeFilter === 'all') return featuredSpeakers
@@ -353,10 +364,10 @@ function HomePage() {
 
   // Typing animation for placeholder
   const placeholders = [
-    "I need a keynote speaker on AI for 500 executives...",
-    "Inspirational women in leadership for our conference...",
-    "High-energy motivational speaker for sales kickoff...",
-    "Sustainability expert for Fortune 500 summit...",
+    "I need a leadership speaker for 500 executives...",
+    "Inspirational women in business for our conference...",
+    "High-energy performance speaker for sales kickoff...",
+    "Wellness and resilience expert for corporate retreat...",
   ]
 
   useEffect(() => {
@@ -503,7 +514,7 @@ function HomePage() {
               <div className="hero-examples__list">
                 {[
                   'Women in business conference for 500 attendees',
-                  'AI keynote for tech leadership summit',
+                  'Leadership keynote for executive summit',
                   'Motivational speaker for sales kickoff',
                   'Corporate wellness retreat for executives'
                 ].map((example, i) => (
@@ -522,12 +533,42 @@ function HomePage() {
               </div>
             </motion.div>
 
+            {/* How It Works — compact inline strip */}
+            <motion.div
+              className="hero-how"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.95 }}
+            >
+              {[
+                { num: '1', label: 'Describe your event', icon: (
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4H14M2 8H10M2 12H12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                )},
+                { num: '2', label: 'AI matches speakers', icon: (
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L9.76 5.58L14.71 6.15L11.35 9.45L12.18 14.38L8 12.02L3.82 14.38L4.65 9.45L1.29 6.15L6.24 5.58L8 1Z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                )},
+                { num: '3', label: 'Book with confidence', icon: (
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8L7 11L12 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                )},
+              ].map((step, i) => (
+                <div key={i} className="hero-how__step">
+                  <span className="hero-how__icon">{step.icon}</span>
+                  <span className="hero-how__label">{step.label}</span>
+                  {i < 2 && (
+                    <span className="hero-how__connector">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </span>
+                  )}
+                </div>
+              ))}
+            </motion.div>
+
             {/* Stats */}
             <motion.div
               className="hero__stats"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 1 }}
+              transition={{ duration: 0.6, delay: 1.05 }}
             >
               {stats.map((stat, i) => (
                 <div key={i} className="hero__stat">
@@ -542,10 +583,7 @@ function HomePage() {
         </motion.div>
       </section>
 
-      {/* ========== SOCIAL PROOF BAR ========== */}
-      <SocialProofBar />
-
-      {/* ========== AI MATCHING DEMO (How It Works integrated) ========== */}
+      {/* ========== AI MATCHING DEMO (How It Works) ========== */}
       <section className="section ai-demo-section">
         <div className="container">
           <motion.div
@@ -565,6 +603,9 @@ function HomePage() {
           <EnhancedAIDemo />
         </div>
       </section>
+
+      {/* ========== TRUSTED PARTNERS ========== */}
+      <SocialProofBar />
 
       {/* ========== SPEAKER GRID (Bento/Masonry) ========== */}
       <section className="section speakers-section">
@@ -625,7 +666,7 @@ function HomePage() {
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
           >
-            <Link to="/search" className="btn btn-secondary btn-lg">
+            <Link to="/speakers" className="btn btn-secondary btn-lg">
               Explore All Speakers
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
