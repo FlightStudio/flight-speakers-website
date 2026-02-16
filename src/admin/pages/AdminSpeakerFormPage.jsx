@@ -3,8 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import SpeakerForm from '../components/SpeakerForm'
 import { useSpeaker } from '../hooks/useSpeaker'
-
-const EASE = [0.16, 1, 0.3, 1]
+import { EASE } from '../../constants/animation'
 
 export default function AdminSpeakerFormPage() {
   const { id } = useParams()

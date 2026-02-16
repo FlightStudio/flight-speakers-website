@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import SpeakerGrid from '../components/speakers/SpeakerGrid'
-
-const EASE = [0.16, 1, 0.3, 1]
+import { EASE } from '../constants/animation'
 
 export default function SpeakersPage() {
   const [speakers, setSpeakers] = useState([])

@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-
-const EASE = [0.16, 1, 0.3, 1]
+import { EASE } from '../../constants/animation'
 
 const TABS = [
   { key: 'new', label: 'New Speakers' },

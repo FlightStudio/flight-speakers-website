@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { EASE } from '../../constants/animation'
 
 function timeAgo(dateStr) {
   const now = new Date()
@@ -36,7 +37,7 @@ export default function DashboardNewRequests() {
       className="dash-new-requests"
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.35, ease: EASE }}
     >
       <div className="dash-new-requests__header">
         <div className="dash-new-requests__title-row">

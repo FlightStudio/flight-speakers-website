@@ -17,6 +17,7 @@ import { createDraft, getPendingDrafts, getDraftById, approveDraft, rejectDraft,
 import { createToken } from '../db/token-queries.js'
 import { semanticSearch } from '../services/claude.js'
 import { notifyEnquiryResponse } from '../services/notifications.js'
+import { refreshAllSpeakerStats } from '../services/socialStats.js'
 
 const router = express.Router()
 
@@ -80,7 +81,7 @@ router.get('/stats', requireAdmin, async (req, res) => {
 // GET /api/admin/dashboard
 router.get('/dashboard', requireAdmin, async (req, res) => {
   try {
-    const days = parseInt(req.query.days, 10) || 14
+    const days = Math.min(Math.max(parseInt(req.query.days, 10) || 14, 1), 365)
     const data = await getDashboardAnalytics(days)
     res.json({ success: true, ...data })
   } catch (err) {
@@ -109,7 +110,12 @@ router.post('/speakers', requireAdmin, async (req, res) => {
     if (!name || !headline || !photo || !bio) {
       return res.status(400).json({ success: false, message: 'Name, headline, photo, and bio are required' })
     }
-    const draft = await createDraft({ type: 'new', data: req.body, submittedBy: req.admin.username })
+    const SPEAKER_FIELDS = ['name', 'headline', 'photo', 'bio', 'topics', 'audiences', 'keynotes', 'speaking_format', 'video_url', 'social_profiles', 'featured', 'fee_min', 'gender', 'ethnicity', 'nationality', 'location']
+    const filtered = {}
+    for (const key of SPEAKER_FIELDS) {
+      if (req.body[key] !== undefined) filtered[key] = req.body[key]
+    }
+    const draft = await createDraft({ type: 'new', data: filtered, submittedBy: req.admin.username })
     res.status(201).json({ success: true, draft })
   } catch (err) {
     console.error('Speaker draft create error:', err)
@@ -124,10 +130,15 @@ router.patch('/speakers/:id', requireAdmin, async (req, res) => {
     if (!existing) {
       return res.status(404).json({ success: false, message: 'Speaker not found' })
     }
+    const SPEAKER_FIELDS = ['name', 'headline', 'photo', 'bio', 'topics', 'audiences', 'keynotes', 'speaking_format', 'video_url', 'social_profiles', 'featured', 'fee_min', 'gender', 'ethnicity', 'nationality', 'location']
+    const filtered = {}
+    for (const key of SPEAKER_FIELDS) {
+      if (req.body[key] !== undefined) filtered[key] = req.body[key]
+    }
     const draft = await createDraft({
       speakerId: req.params.id,
       type: 'update',
-      data: req.body,
+      data: filtered,
       submittedBy: req.admin.username,
     })
     res.json({ success: true, draft })
@@ -164,7 +175,8 @@ router.get('/review/counts', requireAdmin, async (req, res) => {
 router.post('/invite/new', requireAdmin, async (req, res) => {
   try {
     const token = await createToken({ type: 'new', expiresInDays: 7 })
-    const link = `${req.protocol}://${req.get('host')}/speaker-portal/${token.token}`
+    const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`
+    const link = `${baseUrl}/speaker-portal/${token.token}`
     res.json({ success: true, link, token: token.token, expiresAt: token.expires_at })
   } catch (err) {
     console.error('Invite new error:', err)
@@ -180,7 +192,8 @@ router.post('/invite/:speakerId', requireAdmin, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Speaker not found' })
     }
     const token = await createToken({ speakerId: req.params.speakerId, type: 'update', expiresInDays: 7 })
-    const link = `${req.protocol}://${req.get('host')}/speaker-portal/${token.token}`
+    const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`
+    const link = `${baseUrl}/speaker-portal/${token.token}`
     res.json({ success: true, link, token: token.token, expiresAt: token.expires_at, speakerName: speaker.name })
   } catch (err) {
     console.error('Invite update error:', err)
@@ -191,12 +204,20 @@ router.post('/invite/:speakerId', requireAdmin, async (req, res) => {
 // POST /api/admin/review/:id/approve
 router.post('/review/:id/approve', requireAdmin, async (req, res) => {
   try {
-    const editedData = req.body && Object.keys(req.body).length > 0 ? req.body : null
+    let editedData = null
+    if (req.body && Object.keys(req.body).length > 0) {
+      const SPEAKER_FIELDS = ['name', 'headline', 'photo', 'bio', 'topics', 'audiences', 'keynotes', 'speaking_format', 'video_url', 'social_profiles', 'featured', 'fee_min', 'gender', 'ethnicity', 'nationality', 'location']
+      editedData = {}
+      for (const key of SPEAKER_FIELDS) {
+        if (req.body[key] !== undefined) editedData[key] = req.body[key]
+      }
+      if (Object.keys(editedData).length === 0) editedData = null
+    }
     const result = await approveDraft(parseInt(req.params.id, 10), editedData)
     res.json({ success: true, ...result })
   } catch (err) {
     console.error('Approve error:', err)
-    res.status(400).json({ success: false, message: err.message })
+    res.status(400).json({ success: false, message: 'Failed to approve draft' })
   }
 })
 
@@ -207,7 +228,7 @@ router.post('/review/:id/reject', requireAdmin, async (req, res) => {
     res.json({ success: true, draft })
   } catch (err) {
     console.error('Reject error:', err)
-    res.status(400).json({ success: false, message: err.message })
+    res.status(400).json({ success: false, message: 'Failed to reject draft' })
   }
 })
 
@@ -250,8 +271,8 @@ router.get('/enquiries', requireAdmin, async (req, res) => {
     const { status, page = 1, limit = 20, sort = 'newest' } = req.query
     const result = await getEnquiries({
       status,
-      page: parseInt(page, 10),
-      limit: parseInt(limit, 10),
+      page: Math.max(parseInt(page, 10) || 1, 1),
+      limit: Math.min(Math.max(parseInt(limit, 10) || 20, 1), 100),
       sort,
     })
     res.json({ success: true, ...result })
@@ -336,7 +357,13 @@ router.patch('/enquiries/:id', requireAdmin, async (req, res) => {
     const { status, admin_notes, response_message } = req.body
     const updates = {}
 
-    if (status) updates.status = status
+    const VALID_STATUSES = ['new', 'reviewed', 'accepted', 'rejected', 'responded']
+    if (status) {
+      if (!VALID_STATUSES.includes(status)) {
+        return res.status(400).json({ success: false, message: 'Invalid status value' })
+      }
+      updates.status = status
+    }
     if (admin_notes !== undefined) updates.admin_notes = admin_notes
     if (response_message !== undefined) updates.response_message = response_message
 
@@ -351,6 +378,18 @@ router.patch('/enquiries/:id', requireAdmin, async (req, res) => {
   } catch (err) {
     console.error('Enquiry update error:', err)
     res.status(500).json({ success: false, message: 'Failed to update enquiry' })
+  }
+})
+
+// POST /api/admin/social-stats/refresh — manually trigger social stats refresh
+router.post('/social-stats/refresh', requireAdmin, async (req, res) => {
+  try {
+    refreshAllSpeakerStats().catch(err => {
+      console.error('[SocialStats] Manual refresh failed:', err.message)
+    })
+    res.json({ success: true, message: 'Social stats refresh started' })
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to start refresh' })
   }
 })
 

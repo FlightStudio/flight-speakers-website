@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import SpeakerForm from '../admin/components/SpeakerForm'
+import { EASE } from '../constants/animation'
 import './SpeakerPortalPage.css'
-
-const EASE = [0.16, 1, 0.3, 1]
 
 export default function SpeakerPortalPage() {
   const { token } = useParams()

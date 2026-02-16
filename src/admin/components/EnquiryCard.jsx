@@ -15,15 +15,23 @@ function timeAgo(dateStr) {
   return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 }
 
-function shortDate(dateStr) {
-  if (!dateStr) return null
+function shortDateSingle(dateStr) {
   const d = new Date(dateStr)
-  if (isNaN(d)) return dateStr // pass through non-date strings as-is
+  if (isNaN(d)) return dateStr
   const day = d.getDate()
   const mon = d.toLocaleDateString('en-GB', { month: 'short' })
   const yr = d.getFullYear()
-  // Drop year if it's current year
   return yr === new Date().getFullYear() ? `${day} ${mon}` : `${day} ${mon} ${yr}`
+}
+
+function shortDate(dateStr) {
+  if (!dateStr) return null
+  // Handle pipe-delimited date ranges (e.g. "2025-03-15|2025-03-20")
+  if (dateStr.includes('|')) {
+    const [start, end] = dateStr.split('|')
+    return `${shortDateSingle(start)} — ${shortDateSingle(end)}`
+  }
+  return shortDateSingle(dateStr)
 }
 
 function shortLocation(loc) {
@@ -46,9 +54,15 @@ function shortLocation(loc) {
   return s
 }
 
-function shortBudget(budget) {
+const CURRENCY_SYMBOLS = { USD: '$', GBP: '£', EUR: '€' }
+
+function shortBudget(budget, currency) {
   if (!budget) return null
-  // Already short enough, just return as-is
+  // Format plain numeric custom budgets with currency symbol
+  if (/^\d+$/.test(budget)) {
+    const symbol = CURRENCY_SYMBOLS[currency] || '$'
+    return `${symbol}${parseInt(budget, 10).toLocaleString()}`
+  }
   return budget
 }
 
@@ -56,7 +70,7 @@ export default function EnquiryCard({ enquiry }) {
   const parts = [
     enquiry.event_date && { icon: '📅', text: shortDate(enquiry.event_date) },
     enquiry.event_location && { icon: '📍', text: shortLocation(enquiry.event_location) },
-    enquiry.budget_range && { icon: '💰', text: shortBudget(enquiry.budget_range) },
+    enquiry.budget_range && { icon: '💰', text: shortBudget(enquiry.budget_range, enquiry.currency) },
   ].filter(Boolean)
 
   return (

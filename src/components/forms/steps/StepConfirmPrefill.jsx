@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion'
 import { FIELD_STEP_MAP } from '../../../hooks/useMultiStepForm'
+import { EASE } from '../../../constants/animation'
+import { formatEventDate } from '../../../utils/dateFormat'
 
-const EASE = [0.16, 1, 0.3, 1]
+const CURRENCY_SYMBOLS = { USD: '$', GBP: '£', EUR: '€' }
 
 const FIELD_LABELS = {
   eventType: 'Event Type',
@@ -67,7 +69,13 @@ function StepConfirmPrefill({ extractedData, brief, isParsing = false, onConfirm
             >
               <div className="mstep-prefill__field-content">
                 <span className="mstep-prefill__label">{FIELD_LABELS[key]}</span>
-                <span className="mstep-prefill__value">{value}</span>
+                <span className="mstep-prefill__value">
+                  {key === 'budgetRange' && extractedData.customBudget
+                    ? `${CURRENCY_SYMBOLS[extractedData.budgetCurrency || extractedData.currency] || '$'}${Number(extractedData.customBudget).toLocaleString()}`
+                    : key === 'eventDate'
+                    ? formatEventDate(value)
+                    : value}
+                </span>
               </div>
               <button
                 type="button"

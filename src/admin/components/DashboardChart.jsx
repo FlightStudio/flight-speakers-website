@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { EASE } from '../../constants/animation'
 
 const DAYS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -63,7 +64,7 @@ export default function DashboardChart({ data = [], days = 14, onChangeDays }) {
                   className={`dash-chart__bar ${d.count === 0 ? 'dash-chart__bar--empty' : ''}`}
                   initial={{ height: 0 }}
                   animate={{ height: `${Math.max(pct, 3)}%` }}
-                  transition={{ duration: 0.5, delay: i * 0.02, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 0.5, delay: i * 0.02, ease: EASE }}
                 />
                 {d.count > 0 && days <= 14 && (
                   <motion.span

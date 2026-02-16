@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
+import { EASE } from '../../constants/animation'
 
 export function TextReveal({ children, className = '', delay = 0 }) {
   const ref = useRef(null)
@@ -13,7 +14,7 @@ export function TextReveal({ children, className = '', delay = 0 }) {
         transition={{
           duration: 0.8,
           delay,
-          ease: [0.16, 1, 0.3, 1]
+          ease: EASE
         }}
       >
         {children}
@@ -39,7 +40,7 @@ export function WordReveal({ text, className = '', delay = 0 }) {
             transition={{
               duration: 0.6,
               delay: delay + i * 0.04,
-              ease: [0.16, 1, 0.3, 1]
+              ease: EASE
             }}
           >
             {word}
@@ -68,7 +69,7 @@ export function CharReveal({ text, className = '', delay = 0 }) {
           transition={{
             duration: 0.5,
             delay: delay + i * 0.02,
-            ease: [0.16, 1, 0.3, 1]
+            ease: EASE
           }}
         >
           {char === ' ' ? '\u00A0' : char}

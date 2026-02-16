@@ -25,6 +25,7 @@ router.post('/', async (req, res) => {
       currency,
       engagementType,
       hasBudget,
+      proBonoFlexible,
       recommendations,
     } = req.body
 
@@ -36,11 +37,35 @@ router.post('/', async (req, res) => {
       })
     }
 
+    if (!eventType || !eventDate || !eventLocation || !audienceSize) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please fill in all required event details (type, date, location, audience size)',
+      })
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
       return res.status(400).json({
         success: false,
         message: 'Please provide a valid email address',
+      })
+    }
+
+    if (brief.length > 5000 || name.length > 200 || organization.length > 200) {
+      return res.status(400).json({
+        success: false,
+        message: 'One or more fields exceed the maximum length',
+      })
+    }
+
+    // Validate secondary field lengths
+    if ((phone && phone.length > 30) || (eventLocation && eventLocation.length > 200) ||
+        (budgetRange && budgetRange.length > 100) || (eventType && eventType.length > 100) ||
+        (audienceSize && String(audienceSize).length > 20)) {
+      return res.status(400).json({
+        success: false,
+        message: 'One or more fields exceed the maximum length',
       })
     }
 
@@ -63,10 +88,11 @@ router.post('/', async (req, res) => {
       currency,
       engagementType,
       hasBudget,
+      proBonoFlexible,
       recommendations,
     })
 
-    console.log('NEW ENQUIRY:', enquiry.id, '—', name, `<${email}>`)
+    console.log('NEW ENQUIRY:', enquiry.id)
 
     // Klaviyo stubs
     if (newsletter) {

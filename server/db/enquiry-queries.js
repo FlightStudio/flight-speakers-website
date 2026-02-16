@@ -6,8 +6,8 @@ export async function createEnquiry(data) {
   const { rows } = await pool.query(
     `INSERT INTO enquiries (id, name, email, organization, phone, event_date, event_location,
        audience_size, budget_range, event_type, brief, speaker_id, speaker_name, newsletter,
-       additional_speaker_ids, currency, engagement_type, has_budget, recommendations)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+       additional_speaker_ids, currency, engagement_type, has_budget, pro_bono_flexible, recommendations)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
      RETURNING *`,
     [
       id,
@@ -28,6 +28,7 @@ export async function createEnquiry(data) {
       data.currency || null,
       data.engagementType || null,
       data.hasBudget || null,
+      data.proBonoFlexible || false,
       JSON.stringify(data.recommendations || []),
     ]
   )

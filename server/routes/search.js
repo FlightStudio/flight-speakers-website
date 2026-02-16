@@ -17,7 +17,21 @@ router.get('/', async (req, res, next) => {
       })
     }
 
-    const results = await semanticSearch(q, parseInt(limit, 10), budget || undefined)
+    if (q.length > 2000) {
+      return res.status(400).json({
+        success: false,
+        message: 'Search query exceeds maximum length',
+      })
+    }
+
+    const parsedBudget = budget ? parseInt(budget, 10) : undefined
+    if (parsedBudget !== undefined && (isNaN(parsedBudget) || parsedBudget < 0 || parsedBudget > 100000000)) {
+      return res.status(400).json({ success: false, message: 'Invalid budget value' })
+    }
+
+    const parsedLimit = Math.min(Math.max(parseInt(limit, 10) || 8, 1), 50)
+
+    const results = await semanticSearch(q, parsedLimit, parsedBudget)
 
     console.log('SEARCH:', {
       query: q,

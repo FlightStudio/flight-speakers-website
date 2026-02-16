@@ -7,9 +7,18 @@ import './SpeakerDetailPage.css'
 
 function formatFollowers(n) {
   if (!n || n === 0) return '0'
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, '')}K`
+  if (n >= 1_000_000) return `${(Math.floor(n / 100_000) / 10).toFixed(1).replace(/\.0$/, '')}M`
+  if (n >= 1_000) return `${(Math.floor(n / 100) / 10).toFixed(1).replace(/\.0$/, '')}K`
   return n.toString()
+}
+
+const DISPLAY_PLATFORMS = new Set(['instagram', 'x', 'youtube', 'tiktok'])
+
+const PLATFORM_URLS = {
+  instagram: (handle) => `https://instagram.com/${handle}`,
+  x: (handle) => `https://x.com/${handle}`,
+  youtube: (handle) => `https://youtube.com/@${handle}`,
+  tiktok: (handle) => `https://tiktok.com/@${handle}`,
 }
 
 const platformIcons = {
@@ -21,11 +30,6 @@ const platformIcons = {
   x: (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-    </svg>
-  ),
-  linkedin: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
     </svg>
   ),
   youtube: (
@@ -193,20 +197,56 @@ function SpeakerDetailPage() {
 
               <p className="speaker-hero__headline">{speaker.headline}</p>
 
-              {speaker.socialStats && Object.keys(speaker.socialStats).length > 0 && (
-                <div className="speaker-hero__social">
-                  {Object.entries(speaker.socialStats).map(([platform, data]) => {
+              {speaker.socialStats && Object.keys(speaker.socialStats).length > 0 && (() => {
+                const profiles = speaker.socialProfiles || {}
+                const platformOrder = ['youtube', 'instagram', 'tiktok', 'x']
+                const statsMap = speaker.socialStats
+                const entries = platformOrder
+                  .filter(platform => statsMap[platform])
+                  .map(platform => {
+                    const data = statsMap[platform]
                     const count = data.followers ?? data.subscribers ?? 0
-                    if (!count) return null
-                    return (
-                      <span key={platform} className={`speaker-hero__social-pill speaker-hero__social-pill--${platform}`}>
-                        {platformIcons[platform]}
-                        {formatFollowers(count)}
+                    return {
+                      platform,
+                      count,
+                      url: profiles[platform] && PLATFORM_URLS[platform] ? PLATFORM_URLS[platform](profiles[platform]) : null,
+                    }
+                  })
+                  .filter(e => e.count > 0)
+                const totalFollowing = entries.reduce((sum, e) => sum + e.count, 0)
+
+                return (
+                  <motion.div
+                    className="speaker-hero__social"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    {totalFollowing > 0 && (
+                      <span className="speaker-hero__social-total">
+                        {formatFollowers(totalFollowing)} total following
                       </span>
-                    )
-                  })}
-                </div>
-              )}
+                    )}
+                    <div className="speaker-hero__social-pills">
+                      {entries.map(({ platform, count, url }, i) => (
+                        <motion.a
+                          key={platform}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`speaker-hero__social-pill speaker-hero__social-pill--${platform}`}
+                          initial={{ opacity: 0, scale: 0.85 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.35, delay: 0.4 + i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                        >
+                          {platformIcons[platform]}
+                          {formatFollowers(count)}
+                        </motion.a>
+                      ))}
+                    </div>
+                  </motion.div>
+                )
+              })()}
 
               <div className="speaker-hero__topics">
                 {speaker.topics.map((topic, index) => (
@@ -331,7 +371,7 @@ function SpeakerDetailPage() {
       </section>
 
       {/* Video Section */}
-      {speaker.videoUrl && (
+      {speaker.videoUrl && /^https?:\/\//.test(speaker.videoUrl) && (
         <section id="video" className="section speaker-video-section">
           <div className="container">
             <motion.div

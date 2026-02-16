@@ -1,8 +1,8 @@
-function SpeakerCard({ speaker, featured = false, matchLabel }) {
+function SpeakerCard({ speaker, featured = false, matchLabel, added, score }) {
   const imgSrc = speaker.photo || speaker.headshot_url || speaker.image_url || ''
 
   return (
-    <div className={`speaker-rec-card ${featured ? 'speaker-rec-card--featured' : ''}`}>
+    <div className={`speaker-rec-card${featured ? ' speaker-rec-card--featured' : ''}${added === true ? ' speaker-rec-card--added' : ''}${added === false ? ' speaker-rec-card--skipped' : ''}`}>
       <div className="speaker-rec-card__header">
         {imgSrc ? (
           <img className="speaker-rec-card__avatar" src={imgSrc} alt={speaker.name} />
@@ -14,9 +14,22 @@ function SpeakerCard({ speaker, featured = false, matchLabel }) {
         <div>
           <div className="speaker-rec-card__name">{speaker.name}</div>
           <div className="speaker-rec-card__title">{speaker.headline || speaker.title || speaker.expertise}</div>
+          {score != null && (
+            <div className="speaker-rec-card__score">{score}% match</div>
+          )}
         </div>
         {matchLabel && (
           <span className="speaker-rec-card__match-label">{matchLabel}</span>
+        )}
+        {added === true && (
+          <span className="speaker-rec-card__status speaker-rec-card__status--added">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7L6 10L11 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </span>
+        )}
+        {added === false && (
+          <span className="speaker-rec-card__status speaker-rec-card__status--skipped">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3.5 3.5L10.5 10.5M10.5 3.5L3.5 10.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+          </span>
         )}
       </div>
       {speaker.topics && speaker.topics.length > 0 && (
@@ -36,8 +49,9 @@ function SpeakerCard({ speaker, featured = false, matchLabel }) {
 export default function SpeakerRecommendations({ speakers }) {
   if (!speakers) return null
 
-  const { requested, related = [], semantic = [], additional = [] } = speakers
-  const hasAny = requested || related.length > 0 || semantic.length > 0 || additional.length > 0
+  const { requested, semantic = [], additional = [] } = speakers
+  const additionalIds = new Set(additional.map(s => s.id))
+  const hasAny = requested || semantic.length > 0
 
   if (!hasAny) {
     return <div className="speaker-recs__empty">No speaker recommendations available</div>
@@ -52,30 +66,21 @@ export default function SpeakerRecommendations({ speakers }) {
         </>
       )}
 
-      {related.length > 0 && (
-        <>
-          <div className="speaker-recs__section-title">Similar Speakers</div>
-          {related.map(s => (
-            <SpeakerCard key={s.id} speaker={s} matchLabel="Related" />
-          ))}
-        </>
-      )}
-
       {semantic.length > 0 && (
         <>
-          <div className="speaker-recs__section-title">AI-Matched from Brief</div>
-          {semantic.map(s => (
-            <SpeakerCard key={s.id} speaker={s} matchLabel="AI Match" />
-          ))}
-        </>
-      )}
-
-      {additional.length > 0 && (
-        <>
-          <div className="speaker-recs__section-title">Additional Speakers Requested</div>
-          {additional.map(s => (
-            <SpeakerCard key={s.id} speaker={s} matchLabel="Added" />
-          ))}
+          <div className="speaker-recs__section-title">AI Match from Brief</div>
+          {semantic.map(s => {
+            const wasAdded = additionalIds.has(s.id)
+            return (
+              <SpeakerCard
+                key={s.id}
+                speaker={s}
+                matchLabel="AI Match"
+                score={s.score}
+                added={wasAdded}
+              />
+            )
+          })}
         </>
       )}
     </div>

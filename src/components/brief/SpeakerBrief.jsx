@@ -6,7 +6,6 @@ import {
   Image,
   Link,
   StyleSheet,
-  Font,
 } from '@react-pdf/renderer'
 
 const styles = StyleSheet.create({
@@ -241,7 +240,27 @@ const styles = StyleSheet.create({
   },
 })
 
-export default function SpeakerBrief({ speaker, reasoning, matchScore, otherSpeakers, query }) {
+function SpeakerCard({ s }) {
+  return (
+    <View style={styles.otherSpeakerCard}>
+      {s.photo && (
+        <Image style={styles.otherPhoto} src={s.photo} />
+      )}
+      <View style={styles.otherInfo}>
+        <Text style={styles.otherName}>{s.name}</Text>
+        <Text style={styles.otherHeadline}>{s.headline}</Text>
+        {s.matchScore != null && (
+          <Text style={styles.otherScore}>{s.matchScore}% match</Text>
+        )}
+        {s.reasoning && (
+          <Text style={styles.otherReasoning}>{s.reasoning}</Text>
+        )}
+      </View>
+    </View>
+  )
+}
+
+export default function SpeakerBrief({ speaker, reasoning, matchScore, selectedSpeakers, aiRecommendations, otherSpeakers, query }) {
   const today = new Date().toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'long',
@@ -251,6 +270,10 @@ export default function SpeakerBrief({ speaker, reasoning, matchScore, otherSpea
   const bioPreview = speaker.bio
     ? speaker.bio.split('\n\n').slice(0, 2).join('\n\n')
     : ''
+
+  // Backward compat: use otherSpeakers as AI recs if new props not provided
+  const resolvedSelected = selectedSpeakers || []
+  const resolvedAiRecs = aiRecommendations || otherSpeakers || []
 
   return (
     <Document>
@@ -272,8 +295,8 @@ export default function SpeakerBrief({ speaker, reasoning, matchScore, otherSpea
           </View>
         )}
 
-        {/* 1. Recommended Speaker */}
-        <Text style={styles.sectionLabel}>Recommended Speaker</Text>
+        {/* 1. AI Recommended Speaker */}
+        <Text style={styles.sectionLabel}>AI Recommended Speaker</Text>
         <View style={styles.speakerSection}>
           <View style={styles.speakerRow}>
             {speaker.photo && (
@@ -317,27 +340,25 @@ export default function SpeakerBrief({ speaker, reasoning, matchScore, otherSpea
           </View>
         )}
 
-        {/* 3. Other Recommended Speakers and Why */}
-        {otherSpeakers && otherSpeakers.length > 0 && (
+        {/* 3. Your Selected Speakers (toggled by user) */}
+        {resolvedSelected.length > 0 && (
           <View>
-            <Text style={styles.sectionTitle}>Other Recommended Speakers</Text>
+            <Text style={styles.sectionTitle}>Your Selected Speakers</Text>
             <View style={styles.otherSpeakersGrid}>
-              {otherSpeakers.slice(0, 4).map((s, i) => (
-                <View key={i} style={styles.otherSpeakerCard}>
-                  {s.photo && (
-                    <Image style={styles.otherPhoto} src={s.photo} />
-                  )}
-                  <View style={styles.otherInfo}>
-                    <Text style={styles.otherName}>{s.name}</Text>
-                    <Text style={styles.otherHeadline}>{s.headline}</Text>
-                    {s.matchScore != null && (
-                      <Text style={styles.otherScore}>{s.matchScore}% match</Text>
-                    )}
-                    {s.reasoning && (
-                      <Text style={styles.otherReasoning}>{s.reasoning}</Text>
-                    )}
-                  </View>
-                </View>
+              {resolvedSelected.slice(0, 6).map((s, i) => (
+                <SpeakerCard key={i} s={s} />
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* 4. Other AI Recommendations */}
+        {resolvedAiRecs.length > 0 && (
+          <View>
+            <Text style={styles.sectionTitle}>Other AI Recommendations</Text>
+            <View style={styles.otherSpeakersGrid}>
+              {resolvedAiRecs.slice(0, 4).map((s, i) => (
+                <SpeakerCard key={i} s={s} />
               ))}
             </View>
           </View>

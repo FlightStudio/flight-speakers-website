@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { useInView } from '../../hooks/useInView'
+import { EASE } from '../../constants/animation'
 
 export function AnimatedText({
   children,
@@ -25,7 +26,7 @@ export function AnimatedText({
             transition={{
               duration: 0.5,
               delay: delay + i * 0.02,
-              ease: [0.16, 1, 0.3, 1],
+              ease: EASE,
             }}
             style={{ display: 'inline-block', whiteSpace: 'pre' }}
           >
@@ -48,7 +49,7 @@ export function AnimatedText({
               transition={{
                 duration: 0.6,
                 delay: delay + i * 0.05,
-                ease: [0.16, 1, 0.3, 1],
+                ease: EASE,
               }}
               style={{ display: 'inline-block' }}
             >
@@ -70,7 +71,7 @@ export function AnimatedText({
       transition={{
         duration,
         delay,
-        ease: [0.16, 1, 0.3, 1],
+        ease: EASE,
       }}
     >
       {children}
@@ -89,7 +90,7 @@ export function RevealText({ children, className = '', delay = 0 }) {
         transition={{
           duration: 0.8,
           delay,
-          ease: [0.16, 1, 0.3, 1],
+          ease: EASE,
         }}
       >
         {children}
@@ -117,7 +118,7 @@ export function FadeIn({ children, className = '', delay = 0, direction = 'up' }
       transition={{
         duration: 0.8,
         delay,
-        ease: [0.16, 1, 0.3, 1],
+        ease: EASE,
       }}
     >
       {children}
@@ -154,7 +155,7 @@ export const staggerItem = {
     y: 0,
     transition: {
       duration: 0.6,
-      ease: [0.16, 1, 0.3, 1],
+      ease: EASE,
     },
   },
 }

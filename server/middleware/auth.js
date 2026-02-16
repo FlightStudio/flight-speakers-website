@@ -1,9 +1,12 @@
 import jwt from 'jsonwebtoken'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production'
+const JWT_SECRET = process.env.JWT_SECRET
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required')
+}
 
 export function signToken(payload) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' })
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: '24h', algorithm: 'HS256' })
 }
 
 export function requireAdmin(req, res, next) {
@@ -14,7 +17,7 @@ export function requireAdmin(req, res, next) {
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET)
+    const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] })
     req.admin = { id: decoded.sub, username: decoded.username }
     next()
   } catch {

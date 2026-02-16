@@ -5,16 +5,10 @@
   left: 0;
   right: 0;
   height: var(--header-height);
-  background-color: transparent;
-  z-index: 1000;
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.header--scrolled {
-  background: rgba(255, 255, 255, 0.3);
+  background: transparent;
   backdrop-filter: blur(24px) saturate(1.4);
   -webkit-backdrop-filter: blur(24px) saturate(1.4);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  z-index: 1000;
 }
 
 .header .container {

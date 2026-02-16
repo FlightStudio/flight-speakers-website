@@ -3,17 +3,16 @@ import { motion } from 'framer-motion'
 import DashboardNewRequests from '../components/DashboardNewRequests'
 import DashboardTopSpeakers from '../components/DashboardTopSpeakers'
 import DashboardInsights from '../components/DashboardInsights'
-
-const EASE = [0.16, 1, 0.3, 1]
+import { EASE } from '../../constants/animation'
 
 const stagger = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.1 } },
+  show: { transition: { staggerChildren: 0.18, delayChildren: 0.1 } },
 }
 
 const fadeUp = {
   hidden: { opacity: 0, y: 14 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: EASE } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE } },
 }
 
 function getGreeting() {

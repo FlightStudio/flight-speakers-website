@@ -36,11 +36,25 @@ router.post('/:token', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Name, headline, and bio are required' })
     }
 
+    if (name.length > 200 || headline.length > 300 || bio.length > 5000) {
+      return res.status(400).json({ success: false, message: 'One or more fields exceed maximum length' })
+    }
+    if ((req.body.photo && req.body.photo.length > 1000) || (req.body.video_url && req.body.video_url.length > 500)) {
+      return res.status(400).json({ success: false, message: 'URL fields exceed maximum length' })
+    }
+
+    // Whitelist allowed fields
+    const allowedFields = ['name', 'headline', 'bio', 'photo', 'topics', 'audiences', 'keynotes', 'speaking_format', 'video_url', 'social_profiles', 'gender', 'ethnicity', 'nationality', 'location']
+    const filtered = {}
+    for (const key of allowedFields) {
+      if (req.body[key] !== undefined) filtered[key] = req.body[key]
+    }
+
     const draft = await createDraft({
       speakerId: result.token.speaker_id || null,
       type: result.token.type,
-      data: req.body,
-      submittedBy: name,
+      data: filtered,
+      submittedBy: 'portal',
     })
 
     await markTokenUsed(req.params.token)

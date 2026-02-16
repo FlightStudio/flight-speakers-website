@@ -5,6 +5,34 @@ import { useEnquiries } from '../hooks/useEnquiries'
 import EnquiryCard from './EnquiryCard'
 import StatusBadge from './StatusBadge'
 
+const CURRENCY_SYMBOLS = { USD: '$', GBP: '£', EUR: '€' }
+
+function formatTableBudget(budget, currency) {
+  if (!budget) return null
+  if (/^\d+$/.test(budget)) {
+    const symbol = CURRENCY_SYMBOLS[currency] || '$'
+    return `${symbol}${parseInt(budget, 10).toLocaleString()}`
+  }
+  return budget
+}
+
+function formatTableDate(dateStr) {
+  if (!dateStr) return '—'
+  function fmt(s) {
+    const d = new Date(s + 'T00:00:00')
+    if (isNaN(d)) return s
+    const day = d.getDate()
+    const mon = d.toLocaleDateString('en-GB', { month: 'short' })
+    const yr = d.getFullYear()
+    return yr === new Date().getFullYear() ? `${day} ${mon}` : `${day} ${mon} ${yr}`
+  }
+  if (dateStr.includes('|')) {
+    const [start, end] = dateStr.split('|')
+    return `${fmt(start)} — ${fmt(end)}`
+  }
+  return fmt(dateStr)
+}
+
 const FILTERS = ['all', 'new', 'reviewed', 'accepted', 'rejected', 'responded']
 
 function timeAgo(dateStr) {
@@ -145,14 +173,14 @@ export default function EnquiryList({ initialFilter = 'all' }) {
                           )}
                         </td>
                         <td className="enquiry-table__muted">
-                          {enquiry.event_date || '—'}
+                          {formatTableDate(enquiry.event_date)}
                         </td>
                         <td className="enquiry-table__muted">
                           {enquiry.event_location || '—'}
                         </td>
                         <td>
                           {enquiry.budget_range ? (
-                            <span className="enquiry-table__budget">{enquiry.budget_range}</span>
+                            <span className="enquiry-table__budget">{formatTableBudget(enquiry.budget_range, enquiry.currency)}</span>
                           ) : (
                             <span className="enquiry-table__muted">—</span>
                           )}

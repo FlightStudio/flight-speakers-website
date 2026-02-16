@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { EASE } from '../../constants/animation'
 
 export default function SpeakerCardGrid({ speakers = [] }) {
   const navigate = useNavigate()
@@ -15,7 +16,7 @@ export default function SpeakerCardGrid({ speakers = [] }) {
           onClick={() => navigate(`/admin/speakers/${s.id}`)}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: i * 0.04, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.3, delay: i * 0.04, ease: EASE }}
         >
           <img src={s.photo} alt={s.name} className="speaker-card-admin__photo" />
           <div className="speaker-card-admin__body">

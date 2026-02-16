@@ -80,16 +80,16 @@ export const STEPS = [
     field: 'eventType',
     type: 'pills',
     options: EVENT_TYPES,
-    required: false,
-    skippable: true,
+    required: true,
+    skippable: false,
   },
   {
     id: 'eventDate',
     heading: "When's the event?",
     field: 'eventDate',
     type: 'date',
-    required: false,
-    skippable: true,
+    required: true,
+    skippable: false,
   },
   {
     id: 'eventLocation',
@@ -97,8 +97,8 @@ export const STEPS = [
     field: 'eventLocation',
     type: 'text',
     placeholder: 'City, Country or Virtual',
-    required: false,
-    skippable: true,
+    required: true,
+    skippable: false,
   },
   {
     id: 'audienceSize',
@@ -106,8 +106,8 @@ export const STEPS = [
     field: 'audienceSize',
     type: 'text',
     placeholder: 'e.g., 500 attendees',
-    required: false,
-    skippable: true,
+    required: true,
+    skippable: false,
     whyText: 'Audience size helps us recommend speakers experienced with groups your size and suggest the right format — intimate fireside chat vs. large keynote.',
   },
   {
@@ -158,6 +158,7 @@ const INITIAL_FORM_DATA = {
   speakerId: '',
   speakerName: '',
   additionalSpeakerIds: [],
+  preSelectedSpeakerIds: [],
   proBonoFlexible: false,
   newsletter: false,
 }
@@ -172,6 +173,14 @@ function validateField(field, value, formData) {
       if (!value.trim()) return 'Please enter your email'
       if (!EMAIL_REGEX.test(value)) return 'Please enter a valid email'
       return ''
+    case 'eventType':
+      return value.trim() ? '' : 'Please select an event type'
+    case 'eventDate':
+      return value.trim() ? '' : 'Please select an event date'
+    case 'eventLocation':
+      return value.trim() ? '' : 'Please enter an event location'
+    case 'audienceSize':
+      return value.trim() ? '' : 'Please enter the audience size'
     case 'engagementType':
       if (!value.trim()) return 'Please select paid or pro bono'
       if (value === 'Paid' && formData) {
@@ -209,6 +218,7 @@ export function useMultiStepForm({ initialData = {}, speaker = null } = {}) {
   const [status, setStatus] = useState({ type: '', message: '' })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [prefilledFields, setPrefilledFields] = useState(new Set())
+  const [returnToReview, setReturnToReview] = useState(false)
 
   const updateField = useCallback((name, value) => {
     setFormData(prev => ({ ...prev, [name]: value }))
@@ -250,6 +260,14 @@ export function useMultiStepForm({ initialData = {}, speaker = null } = {}) {
     if (currentStep >= TOTAL_STEPS - 1) return false
     if (!validateStep(currentStep)) return false
 
+    // If editing from review, go back to review step
+    if (returnToReview) {
+      setReturnToReview(false)
+      setDirection(1)
+      setCurrentStep(TOTAL_STEPS - 1)
+      return true
+    }
+
     setDirection(1)
     let next = currentStep + 1
     while (next < TOTAL_STEPS - 1 && shouldSkipStep(next)) {
@@ -257,7 +275,7 @@ export function useMultiStepForm({ initialData = {}, speaker = null } = {}) {
     }
     setCurrentStep(next)
     return true
-  }, [currentStep, validateStep, shouldSkipStep])
+  }, [currentStep, validateStep, shouldSkipStep, returnToReview])
 
   const goBack = useCallback(() => {
     if (currentStep <= 0) return false
@@ -272,7 +290,7 @@ export function useMultiStepForm({ initialData = {}, speaker = null } = {}) {
   }, [currentStep, shouldSkipStep])
 
   const goToStep = useCallback((stepIndex) => {
-    if (stepIndex < 0 || stepIndex >= TOTAL_STEPS) return false
+    if (stepIndex == null || stepIndex < 0 || stepIndex >= TOTAL_STEPS) return false
     setDirection(stepIndex > currentStep ? 1 : -1)
     setCurrentStep(stepIndex)
     setErrors({})
@@ -368,5 +386,6 @@ export function useMultiStepForm({ initialData = {}, speaker = null } = {}) {
     setDirection,
     setStatus,
     setPrefilledFields,
+    setReturnToReview,
   }
 }

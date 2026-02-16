@@ -9,12 +9,12 @@ import StepReview from './steps/StepReview'
 import StepConfirmPrefill from './steps/StepConfirmPrefill'
 import SuccessScreen from './SuccessScreen'
 import WhyWeAsk from './WhyWeAsk'
+import BriefActions from '../brief/BriefActions'
 import { getCachedParseBrief } from '../../utils/prefetch'
+import { EASE } from '../../constants/animation'
 import './MultiStepEnquiryForm.css'
 
-const EASE = [0.16, 1, 0.3, 1]
-
-function MultiStepEnquiryForm({ speaker = null, prefillBrief = '' }) {
+function MultiStepEnquiryForm({ speaker = null, prefillBrief = '', preSelectedSpeakers = [] }) {
   const [showConfirmation, setShowConfirmation] = useState(!!prefillBrief)
   const [extractedData, setExtractedData] = useState({})
   const [isParsing, setIsParsing] = useState(!!prefillBrief)
@@ -26,6 +26,14 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '' }) {
   const [initialData] = useState(() => {
     const data = {}
     if (prefillBrief) data.brief = prefillBrief
+    // Pre-selected speakers from search results (excluding primary speaker)
+    const preIds = preSelectedSpeakers
+      .map(s => s.id)
+      .filter(id => id !== speaker?.id)
+    if (preIds.length > 0) {
+      data.additionalSpeakerIds = preIds
+      data.preSelectedSpeakerIds = preIds
+    }
     return data
   })
 
@@ -48,6 +56,7 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '' }) {
     setFormData,
     setDirection,
     setPrefilledFields,
+    setReturnToReview,
   } = form
 
   const budgetRanges = useMemo(() => getBudgetRanges(formData.currency), [formData.currency])
@@ -79,9 +88,21 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '' }) {
         if (cancelled) return
         if (data.extracted && Object.keys(data.extracted).length > 0) {
           // If budget extracted, set hasBudget so the form tree is open
-          if (data.extracted.budgetRange) {
+          if (data.extracted.budgetRange || data.extracted.customBudget) {
             data.extracted.hasBudget = 'Yes'
             if (!data.extracted.engagementType) data.extracted.engagementType = 'Paid'
+          }
+          // If an exact custom budget was extracted, use it as the budgetRange value
+          // (the form's custom budget input handles non-range values)
+          if (data.extracted.customBudget) {
+            data.extracted.budgetRange = data.extracted.customBudget
+            // Map extracted currency to form currency if provided
+            if (data.extracted.budgetCurrency) {
+              const currencyMap = { GBP: 'GBP', USD: 'USD', EUR: 'EUR' }
+              if (currencyMap[data.extracted.budgetCurrency]) {
+                data.extracted.currency = currencyMap[data.extracted.budgetCurrency]
+              }
+            }
           }
           setExtractedData(data.extracted)
           setFormData(prev => ({ ...prev, ...data.extracted }))
@@ -195,14 +216,19 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '' }) {
       if (currentStep < briefStepIndex) return
     }
 
+    const controller = new AbortController()
     const delay = isPrefilled ? 0 : 800
     const timer = setTimeout(() => {
       setPrefetchedBrief(briefForSearch)
-      fetch(`/api/search?q=${encodeURIComponent(briefForSearch)}&limit=6`)
+      fetch(`/api/search?q=${encodeURIComponent(briefForSearch)}&limit=6`, { signal: controller.signal })
         .then(res => res.json())
         .then(data => {
           if (data.success) {
-            const filtered = (data.speakers || []).filter(s => s.id !== formData.speakerId)
+            const excludeIds = new Set([
+              formData.speakerId,
+              ...(formData.preSelectedSpeakerIds || []),
+            ].filter(Boolean))
+            const filtered = (data.speakers || []).filter(s => !excludeIds.has(s.id))
             setRecommendedSpeakers(filtered.slice(0, 4))
             setRecommendedScores(data.scores || {})
             setRecommendedReasonings(data.reasonings || {})
@@ -210,8 +236,8 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '' }) {
         })
         .catch(() => {})
     }, delay)
-    return () => clearTimeout(timer)
-  }, [briefForSearch, currentStep, prefetchedBrief, formData.speakerId, prefillBrief])
+    return () => { clearTimeout(timer); controller.abort() }
+  }, [briefForSearch, currentStep, prefetchedBrief, formData.speakerId, formData.preSelectedSpeakerIds, prefillBrief])
 
   const toggleSpeaker = useCallback((speakerId) => {
     setFormData(prev => {
@@ -234,6 +260,53 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '' }) {
     return () => clearTimeout(timer)
   }, [currentStep, showConfirmation])
 
+  // Build categorized speaker lists for the brief/share functionality
+  const briefSelectedSpeakers = useMemo(() => {
+    return preSelectedSpeakers
+      .filter(s => s.id !== speaker?.id)
+      .map(s => ({ ...s, matchScore: null, reasoning: null }))
+  }, [preSelectedSpeakers, speaker])
+
+  const briefAiRecommendations = useMemo(() => {
+    const toggledIds = formData.additionalSpeakerIds || []
+    return recommendedSpeakers
+      .filter(s => toggledIds.includes(s.id) && s.id !== speaker?.id)
+      .map(s => ({
+        ...s,
+        matchScore: recommendedScores[s.id] ?? null,
+        reasoning: recommendedReasonings[s.id] ?? null,
+      }))
+  }, [recommendedSpeakers, recommendedScores, recommendedReasonings, formData.additionalSpeakerIds, speaker])
+
+  // Build speakers array for progress bar — adapts by stage:
+  // Early steps: primary + pre-selected speakers from search
+  // Review step: primary + pre-selected + toggled recommended speakers
+  const progressSpeakers = useMemo(() => {
+    const speakers = []
+    const seenIds = new Set()
+    if (speaker) {
+      seenIds.add(speaker.id)
+    }
+    // Always show pre-selected speakers from search results
+    for (const s of preSelectedSpeakers) {
+      if (!seenIds.has(s.id)) {
+        speakers.push(s)
+        seenIds.add(s.id)
+      }
+    }
+    // At the review step, also show recommended speakers the user toggled on
+    if (isReviewStep) {
+      const toggledIds = formData.additionalSpeakerIds || []
+      for (const s of recommendedSpeakers) {
+        if (toggledIds.includes(s.id) && !seenIds.has(s.id)) {
+          speakers.push(s)
+          seenIds.add(s.id)
+        }
+      }
+    }
+    return speakers
+  }, [speaker, preSelectedSpeakers, isReviewStep, formData.additionalSpeakerIds, recommendedSpeakers])
+
   const slideDistance = shouldReduceMotion ? 0 : 40
   const variants = {
     enter: (dir) => ({ y: dir > 0 ? slideDistance : -slideDistance, opacity: 0 }),
@@ -245,7 +318,16 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '' }) {
   if (status.type === 'success') {
     return (
       <div className="mstep">
-        <SuccessScreen name={formData.name} onReset={resetForm} />
+        <SuccessScreen
+          name={formData.name}
+          onReset={resetForm}
+          speaker={speaker}
+          brief={prefillBrief || formData.brief}
+          recommendedSpeakers={recommendedSpeakers}
+          recommendedScores={recommendedScores}
+          recommendedReasonings={recommendedReasonings}
+          preSelectedSpeakers={preSelectedSpeakers}
+        />
       </div>
     )
   }
@@ -273,7 +355,10 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '' }) {
         <StepReview
           formData={formData}
           handleChange={handleChange}
-          goToStep={goToStep}
+          goToStep={(stepIdx) => {
+            setReturnToReview(true)
+            goToStep(stepIdx)
+          }}
           recommendedSpeakers={recommendedSpeakers}
           recommendedScores={recommendedScores}
           onToggleSpeaker={toggleSpeaker}
@@ -369,13 +454,10 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '' }) {
                         value={formData.currency || 'USD'}
                         onChange={(e) => {
                           const newCurrency = e.target.value
-                          const oldRanges = getBudgetRanges(formData.currency)
-                          const newRanges = getBudgetRanges(newCurrency)
-                          const idx = oldRanges.indexOf(formData.budgetRange)
                           setFormData(prev => ({
                             ...prev,
                             currency: newCurrency,
-                            budgetRange: idx >= 0 ? newRanges[idx] : prev.budgetRange,
+                            budgetRange: '',
                           }))
                         }}
                         className="mstep-currency-select"
@@ -496,7 +578,7 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '' }) {
 
   return (
     <div className="mstep" onKeyDown={handleKeyDown}>
-      <FormProgressBar currentStep={currentStep} speaker={speaker} />
+      <FormProgressBar currentStep={currentStep} speaker={speaker} speakers={progressSpeakers} />
 
       <div className="mstep-step" aria-live="polite">
         <AnimatePresence mode="wait" custom={direction}>
@@ -530,6 +612,16 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '' }) {
         nextLabel={isReviewStep ? 'Submit Enquiry' : 'Continue'}
         isSubmitting={isSubmitting}
       />
+
+      {isReviewStep && speaker && (
+        <BriefActions
+          speaker={speaker}
+          selectedSpeakers={briefSelectedSpeakers}
+          aiRecommendations={briefAiRecommendations}
+          query={prefillBrief || formData.brief}
+          variant="sticky"
+        />
+      )}
     </div>
   )
 }

@@ -1,22 +1,13 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { EASE } from '../../constants/animation'
 import './Header.css'
 
 function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20)
-    }
-
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
 
   useEffect(() => {
     setMobileMenuOpen(false)
@@ -30,10 +21,10 @@ function Header() {
   return (
     <>
       <motion.header
-        className={`header ${scrolled ? 'header--scrolled' : ''}`}
+        className="header"
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.6, ease: EASE }}
       >
         <div className="container">
           <nav className="nav">
@@ -110,7 +101,7 @@ function Header() {
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.4, ease: EASE }}
             >
               <div className="mobile-menu-header">
                 <Link to="/" className="logo" onClick={() => setMobileMenuOpen(false)}>

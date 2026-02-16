@@ -1,8 +1,33 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import StatusBadge from './StatusBadge'
+import { EASE } from '../../constants/animation'
 
-const EASE = [0.16, 1, 0.3, 1]
+const CURRENCY_SYMBOLS = { USD: '$', GBP: '£', EUR: '€' }
+
+function formatEventDate(dateStr) {
+  if (!dateStr) return null
+  function fmt(s) {
+    const d = new Date(s + 'T00:00:00')
+    if (isNaN(d)) return s
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+  }
+  if (dateStr.includes('|')) {
+    const [start, end] = dateStr.split('|')
+    return `${fmt(start)} — ${fmt(end)}`
+  }
+  return fmt(dateStr)
+}
+
+function formatBudget(budgetRange, currency) {
+  if (!budgetRange) return null
+  // If it's a plain number (custom budget), format with currency symbol
+  if (/^\d+$/.test(budgetRange)) {
+    const symbol = CURRENCY_SYMBOLS[currency] || '$'
+    return `${symbol}${parseInt(budgetRange, 10).toLocaleString()}`
+  }
+  return budgetRange
+}
 
 export default function EnquiryDetail({ enquiry, additionalSpeakers = [] }) {
   const [showRecs, setShowRecs] = useState(false)
@@ -14,14 +39,15 @@ export default function EnquiryDetail({ enquiry, additionalSpeakers = [] }) {
     { label: 'Email', value: enquiry.email },
     { label: 'Organization', value: enquiry.organization },
     { label: 'Phone', value: enquiry.phone },
-    { label: 'Event Date', value: enquiry.event_date },
+    { label: 'Event Date', value: formatEventDate(enquiry.event_date) },
     { label: 'Location', value: enquiry.event_location },
     { label: 'Audience Size', value: enquiry.audience_size },
-    { label: 'Budget', value: enquiry.budget_range },
+    { label: 'Budget', value: formatBudget(enquiry.budget_range, enquiry.currency) },
     { label: 'Event Type', value: enquiry.event_type },
     { label: 'Engagement Type', value: enquiry.engagement_type },
     { label: 'Currency', value: enquiry.currency },
     { label: 'Has Budget', value: enquiry.has_budget },
+    { label: 'Pro Bono Flexible', value: enquiry.pro_bono_flexible ? 'Yes' : null },
     { label: 'Newsletter', value: enquiry.newsletter ? 'Yes' : 'No' },
   ]
 

@@ -179,6 +179,12 @@
   letter-spacing: -0.02em;
 }
 
+.search-results__selected-count {
+  font-weight: 500;
+  color: var(--color-gray-500);
+  font-size: var(--text-lg);
+}
+
 .search-results__query {
   font-size: 14px;
   color: var(--color-gray-600);

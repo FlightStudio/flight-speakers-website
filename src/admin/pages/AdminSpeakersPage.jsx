@@ -18,7 +18,7 @@ const SORT_OPTIONS = [
   { key: 'budgetEnquiries', label: 'Most Budget Fwd' },
 ]
 
-const EASE = [0.16, 1, 0.3, 1]
+import { EASE } from '../../constants/animation'
 
 export default function AdminSpeakersPage() {
   const [analytics, setAnalytics] = useState([])

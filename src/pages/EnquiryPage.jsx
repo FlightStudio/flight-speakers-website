@@ -9,8 +9,14 @@ function EnquiryPage() {
   const [searchParams] = useSearchParams()
   const location = useLocation()
   const brief = searchParams.get('brief') || ''
+  const preSelectedSpeakers = location.state?.selectedSpeakers || []
 
-  const [speaker, setSpeaker] = useState(location.state?.speaker || null)
+  const [speaker, setSpeaker] = useState(() => {
+    if (location.state?.speaker) return location.state.speaker
+    // If no explicit speakerId but we have pre-selected speakers, use first as primary
+    if (!speakerId && preSelectedSpeakers.length > 0) return preSelectedSpeakers[0]
+    return null
+  })
 
   useEffect(() => {
     if (!speakerId || speaker) return
@@ -52,7 +58,7 @@ function EnquiryPage() {
 
       {/* Full-screen centered form */}
       <main className="enquiry-main">
-        <MultiStepEnquiryForm speaker={speaker} prefillBrief={brief} />
+        <MultiStepEnquiryForm speaker={speaker} prefillBrief={brief} preSelectedSpeakers={preSelectedSpeakers} />
       </main>
     </div>
   )

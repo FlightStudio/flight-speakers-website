@@ -1,21 +1,17 @@
 import { useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { pdf } from '@react-pdf/renderer'
 import SpeakerBrief from './SpeakerBrief'
-
-const EASE = [0.16, 1, 0.3, 1]
+import { EASE } from '../../constants/animation'
 
 function esc(str) {
   if (!str) return ''
-  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
 }
 
-function buildHtmlBrief({ speaker, reasoning, matchScore, otherSpeakers, query }) {
-  const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
-  const bioPreview = speaker.bio ? speaker.bio.split('\n\n').slice(0, 2).join('<br><br>') : ''
-  const topics = (speaker.topics || []).map(t => `<span style="display:inline-block;padding:2px 10px;background:#f5f5f3;border-radius:4px;font-size:12px;color:#404040;margin:2px 4px 2px 0">${esc(t)}</span>`).join('')
-
-  const otherCards = (otherSpeakers || []).slice(0, 4).map(s => `
+function buildSpeakerCard(s) {
+  return `
     <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f0f0ee">
       ${s.photo ? `<img src="${esc(s.photo)}" style="width:44px;height:44px;border-radius:8px;object-fit:cover" />` : ''}
       <div style="flex:1">
@@ -25,7 +21,16 @@ function buildHtmlBrief({ speaker, reasoning, matchScore, otherSpeakers, query }
         ${s.reasoning ? `<div style="font-size:12px;color:#666;font-style:italic;margin-top:2px">${esc(s.reasoning)}</div>` : ''}
       </div>
     </div>
-  `).join('')
+  `
+}
+
+function buildHtmlBrief({ speaker, reasoning, matchScore, selectedSpeakers, aiRecommendations, query }) {
+  const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+  const bioPreview = speaker.bio ? speaker.bio.split('\n\n').slice(0, 2).map(p => esc(p)).join('<br><br>') : ''
+  const topics = (speaker.topics || []).map(t => `<span style="display:inline-block;padding:2px 10px;background:#f5f5f3;border-radius:4px;font-size:12px;color:#404040;margin:2px 4px 2px 0">${esc(t)}</span>`).join('')
+
+  const selectedCards = (selectedSpeakers || []).slice(0, 6).map(buildSpeakerCard).join('')
+  const aiCards = (aiRecommendations || []).slice(0, 4).map(buildSpeakerCard).join('')
 
   return `<!DOCTYPE html>
 <html><head>
@@ -35,6 +40,7 @@ function buildHtmlBrief({ speaker, reasoning, matchScore, otherSpeakers, query }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:#1a1a1a; background:#fafaf8; }
   .page { max-width:680px; margin:40px auto; background:#fff; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,0.06); padding:48px; }
+  .section-title { font-size:15px; font-weight:700; margin-top:24px; margin-bottom:12px; padding-bottom:6px; border-bottom:1px solid #f0f0ee; }
   @media print { body{background:#fff} .page{box-shadow:none;margin:0;max-width:100%;border-radius:0} .no-print{display:none!important} }
   @media (max-width:720px) { .page{margin:0;border-radius:0;padding:24px} }
 </style>
@@ -54,7 +60,7 @@ function buildHtmlBrief({ speaker, reasoning, matchScore, otherSpeakers, query }
     <div style="font-size:14px;color:#404040;line-height:1.6;font-style:italic">${esc(query)}</div>
   </div>` : ''}
 
-  <div style="font-size:11px;font-weight:700;color:#E85D4C;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px">Recommended Speaker</div>
+  <div style="font-size:11px;font-weight:700;color:#E85D4C;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px">AI Recommended Speaker</div>
   <div style="display:flex;gap:20px;margin-bottom:16px">
     ${speaker.photo ? `<img src="${esc(speaker.photo)}" style="width:90px;height:90px;border-radius:12px;object-fit:cover" />` : ''}
     <div style="flex:1">
@@ -81,9 +87,13 @@ function buildHtmlBrief({ speaker, reasoning, matchScore, otherSpeakers, query }
     </div>
   </div>` : ''}
 
-  ${otherCards ? `
-  <div style="font-size:15px;font-weight:700;margin-top:24px;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #f0f0ee">Other Recommended Speakers</div>
-  <div>${otherCards}</div>` : ''}
+  ${selectedCards ? `
+  <div class="section-title">Your Selected Speakers</div>
+  <div>${selectedCards}</div>` : ''}
+
+  ${aiCards ? `
+  <div class="section-title">Other AI Recommendations</div>
+  <div>${aiCards}</div>` : ''}
 
   <div style="margin-top:32px;padding-top:12px;border-top:1px solid #e8e8e6;display:flex;justify-content:space-between;font-size:12px;color:#94a3b8">
     <span style="font-weight:600">Flight Speakers</span>
@@ -96,9 +106,15 @@ function buildHtmlBrief({ speaker, reasoning, matchScore, otherSpeakers, query }
 </body></html>`
 }
 
-export default function BriefActions({ speaker, reasoning, matchScore, otherSpeakers, query, variant = 'default' }) {
+export default function BriefActions({ speaker, reasoning, matchScore, otherSpeakers, selectedSpeakers, aiRecommendations, query, variant = 'default', showSubmitBrief = false, selectedSpeakersForSubmit = [] }) {
   const [generating, setGenerating] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
+  const navigate = useNavigate()
+
+  // Backward compat: if caller passes otherSpeakers but not the new split props,
+  // treat them all as AI recommendations
+  const resolvedSelected = selectedSpeakers || []
+  const resolvedAiRecs = aiRecommendations || otherSpeakers || []
 
   const generatePdf = useCallback(async () => {
     const doc = (
@@ -106,12 +122,13 @@ export default function BriefActions({ speaker, reasoning, matchScore, otherSpea
         speaker={speaker}
         reasoning={reasoning}
         matchScore={matchScore}
-        otherSpeakers={otherSpeakers}
+        selectedSpeakers={resolvedSelected}
+        aiRecommendations={resolvedAiRecs}
         query={query}
       />
     )
     return pdf(doc).toBlob()
-  }, [speaker, reasoning, matchScore, otherSpeakers, query])
+  }, [speaker, reasoning, matchScore, resolvedSelected, resolvedAiRecs, query])
 
   const handleDownload = useCallback(async () => {
     setGenerating(true)
@@ -133,14 +150,22 @@ export default function BriefActions({ speaker, reasoning, matchScore, otherSpea
     }
   }, [speaker, generatePdf])
 
+  const handleSubmitBrief = useCallback(() => {
+    setShowMenu(false)
+    navigate(`/enquiry?brief=${encodeURIComponent(query)}`, {
+      state: { selectedSpeakers: selectedSpeakersForSubmit },
+    })
+  }, [navigate, query, selectedSpeakersForSubmit])
+
   const handleShareEmail = useCallback(() => {
     // Open the HTML brief in a new tab
-    const html = buildHtmlBrief({ speaker, reasoning, matchScore, otherSpeakers, query })
+    const html = buildHtmlBrief({ speaker, reasoning, matchScore, selectedSpeakers: resolvedSelected, aiRecommendations: resolvedAiRecs, query })
     const blob = new Blob([html], { type: 'text/html' })
     const url = URL.createObjectURL(blob)
     window.open(url, '_blank')
+    setTimeout(() => URL.revokeObjectURL(url), 60000)
 
-    // Open mailto with text summary — user pastes the brief URL from the new tab
+    // Open mailto with text summary
     const subject = encodeURIComponent(`Speaker Recommendation — ${speaker.name} | Flight Speakers`)
     const topicsList = (speaker.topics || []).slice(0, 4).join(', ')
     const body = encodeURIComponent(
@@ -154,7 +179,7 @@ export default function BriefActions({ speaker, reasoning, matchScore, otherSpea
       `Best regards`
     )
     window.location.href = `mailto:?subject=${subject}&body=${body}`
-  }, [speaker, reasoning, matchScore, otherSpeakers, query])
+  }, [speaker, reasoning, matchScore, resolvedSelected, resolvedAiRecs, query])
 
   // Sticky variant — floating button with expandable menu
   if (variant === 'sticky') {
@@ -197,6 +222,14 @@ export default function BriefActions({ speaker, reasoning, matchScore, otherSpea
                 </svg>
                 Share via Email
               </button>
+              {showSubmitBrief && (
+                <button className="brief-sticky__option brief-sticky__option--primary" onClick={handleSubmitBrief}>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M2.5 7H11.5M11.5 7L7 2.5M11.5 7L7 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Submit Brief
+                </button>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

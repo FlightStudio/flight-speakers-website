@@ -15,15 +15,15 @@
   top: 0;
   left: 0;
   bottom: 0;
-  width: clamp(220px, 14vw, 280px);
+  width: clamp(220px, 14vw, 300px);
   z-index: 40;
 }
 
 .admin-layout__content {
   flex: 1;
-  margin-left: clamp(220px, 14vw, 280px);
+  margin-left: clamp(220px, 14vw, 300px);
   min-height: 100vh;
-  padding: clamp(1.5rem, 2vw, 3rem) clamp(1.5rem, 2.5vw, 4rem);
+  padding: clamp(1.75rem, 2.2vw, 3.5rem) clamp(1.75rem, 2.8vw, 4.5rem);
 }
 
 /* ---- Sidebar ---- */
@@ -1115,6 +1115,13 @@
   color: #94a3b8;
 }
 
+.speaker-rec-card__score {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #16a34a;
+  margin-top: 0.15rem;
+}
+
 .speaker-rec-card__match-label {
   margin-left: auto;
   font-size: 0.6rem;
@@ -1140,6 +1147,38 @@
   background: #f5f5f5;
   padding: 0.15rem 0.45rem;
   border-radius: 4px;
+}
+
+.speaker-rec-card--added {
+  border-color: rgba(34, 197, 94, 0.35);
+  background: rgba(34, 197, 94, 0.04);
+}
+
+.speaker-rec-card--skipped {
+  border-color: rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.02);
+  opacity: 0.7;
+}
+
+.speaker-rec-card__status {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.speaker-rec-card__status--added {
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
+}
+
+.speaker-rec-card__status--skipped {
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
 }
 
 .speaker-rec-card__reason {
@@ -1283,14 +1322,14 @@
 }
 
 .admin-page__title {
-  font-size: clamp(1.2rem, 1.3vw, 1.75rem);
+  font-size: clamp(1.35rem, 1.5vw, 2rem);
   font-weight: 700;
   color: #1a1a1a;
   letter-spacing: -0.02em;
 }
 
 .admin-page__subtitle {
-  font-size: clamp(0.75rem, 0.65vw, 0.9rem);
+  font-size: clamp(0.85rem, 0.7vw, 1rem);
   color: #94a3b8;
   margin-top: 0.15rem;
 }
@@ -2442,7 +2481,7 @@
 }
 
 .dash-welcome__greeting {
-  font-size: clamp(1.25rem, 1.3vw, 1.75rem);
+  font-size: clamp(1.4rem, 1.5vw, 2rem);
   font-weight: 700;
   color: #1a1a1a;
   letter-spacing: -0.02em;
@@ -2451,7 +2490,7 @@
 }
 
 .dash-welcome__subtitle {
-  font-size: clamp(0.75rem, 0.65vw, 0.9rem);
+  font-size: clamp(0.85rem, 0.7vw, 1rem);
   color: #94a3b8;
   margin-top: 0.25rem;
 }
@@ -2459,8 +2498,8 @@
 /* ---- Dashboard Layout ---- */
 .dash-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 1.25rem;
   margin-top: 1rem;
   align-items: start;
 }

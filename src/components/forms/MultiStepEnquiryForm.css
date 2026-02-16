@@ -9,7 +9,6 @@
   max-width: 720px;
   margin: 0 auto;
   padding: 0 var(--space-6);
-  padding-bottom: 100px; /* space for fixed nav */
 }
 
 /* Progress bar — avatar + dots inline */
@@ -20,14 +19,41 @@
   margin-bottom: var(--space-10);
 }
 
+/* Avatar container */
+.mstep-progress__avatars {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.mstep-progress__avatars--stacked .mstep-progress__avatar:not(:first-child) {
+  margin-left: -12px;
+}
+
 .mstep-progress__avatar {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-full);
   object-fit: cover;
   flex-shrink: 0;
-  border: 2px solid rgba(0, 0, 0, 0.06);
+  border: 2px solid #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.mstep-progress__avatar-overflow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--color-gray-100);
+  border: 2px solid #fff;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-left: -12px;
+  flex-shrink: 0;
 }
 
 .mstep-progress__dots {
@@ -469,20 +495,14 @@
   color: inherit;
 }
 
-/* Navigation — sticky bottom bar, always visible */
+/* Navigation — below input content */
 .mstep-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   max-width: 720px;
-  margin: 0 auto;
-  padding: var(--space-4) var(--space-6) var(--space-6);
-  background: linear-gradient(to bottom, transparent 0%, var(--color-white) 30%);
-  z-index: 20;
+  margin: var(--space-8) auto 0;
+  padding: 0 var(--space-6);
 }
 
 .mstep-nav__left,
@@ -872,6 +892,99 @@
   min-height: 120px;
 }
 
+/* Calendar range hint */
+.cal-range-hint {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-top: var(--space-2);
+  margin-bottom: calc(-1 * var(--space-2));
+}
+
+/* In-range day highlighting */
+.cal__cell--in-range {
+  background: rgba(26, 26, 26, 0.08) !important;
+  border-radius: 4px;
+}
+
+/* Calendar top bar — mode toggle inside dropdown */
+.cal__top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-3);
+}
+
+.cal__mode-toggle {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 100px;
+}
+
+.cal__mode-btn {
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 100px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out-expo);
+}
+
+.cal__mode-btn--active {
+  background: var(--color-white);
+  color: var(--color-text-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Month scroll pills */
+.cal__month-scroll {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 2px 0;
+  margin-bottom: var(--space-3);
+}
+
+.cal__month-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.cal__month-pill {
+  flex-shrink: 0;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 100px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s var(--ease-out-expo);
+  white-space: nowrap;
+}
+
+.cal__month-pill:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--color-text-secondary);
+}
+
+.cal__month-pill--active {
+  background: var(--color-charcoal);
+  color: var(--color-white);
+  border-color: var(--color-charcoal);
+}
+
+.cal__month-pill--active:hover {
+  background: var(--color-charcoal);
+  color: var(--color-white);
+}
+
 /* ============================================
    Availability Calendar (.cal-*)
    Date input + dropdown calendar
@@ -1184,7 +1297,8 @@
   .mstep-nav {
     flex-direction: column-reverse;
     gap: var(--space-3);
-    padding: var(--space-3) var(--space-4) var(--space-5);
+    padding: 0 var(--space-4);
+    margin-top: var(--space-6);
   }
 
   .mstep-nav__left,

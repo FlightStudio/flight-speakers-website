@@ -79,6 +79,9 @@ ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS currency TEXT;
 ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS engagement_type TEXT;
 ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS has_budget TEXT;
 
+-- Pro bono flexible flag
+ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS pro_bono_flexible BOOLEAN DEFAULT false;
+
 -- Speaker fee column
 ALTER TABLE speakers ADD COLUMN IF NOT EXISTS fee_min INTEGER;
 

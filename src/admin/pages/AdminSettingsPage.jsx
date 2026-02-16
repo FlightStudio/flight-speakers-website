@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { EASE } from '../../constants/animation'
 
 export default function AdminSettingsPage() {
   return (
@@ -6,7 +7,7 @@ export default function AdminSettingsPage() {
       className="admin-page"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.35, ease: EASE }}
     >
       <div className="admin-page__header">
         <h1 className="admin-page__title">Integrations</h1>

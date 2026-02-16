@@ -2,6 +2,8 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import helmet from 'helmet'
+import rateLimit from 'express-rate-limit'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import speakersRouter from './routes/speakers.js'
@@ -24,11 +26,15 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',')
   : ['http://localhost:3000']
 
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+}))
 app.use(cors({
   origin: allowedOrigins,
   credentials: true,
 }))
-app.use(express.json())
+app.use(express.json({ limit: '1mb' }))
 app.use(cookieParser())
 
 // Request logging
@@ -37,13 +43,39 @@ app.use((req, res, next) => {
   next()
 })
 
+// Rate limiters
+const searchLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  message: { success: false, message: 'Too many requests, please try again later' },
+})
+
+const enquiryLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { success: false, message: 'Too many enquiries submitted, please try again later' },
+})
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { success: false, message: 'Too many login attempts, please try again later' },
+})
+
+const portalLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  message: { success: false, message: 'Too many requests, please try again later' },
+})
+
 // API Routes
 app.use('/api/speakers', speakersRouter)
-app.use('/api/enquiry', enquiryRouter)
-app.use('/api/search', searchRouter)
-app.use('/api/parse-brief', parseBriefRouter)
+app.use('/api/enquiry', enquiryLimiter, enquiryRouter)
+app.use('/api/search', searchLimiter, searchRouter)
+app.use('/api/parse-brief', searchLimiter, parseBriefRouter)
+app.use('/api/admin/login', loginLimiter)
 app.use('/api/admin', adminRouter)
-app.use('/api/portal', portalRouter)
+app.use('/api/portal', portalLimiter, portalRouter)
 
 // API dashboard
 app.get('/api', async (req, res) => {
@@ -178,12 +210,12 @@ app.get('/api/health', async (req, res) => {
   }
 })
 
-// Error handling
+// Error handling — never leak internal details to client
 app.use((err, req, res, next) => {
-  console.error('Error:', err)
+  console.error('Unhandled error:', err)
   res.status(err.status || 500).json({
     success: false,
-    message: err.message || 'Internal server error',
+    message: 'Internal server error',
   })
 })
 

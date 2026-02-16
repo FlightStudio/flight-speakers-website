@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import SpeakerCard from './SpeakerCard'
 import './SpeakerGrid.css'
 
-function SpeakerGrid({ speakers, showReasoning = false, reasonings = {}, scores = {}, searchBrief = '' }) {
+function SpeakerGrid({ speakers, showReasoning = false, reasonings = {}, scores = {}, searchBrief = '', selectable = false, selectedIds = new Set(), onToggleSelect }) {
   if (!speakers || speakers.length === 0) {
     return (
       <motion.div
@@ -27,6 +27,9 @@ function SpeakerGrid({ speakers, showReasoning = false, reasonings = {}, scores 
           matchScore={scores[speaker.id]}
           index={index}
           searchBrief={searchBrief}
+          selectable={selectable}
+          isSelected={selectedIds.has?.(speaker.id) || false}
+          onToggleSelect={onToggleSelect}
         />
       ))}
     </div>

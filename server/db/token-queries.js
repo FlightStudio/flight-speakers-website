@@ -35,12 +35,13 @@ export async function validateToken(token) {
     [token]
   )
 
-  if (!rows[0]) return { valid: false, error: 'Invalid link' }
+  if (!rows[0]) return { valid: false, error: 'Invalid or expired link' }
 
   const row = rows[0]
 
-  if (row.used_at) return { valid: false, error: 'This link has already been used' }
-  if (new Date(row.expires_at) < new Date()) return { valid: false, error: 'This link has expired' }
+  if (row.used_at || new Date(row.expires_at) < new Date()) {
+    return { valid: false, error: 'Invalid or expired link' }
+  }
 
   // Build speaker data for pre-fill if update type
   let speaker = null

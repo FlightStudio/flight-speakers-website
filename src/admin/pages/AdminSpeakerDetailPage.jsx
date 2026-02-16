@@ -2,8 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import StatusBadge from '../components/StatusBadge'
-
-const EASE = [0.16, 1, 0.3, 1]
+import { EASE } from '../../constants/animation'
 
 export default function AdminSpeakerDetailPage() {
   const { id } = useParams()

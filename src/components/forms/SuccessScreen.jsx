@@ -1,9 +1,23 @@
 import { motion } from 'framer-motion'
+import { EASE } from '../../constants/animation'
+import BriefActions from '../brief/BriefActions'
 
-const EASE = [0.16, 1, 0.3, 1]
-
-function SuccessScreen({ name, onReset }) {
+function SuccessScreen({ name, onReset, speaker, brief, recommendedSpeakers = [], recommendedScores = {}, recommendedReasonings = {}, preSelectedSpeakers = [] }) {
   const firstName = name ? name.split(' ')[0] : ''
+
+  // Selected speakers: user-toggled from search results (not AI recommended)
+  const selectedSpeakers = preSelectedSpeakers
+    .filter(s => s.id !== speaker?.id)
+    .map(s => ({ ...s, matchScore: null, reasoning: null }))
+
+  // AI recommendations: speakers recommended by the search engine
+  const aiRecommendations = recommendedSpeakers
+    .filter(s => s.id !== speaker?.id)
+    .map(s => ({
+      ...s,
+      matchScore: recommendedScores[s.id] ?? null,
+      reasoning: recommendedReasonings[s.id] ?? null,
+    }))
 
   return (
     <motion.div
@@ -67,6 +81,16 @@ function SuccessScreen({ name, onReset }) {
       >
         Submit another enquiry
       </motion.button>
+
+      {speaker && (
+        <BriefActions
+          speaker={speaker}
+          selectedSpeakers={selectedSpeakers}
+          aiRecommendations={aiRecommendations}
+          query={brief}
+          variant="sticky"
+        />
+      )}
     </motion.div>
   )
 }

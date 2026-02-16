@@ -2,9 +2,10 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useState, useRef, useCallback } from 'react'
 import { prefetchSpeaker, prefetchParseBrief } from '../../utils/prefetch'
+import { EASE } from '../../constants/animation'
 import './SpeakerCard.css'
 
-function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScore, searchBrief = '' }) {
+function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScore, searchBrief = '', selectable = false, isSelected = false, onToggleSelect }) {
   const [isHovered, setIsHovered] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const cardRef = useRef(null)
@@ -23,12 +24,12 @@ function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScor
   return (
     <motion.div
       whileHover={{ y: -8 }}
-      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.3, ease: EASE }}
     >
       <Link
         ref={cardRef}
         to={`/speakers/${speaker.id}${searchBrief ? `?brief=${encodeURIComponent(searchBrief)}` : ''}`}
-        className="speaker-card"
+        className={`speaker-card${isSelected ? ' speaker-card--selected' : ''}`}
         onMouseEnter={() => {
           setIsHovered(true)
           if (!prefetchedRef.current) {
@@ -59,7 +60,7 @@ function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScor
             className="speaker-card__image"
             loading="lazy"
             animate={{ scale: isHovered ? 1.05 : 1 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.6, ease: EASE }}
           />
           {speaker.featured && (
             <span className="speaker-card__badge">Featured</span>
@@ -79,6 +80,25 @@ function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScor
               <span>Playing preview...</span>
             </div>
           </motion.div>
+
+          {selectable && (
+            <button
+              type="button"
+              className={`speaker-card__select${isSelected ? ' speaker-card__select--active' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+                onToggleSelect?.(speaker.id)
+              }}
+              aria-label={isSelected ? `Deselect ${speaker.name}` : `Select ${speaker.name}`}
+            >
+              {isSelected ? (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7L6 10L11 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 3V11M3 7H11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+              )}
+            </button>
+          )}
         </div>
 
         <div className="speaker-card__content">

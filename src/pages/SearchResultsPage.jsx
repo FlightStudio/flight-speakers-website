@@ -1,12 +1,11 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import AISearchBar from '../components/search/AISearchBar'
 import SpeakerGrid from '../components/speakers/SpeakerGrid'
 import BriefActions from '../components/brief/BriefActions'
+import { EASE } from '../constants/animation'
 import './SearchResultsPage.css'
-
-const EASE = [0.16, 1, 0.3, 1]
 
 // Animated analyzing orb — morphing gradient blob
 function AnalyzingOrb() {
@@ -87,12 +86,29 @@ function SearchResultsPage() {
 
   const [isLoading, setIsLoading] = useState(false)
   const [results, setResults] = useState({ speakers: [], reasonings: {}, scores: {} })
+  const [selectedSpeakerIds, setSelectedSpeakerIds] = useState(new Set())
+
+  const toggleSpeakerSelect = useCallback((speakerId) => {
+    setSelectedSpeakerIds(prev => {
+      const next = new Set(prev)
+      if (next.has(speakerId)) next.delete(speakerId)
+      else next.add(speakerId)
+      return next
+    })
+  }, [])
+
+  const selectedSpeakers = useMemo(
+    () => results.speakers.filter(s => selectedSpeakerIds.has(s.id)),
+    [results.speakers, selectedSpeakerIds]
+  )
 
   useEffect(() => {
     if (!query) {
       setResults({ speakers: [], reasonings: {} })
       return
     }
+    // Reset selection on new search
+    setSelectedSpeakerIds(new Set())
 
     const controller = new AbortController()
     setIsLoading(true)
@@ -264,6 +280,11 @@ function SearchResultsPage() {
                   <div className="search-results__info">
                     <h2>
                       {results.speakers.length} speaker{results.speakers.length !== 1 ? 's' : ''} found
+                      {selectedSpeakerIds.size > 0 && (
+                        <span className="search-results__selected-count">
+                          {' '}&middot; {selectedSpeakerIds.size} selected
+                        </span>
+                      )}
                     </h2>
                     <p className="search-results__query">for "{query}"</p>
                     <span className="search-results__ai-badge">
@@ -277,6 +298,7 @@ function SearchResultsPage() {
                   <div className="search-results__actions">
                     <Link
                       to={`/enquiry?brief=${encodeURIComponent(query)}`}
+                      state={{ selectedSpeakers }}
                       className="btn btn-primary"
                     >
                       Submit This Brief
@@ -299,6 +321,9 @@ function SearchResultsPage() {
                       reasonings={results.reasonings}
                       scores={results.scores}
                       searchBrief={query}
+                      selectable={true}
+                      selectedIds={selectedSpeakerIds}
+                      onToggleSelect={toggleSpeakerSelect}
                     />
                   </motion.div>
                 ) : (
@@ -323,19 +348,29 @@ function SearchResultsPage() {
         </div>
       </section>
 
-      {/* Sticky Brief Button */}
-      {query && !isLoading && results.speakers.length > 0 && (
+      {/* Sticky Brief Button — only when speakers are selected */}
+      {query && !isLoading && selectedSpeakerIds.size > 0 && (
         <BriefActions
-          speaker={results.speakers[0]}
-          reasoning={results.reasonings[results.speakers[0]?.id]}
-          matchScore={results.scores[results.speakers[0]?.id]}
-          otherSpeakers={results.speakers.slice(1).map(s => ({
+          speaker={selectedSpeakers[0] || results.speakers[0]}
+          reasoning={results.reasonings[(selectedSpeakers[0] || results.speakers[0])?.id]}
+          matchScore={results.scores[(selectedSpeakers[0] || results.speakers[0])?.id]}
+          selectedSpeakers={selectedSpeakers.slice(1).map(s => ({
             ...s,
-            reasoning: results.reasonings[s.id],
             matchScore: results.scores[s.id],
+            reasoning: results.reasonings[s.id],
           }))}
+          aiRecommendations={results.speakers
+            .filter(s => !selectedSpeakerIds.has(s.id))
+            .slice(0, 4)
+            .map(s => ({
+              ...s,
+              matchScore: results.scores[s.id],
+              reasoning: results.reasonings[s.id],
+            }))}
           query={query}
           variant="sticky"
+          showSubmitBrief={true}
+          selectedSpeakersForSubmit={selectedSpeakers}
         />
       )}
 

@@ -1,12 +1,17 @@
 import { useState, useRef, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { EASE } from '../../constants/animation'
+import { formatDisplayDate, formatEventDate } from '../../utils/dateFormat'
 
 const DAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
 const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'
 ]
-const EASE = [0.16, 1, 0.3, 1]
+const SHORT_MONTHS = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+]
 
 function seededRandom(seed) {
   let s = seed
@@ -46,18 +51,33 @@ function generateAvailability(speakerId, year, month) {
   return availability
 }
 
-function formatDisplayDate(dateStr) {
-  if (!dateStr) return ''
-  const d = new Date(dateStr + 'T00:00:00')
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+function toDateStr(year, month, day) {
+  return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+}
+
+// Generate month pills: current month + next 11 months
+function getMonthPills(today) {
+  const pills = []
+  for (let i = 0; i < 12; i++) {
+    const m = (today.getMonth() + i) % 12
+    const y = today.getFullYear() + Math.floor((today.getMonth() + i) / 12)
+    pills.push({ year: y, month: m })
+  }
+  return pills
 }
 
 function AvailabilityCalendar({ value, onChange, speakerId = '' }) {
   const today = new Date()
   const [isOpen, setIsOpen] = useState(false)
+  const [rangeMode, setRangeMode] = useState(() => value?.includes('|') || false)
+  const [rangeStart, setRangeStart] = useState(() => {
+    if (value?.includes('|')) return value.split('|')[0]
+    return null
+  })
   const [viewDate, setViewDate] = useState(() => {
-    if (value) {
-      const d = new Date(value)
+    const dateStr = value?.includes('|') ? value.split('|')[0] : value
+    if (dateStr) {
+      const d = new Date(dateStr)
       return { year: d.getFullYear(), month: d.getMonth() }
     }
     return { year: today.getFullYear(), month: today.getMonth() }
@@ -65,8 +85,10 @@ function AvailabilityCalendar({ value, onChange, speakerId = '' }) {
   const [slideDir, setSlideDir] = useState(1)
   const containerRef = useRef(null)
   const calendarRef = useRef(null)
+  const monthScrollRef = useRef(null)
 
   const { year, month } = viewDate
+  const monthPills = useMemo(() => getMonthPills(today), [])
 
   const availability = useMemo(
     () => generateAvailability(speakerId, year, month),
@@ -75,7 +97,10 @@ function AvailabilityCalendar({ value, onChange, speakerId = '' }) {
 
   const daysInMonth = new Date(year, month + 1, 0).getDate()
   const firstDayOfWeek = (new Date(year, month, 1).getDay() + 6) % 7
-  const selectedDate = value ? new Date(value) : null
+
+  // Parse current value for selection highlighting
+  const selectedStart = value?.includes('|') ? value.split('|')[0] : value || null
+  const selectedEnd = value?.includes('|') ? value.split('|')[1] : null
 
   // Close on outside click
   useEffect(() => {
@@ -100,6 +125,22 @@ function AvailabilityCalendar({ value, onChange, speakerId = '' }) {
     return () => clearTimeout(timer)
   }, [isOpen])
 
+  // Scroll active month pill into view
+  useEffect(() => {
+    if (!isOpen || !monthScrollRef.current) return
+    const active = monthScrollRef.current.querySelector('.cal__month-pill--active')
+    if (active) {
+      active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+    }
+  }, [isOpen, year, month])
+
+  const goToMonth = (y, m) => {
+    const target = y * 12 + m
+    const current = year * 12 + month
+    setSlideDir(target > current ? 1 : -1)
+    setViewDate({ year: y, month: m })
+  }
+
   const goToPrevMonth = () => {
     setSlideDir(-1)
     setViewDate(prev => {
@@ -117,15 +158,47 @@ function AvailabilityCalendar({ value, onChange, speakerId = '' }) {
   }
 
   const handleSelectDate = (day) => {
-    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-    onChange({ target: { name: 'eventDate', value: dateStr } })
-    setIsOpen(false)
-    // Scroll the date input back to center after calendar closes
-    setTimeout(() => {
-      if (containerRef.current) {
-        containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    const dateStr = toDateStr(year, month, day)
+
+    if (!rangeMode) {
+      // Single date mode
+      onChange({ target: { name: 'eventDate', value: dateStr } })
+      setIsOpen(false)
+      setTimeout(() => {
+        if (containerRef.current) {
+          containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }, 100)
+      return
+    }
+
+    // Range mode
+    if (!rangeStart) {
+      // First click — set start
+      setRangeStart(dateStr)
+      onChange({ target: { name: 'eventDate', value: dateStr } })
+    } else {
+      // Second click — set end (ensure start < end)
+      let start = rangeStart
+      let end = dateStr
+      if (end < start) {
+        ;[start, end] = [end, start]
       }
-    }, 100)
+      onChange({ target: { name: 'eventDate', value: `${start}|${end}` } })
+      setRangeStart(null)
+      setIsOpen(false)
+      setTimeout(() => {
+        if (containerRef.current) {
+          containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }, 100)
+    }
+  }
+
+  const handleToggleMode = (newMode) => {
+    setRangeMode(newMode)
+    setRangeStart(null)
+    onChange({ target: { name: 'eventDate', value: '' } })
   }
 
   const isPast = (day) => {
@@ -134,13 +207,15 @@ function AvailabilityCalendar({ value, onChange, speakerId = '' }) {
     return d < todayStart
   }
 
-  const isSelected = (day) => {
-    if (!selectedDate) return false
-    return (
-      selectedDate.getFullYear() === year &&
-      selectedDate.getMonth() === month &&
-      selectedDate.getDate() === day
-    )
+  const isSelectedDay = (day) => {
+    const dateStr = toDateStr(year, month, day)
+    return dateStr === selectedStart || dateStr === selectedEnd
+  }
+
+  const isInRange = (day) => {
+    if (!selectedStart || !selectedEnd) return false
+    const dateStr = toDateStr(year, month, day)
+    return dateStr > selectedStart && dateStr < selectedEnd
   }
 
   const isToday = (day) => {
@@ -153,10 +228,19 @@ function AvailabilityCalendar({ value, onChange, speakerId = '' }) {
 
   const canGoPrev = year > today.getFullYear() || (year === today.getFullYear() && month > today.getMonth())
 
-  // Availability summary for selected date
-  const selectedAvail = selectedDate
-    ? availability[selectedDate.getDate()]
+  // Availability summary for selected date (single mode only)
+  const selectedAvail = (!rangeMode && selectedStart && !selectedEnd)
+    ? (() => {
+        const d = new Date(selectedStart)
+        if (d.getFullYear() === year && d.getMonth() === month) {
+          return availability[d.getDate()]
+        }
+        return null
+      })()
     : null
+
+  // Display text for the trigger button
+  const displayText = value ? formatEventDate(value) : 'Select a date'
 
   return (
     <div className="cal-wrap" ref={containerRef}>
@@ -173,7 +257,7 @@ function AvailabilityCalendar({ value, onChange, speakerId = '' }) {
           <path d="M12 1V4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
         </svg>
         <span className={`cal-input__text ${!value ? 'cal-input__text--placeholder' : ''}`}>
-          {value ? formatDisplayDate(value) : 'Select a date'}
+          {displayText}
         </span>
         {value && selectedAvail && (
           <span className={`cal-input__badge cal-input__badge--${selectedAvail}`}>
@@ -184,6 +268,11 @@ function AvailabilityCalendar({ value, onChange, speakerId = '' }) {
           <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </button>
+
+      {/* Range hint when picking */}
+      {rangeMode && isOpen && rangeStart && !selectedEnd && (
+        <div className="cal-range-hint">Select the end date</div>
+      )}
 
       {/* Calendar dropdown */}
       <AnimatePresence>
@@ -197,6 +286,46 @@ function AvailabilityCalendar({ value, onChange, speakerId = '' }) {
             transition={{ duration: 0.25, ease: EASE }}
             style={{ transformOrigin: 'top center' }}
           >
+            {/* Mode toggle + month navigation */}
+            <div className="cal__top-bar">
+              <div className="cal__mode-toggle">
+                <button
+                  type="button"
+                  className={`cal__mode-btn ${!rangeMode ? 'cal__mode-btn--active' : ''}`}
+                  onClick={() => handleToggleMode(false)}
+                >
+                  Single
+                </button>
+                <button
+                  type="button"
+                  className={`cal__mode-btn ${rangeMode ? 'cal__mode-btn--active' : ''}`}
+                  onClick={() => handleToggleMode(true)}
+                >
+                  Range
+                </button>
+              </div>
+            </div>
+
+            {/* Month scroll pills */}
+            <div className="cal__month-scroll" ref={monthScrollRef}>
+              {monthPills.map((pill) => {
+                const isActive = pill.year === year && pill.month === month
+                const label = pill.year === today.getFullYear()
+                  ? SHORT_MONTHS[pill.month]
+                  : `${SHORT_MONTHS[pill.month]} '${String(pill.year).slice(2)}`
+                return (
+                  <button
+                    key={`${pill.year}-${pill.month}`}
+                    type="button"
+                    className={`cal__month-pill ${isActive ? 'cal__month-pill--active' : ''}`}
+                    onClick={() => goToMonth(pill.year, pill.month)}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+
             {/* Month navigation */}
             <div className="cal__header">
               <button
@@ -249,7 +378,8 @@ function AvailabilityCalendar({ value, onChange, speakerId = '' }) {
                   const day = i + 1
                   const past = isPast(day)
                   const avail = availability[day]
-                  const selected = isSelected(day)
+                  const selected = isSelectedDay(day)
+                  const inRange = isInRange(day)
                   const todayMark = isToday(day)
 
                   return (
@@ -261,6 +391,7 @@ function AvailabilityCalendar({ value, onChange, speakerId = '' }) {
                         past && 'cal__cell--past',
                         !past && `cal__cell--${avail}`,
                         selected && 'cal__cell--selected',
+                        inRange && 'cal__cell--in-range',
                         todayMark && 'cal__cell--today',
                       ].filter(Boolean).join(' ')}
                       onClick={() => !past && handleSelectDate(day)}

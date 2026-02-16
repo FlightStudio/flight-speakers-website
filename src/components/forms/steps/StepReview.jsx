@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { FIELD_STEP_MAP, CURRENCIES } from '../../../hooks/useMultiStepForm'
-
-const EASE = [0.16, 1, 0.3, 1]
+import { EASE } from '../../../constants/animation'
+import { formatEventDate } from '../../../utils/dateFormat'
 
 const FIELDS = [
   { key: 'name', label: 'Name' },
@@ -9,14 +9,10 @@ const FIELDS = [
   { key: 'email', label: 'Email' },
   { key: 'phone', label: 'Phone' },
   { key: 'eventType', label: 'Event Type' },
-  { key: 'eventDate', label: 'Date' },
+  { key: 'eventDate', label: 'Date', format: (val) => formatEventDate(val) },
   { key: 'eventLocation', label: 'Location' },
   { key: 'audienceSize', label: 'Audience' },
-  { key: 'engagementType', label: 'Paid / Pro Bono', format: (val, data) => {
-    if (!val) return null
-    if (val === 'Pro Bono' && data.proBonoFlexible) return 'Pro Bono (subject to change)'
-    return val
-  }},
+  { key: 'engagementType', label: 'Paid / Pro Bono' },
   { key: 'budgetRange', label: 'Budget', format: (val, data) => {
     if (!val) return null
     // Custom numeric value — format with currency symbol
@@ -31,6 +27,8 @@ const FIELDS = [
 
 function StepReview({ formData, handleChange, goToStep, recommendedSpeakers = [], recommendedScores = {}, onToggleSpeaker }) {
   const selectedIds = formData.additionalSpeakerIds || []
+  // budgetRange isn't a direct step field — map it to the engagementType step
+  const getStepIndex = (key) => FIELD_STEP_MAP[key] ?? FIELD_STEP_MAP['engagementType']
   return (
     <div className="mstep-review mstep-review--compact">
       <motion.div
@@ -49,7 +47,7 @@ function StepReview({ formData, handleChange, goToStep, recommendedSpeakers = []
               key={key}
               type="button"
               className="mstep-review__cell"
-              onClick={() => goToStep(FIELD_STEP_MAP[key])}
+              onClick={() => goToStep(getStepIndex(key))}
             >
               <span className="mstep-review__label">{label}</span>
               <span className={`mstep-review__value${!display ? ' mstep-review__value--empty' : ''}`}>
@@ -128,6 +126,18 @@ function StepReview({ formData, handleChange, goToStep, recommendedSpeakers = []
         animate={{ opacity: 1 }}
         transition={{ delay: 0.15, duration: 0.3 }}
       >
+        {formData.engagementType === 'Pro Bono' && (
+          <label className="mstep-review__checkbox">
+            <input
+              type="checkbox"
+              name="proBonoFlexible"
+              checked={formData.proBonoFlexible || false}
+              onChange={handleChange}
+            />
+            <span>Pro bono for now, but subject to change</span>
+          </label>
+        )}
+
         <label className="mstep-review__checkbox">
           <input
             type="checkbox"

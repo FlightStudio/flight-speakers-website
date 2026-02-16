@@ -5,6 +5,7 @@ import SpeakerCard from '../components/speakers/SpeakerCard'
 import GradientMesh from '../components/effects/GradientMesh'
 import { useSmoothScroll } from '../hooks/useSmoothScroll'
 import { useMagneticEffect } from '../hooks/useMagneticEffect'
+import { EASE } from '../constants/animation'
 import './HomePage.css'
 
 // Magnetic button wrapper
@@ -34,7 +35,7 @@ function RevealText({ children, delay = 0 }) {
       <motion.span
         initial={{ y: '100%' }}
         animate={isInView ? { y: 0 } : { y: '100%' }}
-        transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.8, delay, ease: EASE }}
       >
         {children}
       </motion.span>

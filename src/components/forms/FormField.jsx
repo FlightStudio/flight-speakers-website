@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import WhyWeAsk from './WhyWeAsk'
-
-const EASE = [0.16, 1, 0.3, 1]
+import { EASE } from '../../constants/animation'
 
 function FormField({
   label,

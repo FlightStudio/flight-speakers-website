@@ -170,9 +170,22 @@
 /* Social Reach Bar */
 .speaker-hero__social {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 8px;
   margin-bottom: 28px;
+}
+
+.speaker-hero__social-total {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  letter-spacing: -0.01em;
+}
+
+.speaker-hero__social-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .speaker-hero__social-pill {
@@ -186,47 +199,54 @@
   background: var(--color-gray-100);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-full);
+  text-decoration: none;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .speaker-hero__social-pill svg {
   flex-shrink: 0;
   opacity: 0.7;
+  transition: opacity 0.2s ease;
 }
 
 .speaker-hero__social-pill:hover {
   color: var(--color-charcoal);
   border-color: var(--color-gray-300);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.speaker-hero__social-pill:hover svg {
+  opacity: 1;
 }
 
 .speaker-hero__social-pill--instagram:hover {
   color: #E4405F;
   border-color: #E4405F;
   background: #fef2f4;
+  box-shadow: 0 2px 8px rgba(228, 64, 95, 0.12);
 }
 
 .speaker-hero__social-pill--x:hover {
   color: #000;
   border-color: #000;
   background: #f5f5f5;
-}
-
-.speaker-hero__social-pill--linkedin:hover {
-  color: #0A66C2;
-  border-color: #0A66C2;
-  background: #f0f7ff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .speaker-hero__social-pill--youtube:hover {
   color: #FF0000;
   border-color: #FF0000;
   background: #fff0f0;
+  box-shadow: 0 2px 8px rgba(255, 0, 0, 0.1);
 }
 
 .speaker-hero__social-pill--tiktok:hover {
   color: #000;
   border-color: #000;
   background: #f5f5f5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .speaker-hero__topics {
@@ -549,6 +569,10 @@
   .speaker-hero__social {
     gap: 6px;
     margin-bottom: 20px;
+  }
+
+  .speaker-hero__social-pills {
+    gap: 4px;
   }
 
   .speaker-hero__social-pill {
