@@ -21,6 +21,7 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '', preSelectedSp
   const [recommendedSpeakers, setRecommendedSpeakers] = useState([])
   const [recommendedScores, setRecommendedScores] = useState({})
   const [recommendedReasonings, setRecommendedReasonings] = useState({})
+  const [recsLoading, setRecsLoading] = useState(false)
   const shouldReduceMotion = useReducedMotion()
 
   const [initialData] = useState(() => {
@@ -209,17 +210,14 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '', preSelectedSp
     if (!briefForSearch || briefForSearch.length < 20) return
     if (briefForSearch === prefetchedBrief) return
 
-    // For prefilled briefs, start immediately (no step or debounce gate)
+    // For prefilled briefs, start immediately; for typed briefs, debounce
     const isPrefilled = !!prefillBrief && briefForSearch === prefillBrief
-    if (!isPrefilled) {
-      const briefStepIndex = STEPS.findIndex(s => s.id === 'brief')
-      if (currentStep < briefStepIndex) return
-    }
 
     const controller = new AbortController()
     const delay = isPrefilled ? 0 : 800
     const timer = setTimeout(() => {
       setPrefetchedBrief(briefForSearch)
+      setRecsLoading(true)
       fetch(`/api/search?q=${encodeURIComponent(briefForSearch)}&limit=6`, { signal: controller.signal })
         .then(res => res.json())
         .then(data => {
@@ -235,9 +233,10 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '', preSelectedSp
           }
         })
         .catch(() => {})
+        .finally(() => setRecsLoading(false))
     }, delay)
     return () => { clearTimeout(timer); controller.abort() }
-  }, [briefForSearch, currentStep, prefetchedBrief, formData.speakerId, formData.preSelectedSpeakerIds, prefillBrief])
+  }, [briefForSearch, prefetchedBrief, formData.speakerId, formData.preSelectedSpeakerIds, prefillBrief])
 
   const toggleSpeaker = useCallback((speakerId) => {
     setFormData(prev => {
@@ -362,6 +361,7 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '', preSelectedSp
           recommendedSpeakers={recommendedSpeakers}
           recommendedScores={recommendedScores}
           onToggleSpeaker={toggleSpeaker}
+          recsLoading={recsLoading}
         />
       )
     }

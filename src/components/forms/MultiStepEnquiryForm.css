@@ -691,6 +691,29 @@
   margin-top: var(--space-2);
 }
 
+.mstep-review__rec--skeleton {
+  pointer-events: none;
+}
+
+.mstep-review__rec-photo--skeleton {
+  background: var(--color-surface-2, #1a1a1a);
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.mstep-review__rec-name--skeleton {
+  display: block;
+  width: 80px;
+  height: 12px;
+  border-radius: 4px;
+  background: var(--color-surface-2, #1a1a1a);
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
 .mstep-review__footer {
   display: flex;
   flex-direction: column;
