@@ -134,12 +134,11 @@ router.post('/', async (req, res) => {
 
     console.log('NEW ENQUIRY:', enquiry.id)
 
-    // Klaviyo — fire-and-forget (don't block the response)
-    const klaviyoData = { name, organization, speakerName, eventDate, brief }
+    // Klaviyo stubs
     if (newsletter) {
-      notifyKlaviyo(email, NEWSLETTER_LIST_ID, null, klaviyoData)
+      await notifyKlaviyo(email, 'speaker-newsletter', { name })
     }
-    notifyKlaviyo(email, ENQUIRY_LIST_ID, 'Enquiry Submitted', klaviyoData)
+    await notifyKlaviyo(email, 'speaker-enquiries', { name, organization })
 
     res.status(201).json({
       success: true,
