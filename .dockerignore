@@ -1,0 +1,12 @@
+node_modules
+dist
+.env
+.env.*
+.git
+.gitignore
+*.md
+src
+public
+docker-compose.yml
+vite.config.js
+vercel.json

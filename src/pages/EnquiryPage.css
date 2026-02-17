@@ -1,136 +1,84 @@
+/* ============================================
+   Enquiry Page — Typeform-style full viewport
+   Floating logo, no header/footer sensation
+   ============================================ */
+
 .enquiry-page {
   min-height: 100vh;
-}
-
-/* Enquiry Header */
-.enquiry-header {
-  padding: var(--space-3xl) 0;
-  background-color: var(--color-bg-secondary);
-  border-bottom: 1px solid var(--color-border);
-  text-align: center;
-}
-
-.enquiry-header__title {
-  font-size: var(--font-size-3xl);
-  margin-bottom: var(--space-sm);
-}
-
-.enquiry-header__subtitle {
-  font-size: var(--font-size-lg);
-  color: var(--color-text-secondary);
-  max-width: 500px;
-  margin: 0 auto;
-}
-
-/* Form Section */
-.enquiry-form-section .container {
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: var(--space-3xl);
-  align-items: start;
-}
-
-.enquiry-form-wrapper {
-  background-color: var(--color-bg-secondary);
-  padding: var(--space-2xl);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-}
-
-.enquiry-sidebar {
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
-  position: sticky;
-  top: calc(var(--header-height) + var(--space-xl));
+  background: linear-gradient(180deg, #faf8f2 0%, var(--color-white) 60%);
+  position: relative;
 }
 
-.sidebar-info-card {
-  padding: var(--space-lg);
-  background-color: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-}
-
-.sidebar-info-card__icon {
-  width: 40px;
-  height: 40px;
+/* Floating logo — top left, no bar */
+.enquiry-logo {
+  position: fixed;
+  top: var(--space-6);
+  left: var(--space-8);
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: var(--space-md);
-  background-color: var(--color-accent-light);
-  border-radius: var(--radius-md);
-  color: var(--color-accent);
+  width: 44px;
+  height: 44px;
+  color: var(--color-text-primary);
+  opacity: 0.5;
+  transition: opacity 0.3s var(--ease-out-expo);
 }
 
-.sidebar-info-card h3 {
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  margin-bottom: var(--space-xs);
+.enquiry-logo:hover {
+  opacity: 1;
 }
 
-.sidebar-info-card p {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  line-height: 1.6;
+/* Floating close button — top right */
+.enquiry-close {
+  position: fixed;
+  top: var(--space-6);
+  right: var(--space-8);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  color: var(--color-text-muted);
+  transition: background-color 0.2s var(--ease-out-expo), color 0.2s var(--ease-out-expo);
 }
 
-.sidebar-contact {
-  padding: var(--space-lg);
-  background-color: var(--color-bg-dark);
-  border-radius: var(--radius-lg);
-  text-align: center;
+.enquiry-close:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  color: var(--color-text-primary);
 }
 
-.sidebar-contact p {
-  font-size: var(--font-size-sm);
-  color: rgba(255, 255, 255, 0.7);
-  margin-bottom: var(--space-sm);
+/* Main content — true full viewport centering */
+.enquiry-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-20) var(--space-8);
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
-.sidebar-contact a {
-  font-size: var(--font-size-base);
-  font-weight: 500;
-  color: var(--color-text-inverse);
-  transition: color var(--transition-fast);
-}
-
-.sidebar-contact a:hover {
-  color: var(--color-accent-light);
-}
-
-@media (max-width: 900px) {
-  .enquiry-form-section .container {
-    grid-template-columns: 1fr;
+/* Responsive */
+@media (max-width: 768px) {
+  .enquiry-logo {
+    top: var(--space-4);
+    left: var(--space-4);
   }
 
-  .enquiry-sidebar {
-    position: static;
-    flex-direction: row;
-    flex-wrap: wrap;
+  .enquiry-close {
+    top: var(--space-4);
+    right: var(--space-4);
   }
 
-  .sidebar-info-card {
-    flex: 1;
-    min-width: 200px;
-  }
-
-  .sidebar-contact {
-    width: 100%;
-  }
-}
-
-@media (max-width: 540px) {
-  .enquiry-form-wrapper {
-    padding: var(--space-lg);
-  }
-
-  .enquiry-sidebar {
-    flex-direction: column;
-  }
-
-  .sidebar-info-card {
-    min-width: 100%;
+  .enquiry-main {
+    padding: var(--space-16) var(--space-4);
+    align-items: flex-start;
+    padding-top: var(--space-20);
   }
 }
