@@ -29,6 +29,20 @@ async function klaviyoRequest(endpoint, body) {
   return res.json()
 }
 
+async function klaviyoGet(endpoint) {
+  const res = await fetch(`${BASE_URL}${endpoint}`, {
+    method: 'GET',
+    headers: getHeaders(),
+  })
+
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(`Klaviyo GET ${endpoint} failed (${res.status}): ${text}`)
+  }
+
+  return res.json()
+}
+
 // Create or update a profile (upserts by email)
 export async function createOrUpdateProfile({ email, name, organization, properties = {} }) {
   const [firstName, ...rest] = (name || '').split(' ')
@@ -82,4 +96,29 @@ export async function trackEvent(eventName, email, properties = {}) {
       },
     },
   })
+}
+
+// Get list info by ID (name + profile count)
+export async function getList(listId) {
+  const res = await klaviyoGet(`/api/lists/${listId}/`)
+  return {
+    id: res.data.id,
+    name: res.data.attributes.name,
+  }
+}
+
+// Verify API key is valid by fetching account info
+// Falls back to a simple list check if accounts:read scope is missing
+export async function getAccountInfo() {
+  try {
+    const res = await klaviyoGet('/api/accounts/')
+    const account = res.data[0]
+    return {
+      id: account.id,
+      name: account.attributes.contact_information?.organization_name || account.attributes.contact_information?.default_sender_name || 'Unknown',
+    }
+  } catch {
+    // accounts:read scope not available — key is valid if list calls succeed
+    return { id: null, name: null }
+  }
 }

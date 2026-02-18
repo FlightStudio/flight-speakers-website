@@ -1466,6 +1466,130 @@
   background: #d4d4d4;
 }
 
+.admin-settings-card__status-dot--connected {
+  background: #22c55e;
+}
+
+.admin-settings-card__status-dot--disconnected {
+  background: #ef4444;
+}
+
+.admin-settings-card__status-dot--loading {
+  background: #f59e0b;
+  animation: admin-pulse 1s ease infinite;
+}
+
+@keyframes admin-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.admin-settings-card__status--connected {
+  color: #16a34a;
+}
+
+.admin-settings-card__status--disconnected {
+  color: #dc2626;
+}
+
+.admin-settings-card__lists {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.admin-settings-card__list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  padding: 0.4rem 0.6rem;
+  background: #f8f8f7;
+  border-radius: 8px;
+}
+
+.admin-settings-card__list-label {
+  color: #737373;
+  font-weight: 500;
+}
+
+.admin-settings-card__list-value {
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.admin-settings-card__test {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e8e8e6;
+}
+
+.admin-settings-card__test-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.admin-settings-card__test-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.admin-settings-card__test-input {
+  flex: 1;
+  padding: 0.45rem 0.65rem;
+  font-size: 0.8rem;
+  border: 1px solid #e0e0de;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+
+.admin-settings-card__test-input:focus {
+  border-color: #1a1a1a;
+}
+
+.admin-settings-card__test-btn {
+  padding: 0.45rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: inherit;
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+
+.admin-settings-card__test-btn:hover {
+  opacity: 0.85;
+}
+
+.admin-settings-card__test-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.admin-settings-card__test-result {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.admin-settings-card__test-result--success {
+  color: #16a34a;
+}
+
+.admin-settings-card__test-result--error {
+  color: #dc2626;
+}
+
 /* ---- Loading ---- */
 .admin-loading {
   display: flex;
