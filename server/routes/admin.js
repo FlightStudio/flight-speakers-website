@@ -6,6 +6,7 @@ import {
   getEnquiryById,
   updateEnquiry,
   getEnquiryStats,
+  getEnquiryAnalytics,
   getAdminUser,
   getSpeakerAnalytics,
   getSpeakerDetailAnalytics,
@@ -71,11 +72,22 @@ router.get('/me', requireAdmin, (req, res) => {
 // GET /api/admin/stats
 router.get('/stats', requireAdmin, async (req, res) => {
   try {
-    const stats = await getEnquiryStats()
+    const stats = await getEnquiryStats(req.query.engagementType)
     res.json({ success: true, stats })
   } catch (err) {
     console.error('Stats error:', err)
     res.status(500).json({ success: false, message: 'Failed to fetch stats' })
+  }
+})
+
+// GET /api/admin/enquiry-analytics
+router.get('/enquiry-analytics', requireAdmin, async (req, res) => {
+  try {
+    const analytics = await getEnquiryAnalytics(req.query.engagementType)
+    res.json({ success: true, analytics })
+  } catch (err) {
+    console.error('Enquiry analytics error:', err)
+    res.status(500).json({ success: false, message: 'Failed to fetch enquiry analytics' })
   }
 })
 
@@ -111,7 +123,7 @@ router.post('/speakers', requireAdmin, async (req, res) => {
     if (!name || !headline || !photo || !bio) {
       return res.status(400).json({ success: false, message: 'Name, headline, photo, and bio are required' })
     }
-    const SPEAKER_FIELDS = ['name', 'headline', 'photo', 'bio', 'topics', 'audiences', 'keynotes', 'speaking_format', 'video_url', 'social_profiles', 'featured', 'fee_min', 'gender', 'ethnicity', 'nationality', 'location']
+    const SPEAKER_FIELDS = ['name', 'headline', 'photo', 'bio', 'topics', 'audiences', 'keynotes', 'speaking_format', 'video_url', 'social_profiles', 'fee_min', 'gender', 'ethnicity', 'nationality', 'location']
     const filtered = {}
     for (const key of SPEAKER_FIELDS) {
       if (req.body[key] !== undefined) filtered[key] = req.body[key]
@@ -131,7 +143,7 @@ router.patch('/speakers/:id', requireAdmin, async (req, res) => {
     if (!existing) {
       return res.status(404).json({ success: false, message: 'Speaker not found' })
     }
-    const SPEAKER_FIELDS = ['name', 'headline', 'photo', 'bio', 'topics', 'audiences', 'keynotes', 'speaking_format', 'video_url', 'social_profiles', 'featured', 'fee_min', 'gender', 'ethnicity', 'nationality', 'location']
+    const SPEAKER_FIELDS = ['name', 'headline', 'photo', 'bio', 'topics', 'audiences', 'keynotes', 'speaking_format', 'video_url', 'social_profiles', 'fee_min', 'gender', 'ethnicity', 'nationality', 'location']
     const filtered = {}
     for (const key of SPEAKER_FIELDS) {
       if (req.body[key] !== undefined) filtered[key] = req.body[key]
@@ -207,7 +219,7 @@ router.post('/review/:id/approve', requireAdmin, async (req, res) => {
   try {
     let editedData = null
     if (req.body && Object.keys(req.body).length > 0) {
-      const SPEAKER_FIELDS = ['name', 'headline', 'photo', 'bio', 'topics', 'audiences', 'keynotes', 'speaking_format', 'video_url', 'social_profiles', 'featured', 'fee_min', 'gender', 'ethnicity', 'nationality', 'location']
+      const SPEAKER_FIELDS = ['name', 'headline', 'photo', 'bio', 'topics', 'audiences', 'keynotes', 'speaking_format', 'video_url', 'social_profiles', 'fee_min', 'gender', 'ethnicity', 'nationality', 'location']
       editedData = {}
       for (const key of SPEAKER_FIELDS) {
         if (req.body[key] !== undefined) editedData[key] = req.body[key]
@@ -269,9 +281,10 @@ router.delete('/speakers/:id', requireAdmin, async (req, res) => {
 // GET /api/admin/enquiries
 router.get('/enquiries', requireAdmin, async (req, res) => {
   try {
-    const { status, page = 1, limit = 20, sort = 'newest' } = req.query
+    const { status, engagementType, page = 1, limit = 20, sort = 'newest' } = req.query
     const result = await getEnquiries({
       status,
+      engagementType,
       page: Math.max(parseInt(page, 10) || 1, 1),
       limit: Math.min(Math.max(parseInt(limit, 10) || 20, 1), 100),
       sort,

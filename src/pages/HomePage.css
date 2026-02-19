@@ -95,7 +95,7 @@
   position: relative;
   z-index: 1;
   text-align: center;
-  padding: 120px 0 80px;
+  padding: 80px 0 48px;
   width: 100%;
 }
 
@@ -403,6 +403,34 @@
   border-top: 1px solid var(--color-gray-100);
   border-bottom: 1px solid var(--color-gray-100);
   overflow: hidden;
+}
+
+.social-proof__metrics {
+  display: flex;
+  justify-content: center;
+  gap: 64px;
+  margin-bottom: 32px;
+}
+
+.social-proof__metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.social-proof__metric-value {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--color-gray-900);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.social-proof__metric-label {
+  font-size: 13px;
+  color: var(--color-gray-500);
+  font-weight: 450;
 }
 
 .social-proof__label {
@@ -1112,138 +1140,16 @@
 }
 
 /* ================================
-   Featured Spotlight
-   ================================ */
-
-.spotlight {
-  position: relative;
-  padding: 120px 0;
-  background: var(--color-charcoal);
-  overflow: hidden;
-}
-
-.spotlight__bg {
-  position: absolute;
-  inset: -100px;
-  background: linear-gradient(135deg,
-    rgba(255, 255, 255, 0.03) 0%,
-    transparent 50%,
-    rgba(255, 255, 255, 0.02) 100%
-  );
-}
-
-.spotlight__content {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 64px;
-  align-items: center;
-  position: relative;
-  z-index: 1;
-}
-
-.spotlight__video {
-  position: relative;
-  aspect-ratio: 16/9;
-  border-radius: 16px;
-  overflow: hidden;
-  background: var(--color-gray-900);
-}
-
-.spotlight__video-placeholder {
-  position: absolute;
-  inset: 0;
-  background: var(--color-gray-800);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-}
-
-.spotlight__video-placeholder span {
-  font-size: 13px;
-  color: var(--color-gray-400);
-}
-
-.spotlight__play-button {
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.spotlight__play-button:hover {
-  transform: scale(1.1);
-}
-
-.spotlight__info {
-  color: var(--color-white);
-}
-
-.spotlight__label {
-  display: inline-block;
-  padding: 6px 14px;
-  margin-bottom: 20px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 100px;
-}
-
-.spotlight__name {
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  margin: 0 0 24px;
-}
-
-.spotlight__quote {
-  font-size: 18px;
-  line-height: 1.7;
-  color: rgba(255, 255, 255, 0.8);
-  margin: 0 0 32px;
-  padding-left: 24px;
-  border-left: 2px solid rgba(255, 255, 255, 0.2);
-  font-style: italic;
-}
-
-.spotlight__meta {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.spotlight__role {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.spotlight__link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-white);
-  transition: gap 0.2s ease;
-}
-
-.spotlight__link:hover {
-  gap: 12px;
-}
-
-/* ================================
    Sections
    ================================ */
 
 .section {
-  padding: 120px 0;
+  padding: 72px 0;
   position: relative;
 }
 
 .section-header {
-  margin-bottom: 64px;
+  margin-bottom: 40px;
 }
 
 .section-header--center {
@@ -1497,11 +1403,6 @@
     max-width: 320px;
   }
 
-  .spotlight__content {
-    grid-template-columns: 1fr;
-    gap: 40px;
-  }
-
   .hero__stats {
     gap: 32px;
   }
@@ -1604,11 +1505,11 @@
   }
 
   .section {
-    padding: 80px 0;
+    padding: 48px 0;
   }
 
   .section-header {
-    margin-bottom: 48px;
+    margin-bottom: 32px;
   }
 
   .speakers-grid {
@@ -1725,15 +1626,6 @@
     opacity: 0.5;
   }
 
-  .spotlight {
-    padding: 80px 0;
-  }
-
-  .spotlight__quote {
-    font-size: 16px;
-    padding-left: 16px;
-  }
-
   .filter-chips {
     overflow-x: auto;
     flex-wrap: nowrap;
@@ -1748,6 +1640,14 @@
 
   .social-proof {
     padding: 32px 0;
+  }
+
+  .social-proof__metrics {
+    gap: 32px;
+  }
+
+  .social-proof__metric-value {
+    font-size: 28px;
   }
 }
 
@@ -1769,9 +1669,7 @@
   .reveal-text > span,
   .process-card,
   .btn,
-  .filter-chip,
-  .spotlight__link,
-  .spotlight__play-button {
+  .filter-chip {
     transition: none;
   }
 }

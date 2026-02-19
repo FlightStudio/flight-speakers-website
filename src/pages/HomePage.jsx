@@ -241,8 +241,24 @@ function SocialProofBar() {
     'Netflix', 'Spotify', 'Salesforce', 'Adobe', 'Tesla'
   ]
 
+  const stats = [
+    { value: '500', suffix: '+', label: 'Events Delivered' },
+    { value: '50', suffix: 'M+', label: 'Audience Reached' },
+    { value: '98', suffix: '%', label: 'Satisfaction' },
+  ]
+
   return (
     <div className="social-proof">
+      <div className="social-proof__metrics">
+        {stats.map((stat, i) => (
+          <div key={i} className="social-proof__metric">
+            <span className="social-proof__metric-value">
+              <AnimatedCounter value={stat.value} suffix={stat.suffix} />
+            </span>
+            <span className="social-proof__metric-label">{stat.label}</span>
+          </div>
+        ))}
+      </div>
       <div className="social-proof__label">Trusted by leading organizations</div>
       <div className="social-proof__track">
         <motion.div
@@ -261,62 +277,6 @@ function SocialProofBar() {
         </motion.div>
       </div>
     </div>
-  )
-}
-
-// Featured Spotlight Component
-function FeaturedSpotlight({ speaker }) {
-  const ref = useRef(null)
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ['start end', 'end start']
-  })
-
-  const y = useTransform(scrollYProgress, [0, 1], [100, -100])
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.95, 1, 0.95])
-
-  return (
-    <section ref={ref} className="spotlight">
-      <motion.div className="spotlight__bg" style={{ y }} />
-
-      <div className="container">
-        <motion.div
-          className="spotlight__content"
-          style={{ scale }}
-        >
-          <div className="spotlight__video">
-            {/* Grey placeholder for video embed */}
-            <div className="spotlight__video-placeholder">
-              <div className="spotlight__play-button">
-                <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                  <circle cx="24" cy="24" r="24" fill="var(--color-charcoal)" />
-                  <path d="M32 24L20 32V16L32 24Z" fill="white" />
-                </svg>
-              </div>
-              <span>Featured Speaker Reel</span>
-            </div>
-          </div>
-
-          <div className="spotlight__info">
-            <span className="spotlight__label">Featured Speaker</span>
-            <h3 className="spotlight__name">{speaker?.name || 'Steven Bartlett'}</h3>
-            <blockquote className="spotlight__quote">
-              "Real leadership isn't about having all the answers—it's about being
-              honest enough to share what you've actually learned."
-            </blockquote>
-            <div className="spotlight__meta">
-              <span className="spotlight__role">{speaker?.headline || 'Founder & CEO, FlightStory | Host of The Diary of a CEO'}</span>
-              <Link to={`/speakers/${speaker?.id || '1'}`} className="spotlight__link">
-                View Full Profile
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </Link>
-            </div>
-          </div>
-        </motion.div>
-      </div>
-    </section>
   )
 }
 
@@ -342,7 +302,7 @@ function HomePage() {
   const [speakers, setSpeakers] = useState([])
 
   useEffect(() => {
-    fetch('/api/speakers?featured=true&limit=8')
+    fetch('/api/speakers?limit=8')
       .then(res => res.json())
       .then(data => {
         if (data.success) setSpeakers(data.speakers)
@@ -350,17 +310,14 @@ function HomePage() {
       .catch(err => console.error('Failed to load speakers:', err))
   }, [])
 
-  const featuredSpeakers = useMemo(() => speakers.filter(s => s.featured).slice(0, 8), [speakers])
-  const spotlightSpeaker = useMemo(() => speakers.find(s => s.featured), [speakers])
-
   const filterOptions = ['all', 'leadership', 'entrepreneurship', 'performance', 'wellness']
 
   const filteredSpeakers = useMemo(() => {
-    if (activeFilter === 'all') return featuredSpeakers
-    return featuredSpeakers.filter(s =>
+    if (activeFilter === 'all') return speakers
+    return speakers.filter(s =>
       s.topics?.some(t => t.toLowerCase().includes(activeFilter.toLowerCase()))
     )
-  }, [featuredSpeakers, activeFilter])
+  }, [speakers, activeFilter])
 
   // Typing animation for placeholder
   const placeholders = [
@@ -409,12 +366,6 @@ function HomePage() {
       navigate(`/search?q=${encodeURIComponent(searchQuery)}`)
     }
   }
-
-  const stats = [
-    { value: '500', suffix: '+', label: 'Events Delivered' },
-    { value: '50', suffix: 'M+', label: 'Audience Reached' },
-    { value: '98', suffix: '%', label: 'Satisfaction' },
-  ]
 
   return (
     <div className="home-page">
@@ -563,22 +514,6 @@ function HomePage() {
               ))}
             </motion.div>
 
-            {/* Stats */}
-            <motion.div
-              className="hero__stats"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 1.05 }}
-            >
-              {stats.map((stat, i) => (
-                <div key={i} className="hero__stat">
-                  <span className="hero__stat-value">
-                    <AnimatedCounter value={stat.value} suffix={stat.suffix} />
-                  </span>
-                  <span className="hero__stat-label">{stat.label}</span>
-                </div>
-              ))}
-            </motion.div>
           </div>
         </motion.div>
       </section>
@@ -675,9 +610,6 @@ function HomePage() {
           </motion.div>
         </div>
       </section>
-
-      {/* ========== FEATURED SPOTLIGHT ========== */}
-      <FeaturedSpotlight speaker={spotlightSpeaker} />
 
       {/* ========== CTA ========== */}
       <section className="section cta-section">

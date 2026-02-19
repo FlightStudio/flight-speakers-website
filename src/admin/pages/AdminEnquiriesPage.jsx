@@ -4,8 +4,20 @@ import { EASE } from '../../constants/animation'
 import AdminStatCards from '../components/AdminStatCards'
 import EnquiryList from '../components/EnquiryList'
 
+const ENGAGEMENT_TABS = [
+  { key: 'all', label: 'All' },
+  { key: 'Paid', label: '$ Fee' },
+  { key: 'Pro Bono', label: 'Pro Bono' },
+]
+
 export default function AdminEnquiriesPage() {
   const [activeFilter, setActiveFilter] = useState('all')
+  const [engagementType, setEngagementType] = useState('all')
+
+  function handleEngagementChange(type) {
+    setEngagementType(type)
+    setActiveFilter('all')
+  }
 
   return (
     <motion.div
@@ -19,8 +31,20 @@ export default function AdminEnquiriesPage() {
         <p className="admin-page__subtitle">Manage speaker enquiries and requests</p>
       </div>
 
-      <AdminStatCards activeFilter={activeFilter} onFilterChange={setActiveFilter} />
-      <EnquiryList initialFilter={activeFilter} />
+      <div className="enq-type-tabs">
+        {ENGAGEMENT_TABS.map(tab => (
+          <button
+            key={tab.key}
+            className={`enq-type-tabs__tab ${engagementType === tab.key ? 'enq-type-tabs__tab--active' : ''}`}
+            onClick={() => handleEngagementChange(tab.key)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <AdminStatCards activeFilter={activeFilter} onFilterChange={setActiveFilter} engagementType={engagementType} />
+      <EnquiryList initialFilter={activeFilter} engagementType={engagementType} />
     </motion.div>
   )
 }

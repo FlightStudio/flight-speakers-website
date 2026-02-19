@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 
-export function useEnquiries({ status = 'all', page = 1 } = {}) {
+export function useEnquiries({ status = 'all', engagementType = 'all', sort = 'newest', page = 1 } = {}) {
   const [enquiries, setEnquiries] = useState([])
   const [total, setTotal] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
@@ -8,8 +8,9 @@ export function useEnquiries({ status = 'all', page = 1 } = {}) {
   const fetchEnquiries = useCallback(async () => {
     setIsLoading(true)
     try {
-      const params = new URLSearchParams({ page, limit: 20 })
+      const params = new URLSearchParams({ page, limit: 20, sort })
       if (status && status !== 'all') params.set('status', status)
+      if (engagementType && engagementType !== 'all') params.set('engagementType', engagementType)
 
       const res = await fetch(`/api/admin/enquiries?${params}`, { credentials: 'include' })
       const data = await res.json()
@@ -22,7 +23,7 @@ export function useEnquiries({ status = 'all', page = 1 } = {}) {
     } finally {
       setIsLoading(false)
     }
-  }, [status, page])
+  }, [status, engagementType, sort, page])
 
   useEffect(() => { fetchEnquiries() }, [fetchEnquiries])
 

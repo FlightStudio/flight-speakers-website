@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 
-export default function AdminStatCards({ activeFilter = 'all', onFilterChange }) {
+export default function AdminStatCards({ activeFilter = 'all', onFilterChange, engagementType = 'all' }) {
   const [stats, setStats] = useState({ total: 0, new: 0, reviewed: 0, accepted: 0 })
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const res = await fetch('/api/admin/stats', { credentials: 'include' })
+        const params = new URLSearchParams()
+        if (engagementType && engagementType !== 'all') params.set('engagementType', engagementType)
+        const res = await fetch(`/api/admin/stats?${params}`, { credentials: 'include' })
         const data = await res.json()
         if (data.success) setStats(data.stats)
       } catch (err) {
@@ -14,7 +16,7 @@ export default function AdminStatCards({ activeFilter = 'all', onFilterChange })
       }
     }
     fetchStats()
-  }, [])
+  }, [engagementType])
 
   const cards = [
     { label: 'Total Enquiries', value: stats.total, modifier: '', filter: 'all' },
