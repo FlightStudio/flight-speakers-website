@@ -1,10 +1,30 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
+
+const REJECTION_REASONS = [
+  { key: 'pro_bono', label: 'Pro Bono' },
+  { key: 'no_availability', label: 'No Availability' },
+  { key: 'exclusivity', label: 'Exclusivity' },
+]
 
 export default function EnquiryActions({ enquiry, onUpdate }) {
   const [responseMsg, setResponseMsg] = useState('')
   const [notes, setNotes] = useState(enquiry?.admin_notes || '')
   const [feedback, setFeedback] = useState(null)
   const [isSaving, setIsSaving] = useState(false)
+  const [showRejectMenu, setShowRejectMenu] = useState(false)
+  const rejectRef = useRef(null)
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (rejectRef.current && !rejectRef.current.contains(e.target)) {
+        setShowRejectMenu(false)
+      }
+    }
+    if (showRejectMenu) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showRejectMenu])
 
   const handleAction = useCallback(async (updates) => {
     setIsSaving(true)
@@ -20,7 +40,10 @@ export default function EnquiryActions({ enquiry, onUpdate }) {
   }, [onUpdate])
 
   const handleAccept = () => handleAction({ status: 'accepted' })
-  const handleReject = () => handleAction({ status: 'rejected' })
+  const handleReject = (reasonKey) => {
+    setShowRejectMenu(false)
+    handleAction({ status: 'rejected', rejection_reason: reasonKey })
+  }
   const handleRespond = () => {
     if (!responseMsg.trim()) return
     handleAction({ status: 'responded', response_message: responseMsg.trim() })
@@ -39,13 +62,28 @@ export default function EnquiryActions({ enquiry, onUpdate }) {
         >
           Accept
         </button>
-        <button
-          className="enquiry-actions__btn enquiry-actions__btn--reject"
-          onClick={handleReject}
-          disabled={isSaving || enquiry?.status === 'rejected'}
-        >
-          Reject
-        </button>
+        <div className="enquiry-actions__reject-wrap" ref={rejectRef}>
+          <button
+            className="enquiry-actions__btn enquiry-actions__btn--reject"
+            onClick={() => setShowRejectMenu(v => !v)}
+            disabled={isSaving || enquiry?.status === 'rejected'}
+          >
+            Reject
+          </button>
+          {showRejectMenu && (
+            <div className="enquiry-actions__reject-menu">
+              {REJECTION_REASONS.map(r => (
+                <button
+                  key={r.key}
+                  className="enquiry-actions__reject-option"
+                  onClick={() => handleReject(r.key)}
+                >
+                  {r.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="enquiry-actions__respond">

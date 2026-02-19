@@ -73,6 +73,8 @@ export async function getEnquiries({ status, engagementType, page = 1, limit = 2
       WHEN e.budget_range ~ '^[£$€]?[\\d,]+$' THEN
         regexp_replace(e.budget_range, '[^0-9.]', '', 'g')::numeric
       ELSE NULL END ASC NULLS LAST`,
+    event_date_newest: `CASE WHEN e.event_date IS NULL OR e.event_date = '' THEN NULL ELSE split_part(e.event_date, '|', 1)::date END DESC NULLS LAST`,
+    event_date_oldest: `CASE WHEN e.event_date IS NULL OR e.event_date = '' THEN NULL ELSE split_part(e.event_date, '|', 1)::date END ASC NULLS LAST`,
   }
   const orderBy = sortMap[sort] || sortMap.newest
   const offset = (page - 1) * limit
@@ -124,6 +126,11 @@ export async function updateEnquiry(id, updates) {
   if (updates.response_message !== undefined) {
     fields.push(`response_message = $${paramIndex++}`)
     params.push(updates.response_message)
+  }
+
+  if (updates.rejection_reason !== undefined) {
+    fields.push(`rejection_reason = $${paramIndex++}`)
+    params.push(updates.rejection_reason)
   }
 
   if (fields.length === 0) return getEnquiryById(id)
@@ -242,6 +249,22 @@ export async function getEnquiryAnalytics(engagementType) {
   `, params)
 
   const row = rows[0]
+
+  // Rejection reason breakdown
+  const rejConditions = [...conditions]
+  const rejParams = [...params]
+  rejConditions.push(`status = 'rejected'`)
+  rejConditions.push(`rejection_reason IS NOT NULL`)
+  const rejWhere = `WHERE ${rejConditions.join(' AND ')}`
+
+  const { rows: rejectionRows } = await pool.query(`
+    SELECT rejection_reason, count(*) AS count
+    FROM enquiries
+    ${rejWhere}
+    GROUP BY rejection_reason
+    ORDER BY count DESC
+  `, rejParams)
+
   return {
     revenueByCurrency: row.revenue_by_currency || [],
     rejectedByCurrency: row.rejected_by_currency || [],
@@ -251,6 +274,10 @@ export async function getEnquiryAnalytics(engagementType) {
     proBonoFlexibleCount: parseInt(row.pro_bono_flexible_count, 10),
     paidCount: parseInt(row.paid_count, 10),
     dominantCurrency: row.dominant_currency || 'USD',
+    rejectionReasons: rejectionRows.map(r => ({
+      reason: r.rejection_reason,
+      count: parseInt(r.count, 10),
+    })),
   }
 }
 

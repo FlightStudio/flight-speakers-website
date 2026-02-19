@@ -70,7 +70,38 @@ function StepReview({ formData, handleChange, goToStep, recommendedSpeakers = []
         )}
       </motion.div>
 
-      {recsLoading && recommendedSpeakers.length === 0 && (
+      {recommendedSpeakers.length === 0 && !formData.brief && !recsLoading && (
+        <motion.div
+          className="mstep-review__recs mstep-review__recs--hint"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.4, ease: EASE }}
+        >
+          <div className="mstep-review__recs-header">
+            <svg width="14" height="14" viewBox="0 0 12 12" fill="currentColor">
+              <path d="M6 0L7.76 3.58L11.71 4.15L8.85 6.95L9.53 10.88L6 9.02L2.47 10.88L3.15 6.95L0.29 4.15L4.24 3.58L6 0Z"/>
+            </svg>
+            <span>Add a brief to get AI-recommended speakers</span>
+          </div>
+          <div className="mstep-review__recs-grid">
+            {[1, 2, 3].map(i => (
+              <button
+                key={i}
+                type="button"
+                className="mstep-review__rec mstep-review__rec--placeholder"
+                onClick={() => goToStep(FIELD_STEP_MAP.brief)}
+              >
+                <div className="mstep-review__rec-photo mstep-review__rec-photo--skeleton" />
+                <div className="mstep-review__rec-info">
+                  <span className="mstep-review__rec-name mstep-review__rec-name--skeleton" />
+                </div>
+              </button>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {recommendedSpeakers.length === 0 && (recsLoading || formData.brief) && (
         <motion.div
           className="mstep-review__recs"
           initial={{ opacity: 0, y: 12 }}

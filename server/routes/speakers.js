@@ -13,12 +13,11 @@ const router = express.Router()
 // Get all speakers (with optional filters)
 router.get('/', async (req, res, next) => {
   try {
-    const { featured, topic, audience, limit } = req.query
+    const { topic, audience, limit } = req.query
 
     const parsedLimit = limit ? Math.min(Math.max(parseInt(limit, 10) || 50, 1), 50) : undefined
 
     const speakers = await getAllSpeakers({
-      featured: featured === 'true' ? true : undefined,
       topic: topic || undefined,
       audience: audience || undefined,
       limit: parsedLimit,

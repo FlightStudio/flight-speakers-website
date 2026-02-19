@@ -4,22 +4,16 @@ const SPEAKER_COLUMNS = `
   id, name, headline, photo, bio, topics, audiences, keynotes,
   speaking_format AS "speakingFormat",
   video_url AS "videoUrl",
-  featured,
   social_stats AS "socialStats",
   social_profiles AS "socialProfiles",
   fee_min AS "feeMin",
   gender, ethnicity, nationality, location
 `
 
-export async function getAllSpeakers({ featured, topic, audience, limit } = {}) {
+export async function getAllSpeakers({ topic, audience, limit } = {}) {
   const conditions = []
   const params = []
   let paramIndex = 1
-
-  if (featured !== undefined) {
-    conditions.push(`featured = $${paramIndex++}`)
-    params.push(featured)
-  }
 
   if (topic) {
     conditions.push(`$${paramIndex++} = ANY(topics)`)
@@ -36,7 +30,7 @@ export async function getAllSpeakers({ featured, topic, audience, limit } = {}) 
   if (limit) params.push(limit)
 
   const { rows } = await pool.query(
-    `SELECT ${SPEAKER_COLUMNS} FROM speakers ${where} ORDER BY featured DESC, name ASC ${limitClause}`,
+    `SELECT ${SPEAKER_COLUMNS} FROM speakers ${where} ORDER BY name ASC ${limitClause}`,
     params
   )
 
@@ -75,7 +69,7 @@ export async function getSpeakerProfilesForSearch() {
             fee_min AS "feeMin",
             gender, ethnicity, nationality, location
      FROM speakers
-     ORDER BY featured DESC, name ASC`
+     ORDER BY name ASC`
   )
 
   return rows
@@ -98,9 +92,9 @@ export async function createSpeaker(data) {
 
   const { rows } = await pool.query(
     `INSERT INTO speakers (id, name, headline, photo, bio, topics, audiences, keynotes,
-       speaking_format, video_url, featured, social_profiles, fee_min,
+       speaking_format, video_url, social_profiles, fee_min,
        gender, ethnicity, nationality, location)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
      RETURNING ${SPEAKER_COLUMNS}`,
     [
       id,
@@ -113,7 +107,6 @@ export async function createSpeaker(data) {
       data.keynotes || [],
       data.speakingFormat || null,
       data.videoUrl || null,
-      data.featured || false,
       JSON.stringify(data.socialProfiles || {}),
       data.feeMin != null ? data.feeMin : null,
       data.gender || null,
@@ -141,7 +134,6 @@ export async function updateSpeaker(id, data) {
     keynotes: 'keynotes',
     speakingFormat: 'speaking_format',
     videoUrl: 'video_url',
-    featured: 'featured',
     feeMin: 'fee_min',
     gender: 'gender',
     ethnicity: 'ethnicity',

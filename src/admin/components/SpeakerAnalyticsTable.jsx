@@ -177,7 +177,6 @@ export default function SpeakerAnalyticsTable() {
                     <div>
                       <div className="speaker-analytics__name">
                         {speaker.name}
-                        {speaker.featured && <span className="speaker-analytics__featured">Featured</span>}
                       </div>
                       <div className="speaker-analytics__headline">{speaker.headline}</div>
                     </div>

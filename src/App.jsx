@@ -8,6 +8,7 @@ import AboutPage from './pages/AboutPage'
 import AdminApp from './admin/AdminApp'
 import SpeakerPortalPage from './pages/SpeakerPortalPage'
 import SpeakersPage from './pages/SpeakersPage'
+import BookPage from './pages/BookPage'
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/book" element={<BookPage />} />
             <Route path="/speakers" element={<SpeakersPage />} />
             <Route path="/speakers/:id" element={<SpeakerDetailPage />} />
             <Route path="/search" element={<SearchResultsPage />} />

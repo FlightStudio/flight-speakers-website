@@ -59,7 +59,6 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
       keynotes: [],
       speakingFormat: '',
       videoUrl: '',
-      featured: false,
       feeMin: '',
       gender: '',
       ethnicity: '',
@@ -181,20 +180,6 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
             placeholder="https://youtube.com/embed/..."
           />
         </div>
-
-        {/* Featured — admin only */}
-        {!portalMode && (
-          <div className="spkr-form__field">
-            <label className="spkr-form__label">Featured</label>
-            <button
-              type="button"
-              className={`spkr-form__toggle ${form.featured ? 'spkr-form__toggle--on' : ''}`}
-              onClick={() => set('featured', !form.featured)}
-            >
-              <span className="spkr-form__toggle-dot" />
-            </button>
-          </div>
-        )}
 
         {/* Fee — admin only */}
         {!portalMode && (

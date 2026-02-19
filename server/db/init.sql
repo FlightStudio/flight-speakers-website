@@ -13,14 +13,10 @@ CREATE TABLE IF NOT EXISTS speakers (
     keynotes TEXT[] NOT NULL DEFAULT '{}',
     speaking_format TEXT,
     video_url TEXT,
-    featured BOOLEAN NOT NULL DEFAULT false,
     embedding vector(1024),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-
--- Index for featured speaker queries
-CREATE INDEX IF NOT EXISTS idx_speakers_featured ON speakers (featured) WHERE featured = true;
 
 -- Full-text search index as fallback
 CREATE INDEX IF NOT EXISTS idx_speakers_fts ON speakers USING gin (
@@ -129,6 +125,9 @@ CREATE TABLE IF NOT EXISTS speaker_tokens (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_speaker_tokens_token ON speaker_tokens(token);
+
+-- Rejection reason for rejected enquiries
+ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS rejection_reason TEXT;
 
 -- Admin users table
 CREATE TABLE IF NOT EXISTS admin_users (

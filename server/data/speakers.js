@@ -15,7 +15,7 @@ Steven speaks openly about leadership, pressure, mental health, trust, and ambit
     keynotes: [],
     speakingFormat: '45 minute fireside moderated conversation + 15 minutes Q&A',
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    featured: true,
+
     feeMin: 50000,
 
     gender: 'Male',
@@ -42,7 +42,7 @@ Jordan understands how attention becomes loyalty and how loyalty becomes enterpr
     audiences: ['Marketing Teams', 'Brand Leaders', 'Entrepreneurs', 'Media Industry'],
     keynotes: ['How the Internet Actually Builds Brands', 'From Audience to Asset', 'The Quiet Power of Community'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    featured: true,
+
     feeMin: 15000,
 
     gender: 'Male',
@@ -67,7 +67,7 @@ Harry has seen hundreds of companies at their earliest stages and followed them 
     audiences: ['Entrepreneurs', 'Investors', 'Executive Leadership', 'Startups'],
     keynotes: ['How the Best Founders Actually Make Decisions', 'Why Most Scaling Advice Is Wrong', 'Building for the Long Game'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    featured: true,
+
     feeMin: 25000,
 
     gender: 'Male',
@@ -93,7 +93,7 @@ Vanessa focuses on the subtle signals that shape credibility, confidence, and co
     audiences: ['Corporate Teams', 'Sales Organizations', 'HR Leaders', 'Executive Leadership'],
     keynotes: ['Why People Decide in the First Five Seconds', 'The Hidden Signals You\'re Sending at Work', 'Communication That Actually Changes Outcomes'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    featured: true,
+
     feeMin: 20000,
 
     gender: 'Female',
@@ -119,7 +119,7 @@ Nischa brings clarity and calm authority to topics many organisations struggle t
     audiences: ['Emerging Leaders', 'Corporate Wellness', 'Financial Services', 'Young Professionals'],
     keynotes: ['What We Get Wrong About Success', 'Money, Pressure, and the Modern Career', 'Rethinking Ambition'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    featured: false,
+
     feeMin: 10000,
 
     gender: 'Female',
@@ -145,7 +145,7 @@ As Global Head of Human Performance at WHOOP, Kristen translates physiological d
     audiences: ['Corporate Wellness', 'High-Performance Teams', 'Executives', 'Healthcare'],
     keynotes: ['Why Pushing Harder Isn\'t the Answer', 'Recovery Is a Skill', 'Performing Well Without Breaking Yourself'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    featured: true,
+
     feeMin: 20000,
 
     gender: 'Female',
@@ -169,7 +169,7 @@ In recent years, Davina has become a leading advocate for women's health, menopa
     audiences: ['Corporate Events', 'Women in Business', 'Healthcare', 'HR Leaders'],
     keynotes: ['The Conversation We\'ve Been Avoiding', 'Health Isn\'t a Side Project', 'Confidence After Change'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    featured: true,
+
     feeMin: 30000,
 
     gender: 'Female',
@@ -194,7 +194,7 @@ With a background as an entrepreneur and former athlete, Paul speaks naturally t
     audiences: ['Corporate Teams', 'Executive Leadership', 'HR Leaders', 'Corporate Events'],
     keynotes: ['How You Love Is How You Lead', 'The Cost of Emotional Avoidance', 'Success Without Connection Isn\'t Success'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    featured: false,
+
     feeMin: 15000,
 
     gender: 'Male',
@@ -220,7 +220,7 @@ Nir's talks are thoughtful, balanced, and quietly confronting. He challenges the
     audiences: ['Product Leaders', 'Marketing Teams', 'Corporate Teams', 'Tech Industry'],
     keynotes: ['Why We Keep Doing Things We Don\'t Want to Do', 'Attention Is a Choice', 'Designing a Life You Can Focus On'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    featured: true,
+
     feeMin: 30000,
 
     gender: 'Male',
@@ -245,7 +245,7 @@ He speaks powerfully about inclusion, resilience, and building technology with e
     audiences: ['Tech Industry', 'Entrepreneurs', 'Education', 'Corporate Events'],
     keynotes: ['Accessibility Is Innovation', 'Turning a Personal Problem into a Global Product', 'Constraint as a Competitive Advantage'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    featured: false,
+
     feeMin: 15000,
 
     gender: 'Male',
@@ -270,7 +270,7 @@ Her talks are science-led, energetic, and highly practical, reframing ageing as 
     audiences: ['Executives', 'Corporate Wellness', 'Healthcare Leaders', 'Corporate Events'],
     keynotes: ['Your Body Is Not the Bottleneck', 'The Myth of Inevitable Decline', 'Building a Career That Lasts'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    featured: false,
+
     feeMin: 20000,
 
     gender: 'Female',
@@ -295,7 +295,7 @@ Her talks are gripping, grounded, and deeply practical, translating extreme expe
     audiences: ['C-Suite', 'Executive Leadership', 'Corporate Events', 'Sales Teams'],
     keynotes: ['What Pressure Reveals About Leadership', 'Making Decisions When There\'s No Perfect Answer', 'Leading When Things Go Wrong'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    featured: true,
+
     feeMin: 25000,
 
     gender: 'Female',
@@ -321,7 +321,7 @@ Paul's talks are honest, reflective, and quietly powerful. He avoids clichés, f
     audiences: ['Corporate Teams', 'Sports', 'Executive Leadership', 'Corporate Events'],
     keynotes: ['Who Are You When the Plan Falls Apart?', 'Resilience Without the Clichés', 'Pressure, Identity, and Starting Again'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    featured: false,
+
     feeMin: 8000,
 
     gender: 'Male',
@@ -347,7 +347,7 @@ On stage, Maggie is warm, direct, and highly relatable. Her talks feel like perm
     audiences: ['Emerging Leaders', 'Women in Business', 'Entrepreneurs', 'Young Professionals'],
     keynotes: ['Redefining Success on Your Own Terms', 'Ambition Without Apology', 'What No One Tells You About Betting on Yourself'],
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    featured: false,
+
     feeMin: 8000,
 
     gender: 'Female',

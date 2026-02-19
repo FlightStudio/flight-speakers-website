@@ -1,11 +1,29 @@
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { useState, useCallback, useMemo } from 'react'
+import { useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import SpeakerGrid from '../components/speakers/SpeakerGrid'
 import { EASE } from '../constants/animation'
+import './SpeakersPage.css'
 
 export default function SpeakersPage() {
   const [speakers, setSpeakers] = useState([])
   const [loading, setLoading] = useState(true)
+  const [selectedSpeakerIds, setSelectedSpeakerIds] = useState(new Set())
+
+  const toggleSpeakerSelect = useCallback((speakerId) => {
+    setSelectedSpeakerIds(prev => {
+      const next = new Set(prev)
+      if (next.has(speakerId)) next.delete(speakerId)
+      else next.add(speakerId)
+      return next
+    })
+  }, [])
+
+  const selectedSpeakers = useMemo(
+    () => speakers.filter(s => selectedSpeakerIds.has(s.id)),
+    [speakers, selectedSpeakerIds]
+  )
 
   useEffect(() => {
     fetch('/api/speakers')
@@ -44,11 +62,55 @@ export default function SpeakersPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, delay: 0.1, ease: EASE }}
             >
-              <SpeakerGrid speakers={speakers} />
+              <SpeakerGrid
+                speakers={speakers}
+                selectable={true}
+                selectedIds={selectedSpeakerIds}
+                onToggleSelect={toggleSpeakerSelect}
+              />
             </motion.div>
           )}
         </div>
       </section>
+
+      <AnimatePresence>
+        {selectedSpeakerIds.size > 0 && (
+          <motion.div
+            className="speakers-page__sticky-bar"
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            transition={{ duration: 0.35, ease: EASE }}
+          >
+            <div className="speakers-page__sticky-info">
+              <div className="speakers-page__sticky-avatars">
+                {selectedSpeakers.slice(0, 4).map((s, i) => (
+                  <img
+                    key={s.id}
+                    src={s.photo}
+                    alt={s.name}
+                    className="speakers-page__sticky-avatar"
+                    style={{ zIndex: 4 - i }}
+                  />
+                ))}
+              </div>
+              <span className="speakers-page__sticky-count">
+                {selectedSpeakerIds.size} speaker{selectedSpeakerIds.size !== 1 ? 's' : ''} selected
+              </span>
+            </div>
+            <Link
+              to="/enquiry"
+              state={{ selectedSpeakers }}
+              className="speakers-page__sticky-cta"
+            >
+              Continue to Enquiry
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M2.5 7H11.5M11.5 7L7 2.5M11.5 7L7 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }

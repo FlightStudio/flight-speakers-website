@@ -295,8 +295,8 @@ export default function SpeakerBrief({ speaker, reasoning, matchScore, selectedS
           </View>
         )}
 
-        {/* 1. AI Recommended Speaker */}
-        <Text style={styles.sectionLabel}>AI Recommended Speaker</Text>
+        {/* 1. Primary Speaker */}
+        <Text style={styles.sectionLabel}>{reasoning ? 'AI Recommended Speaker' : 'Recommended Speaker'}</Text>
         <View style={styles.speakerSection}>
           <View style={styles.speakerRow}>
             {speaker.photo && (
@@ -352,10 +352,10 @@ export default function SpeakerBrief({ speaker, reasoning, matchScore, selectedS
           </View>
         )}
 
-        {/* 4. Other AI Recommendations */}
+        {/* 4. Other Recommendations */}
         {resolvedAiRecs.length > 0 && (
           <View>
-            <Text style={styles.sectionTitle}>Other AI Recommendations</Text>
+            <Text style={styles.sectionTitle}>{reasoning ? 'Other AI Recommendations' : 'Other Recommendations'}</Text>
             <View style={styles.otherSpeakersGrid}>
               {resolvedAiRecs.slice(0, 4).map((s, i) => (
                 <SpeakerCard key={i} s={s} />

@@ -18,7 +18,6 @@ export default function DashboardTopSpeakers({ speakers = [] }) {
             <div className="dash-top-speakers__info">
               <div className="dash-top-speakers__name">
                 {s.name}
-                {s.featured && <span className="speaker-analytics__featured">Featured</span>}
               </div>
               <div className="dash-top-speakers__meta">
                 {s.enquiries} enquiries &middot; {s.views} views

@@ -4,8 +4,8 @@
 
 .speaker-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(clamp(280px, 20vw, 380px), 1fr));
-  gap: clamp(20px, 1.8vw, 36px);
+  grid-template-columns: repeat(auto-fill, minmax(clamp(160px, 13vw, 220px), 1fr));
+  gap: clamp(12px, 1vw, 18px);
 }
 
 .speaker-grid__empty {
@@ -34,8 +34,8 @@
 
 @media (max-width: 640px) {
   .speaker-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 
   .speaker-grid__empty {

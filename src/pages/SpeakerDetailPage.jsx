@@ -1,8 +1,9 @@
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { useState, useEffect, useCallback } from 'react'
-import { motion } from 'framer-motion'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import SpeakerGrid from '../components/speakers/SpeakerGrid'
 import { prefetchSpeaker, prefetchParseBrief } from '../utils/prefetch'
+import { EASE } from '../constants/animation'
 import './SpeakerDetailPage.css'
 
 function formatFollowers(n) {
@@ -11,8 +12,6 @@ function formatFollowers(n) {
   if (n >= 1_000) return `${(Math.floor(n / 100) / 10).toFixed(1).replace(/\.0$/, '')}K`
   return n.toString()
 }
-
-const DISPLAY_PLATFORMS = new Set(['instagram', 'x', 'youtube', 'tiktok'])
 
 const PLATFORM_URLS = {
   instagram: (handle) => `https://instagram.com/${handle}`,
@@ -57,6 +56,12 @@ function SpeakerDetailPage() {
   const [loading, setLoading] = useState(true)
   const [briefReasoning, setBriefReasoning] = useState('')
   const [briefScore, setBriefScore] = useState(null)
+  const [hoveredTopic, setHoveredTopic] = useState(null)
+  const [hoveredAudience, setHoveredAudience] = useState(null)
+  const bodyRef = useRef(null)
+  const { scrollYProgress } = useScroll({ target: bodyRef, offset: ['start start', 'end start'] })
+  const bioScale = useTransform(scrollYProgress, [0, 0.4], [1, 0.82])
+  const bioOpacity = useTransform(scrollYProgress, [0, 0.35], [1, 0.35])
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -70,7 +75,6 @@ function SpeakerDetailPage() {
         if (data.success) {
           setSpeaker(data.speaker)
           setRelatedSpeakers(data.relatedSpeakers || [])
-          // Fire-and-forget view tracking
           fetch(`/api/speakers/${encodeURIComponent(id)}/view`, { method: 'POST' })
         }
         setLoading(false)
@@ -81,7 +85,6 @@ function SpeakerDetailPage() {
       })
   }, [id])
 
-  // Fetch AI reasoning when arriving from search
   useEffect(() => {
     if (!brief || !id) return
     const controller = new AbortController()
@@ -97,13 +100,11 @@ function SpeakerDetailPage() {
     return () => controller.abort()
   }, [brief, id])
 
-  // Prefetch on hover over any "Enquire" button
   const handleEnquireHover = useCallback(() => {
     prefetchSpeaker(id)
     if (brief) prefetchParseBrief(brief)
   }, [id, brief])
 
-  // Navigate with speaker data in route state
   const handleEnquireClick = useCallback(() => {
     navigate(enquiryPath, { state: { speaker } })
   }, [navigate, enquiryPath, speaker])
@@ -112,11 +113,7 @@ function SpeakerDetailPage() {
     return (
       <div className="speaker-detail-page">
         <div className="container">
-          <motion.div
-            className="speaker-not-found"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
+          <motion.div className="speaker-not-found" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <p>Loading speaker...</p>
           </motion.div>
         </div>
@@ -128,11 +125,7 @@ function SpeakerDetailPage() {
     return (
       <div className="speaker-detail-page">
         <div className="container">
-          <motion.div
-            className="speaker-not-found"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
+          <motion.div className="speaker-not-found" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h1>Speaker Not Found</h1>
             <p>The speaker you're looking for doesn't exist or may have moved.</p>
             <Link to="/" className="btn btn-primary">Browse All Speakers</Link>
@@ -141,6 +134,27 @@ function SpeakerDetailPage() {
       </div>
     )
   }
+
+  // Build social entries
+  const socialEntries = (() => {
+    if (!speaker.socialStats || Object.keys(speaker.socialStats).length === 0) return []
+    const profiles = speaker.socialProfiles || {}
+    const platformOrder = ['youtube', 'instagram', 'tiktok', 'x']
+    return platformOrder
+      .filter(platform => speaker.socialStats[platform])
+      .map(platform => {
+        const data = speaker.socialStats[platform]
+        const count = data.followers ?? data.subscribers ?? 0
+        return {
+          platform,
+          count,
+          url: profiles[platform] && PLATFORM_URLS[platform] ? PLATFORM_URLS[platform](profiles[platform]) : null,
+        }
+      })
+      .filter(e => e.count > 0)
+  })()
+
+  const totalFollowing = socialEntries.reduce((sum, e) => sum + e.count, 0)
 
   return (
     <div className="speaker-detail-page">
@@ -161,100 +175,57 @@ function SpeakerDetailPage() {
         </div>
       </motion.div>
 
-      {/* Hero Section */}
+      {/* ========== ROW 1: Hero — photo + info side by side ========== */}
       <section className="speaker-hero">
         <div className="container">
           <div className="speaker-hero__grid">
-            {/* Image Side */}
             <motion.div
               className="speaker-hero__image-col"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.6, ease: EASE }}
             >
               <div className="speaker-hero__image-wrapper">
-                <img
-                  src={speaker.photo}
-                  alt={speaker.name}
-                  className="speaker-hero__image"
-                />
+                <img src={speaker.photo} alt={speaker.name} className="speaker-hero__image" />
               </div>
-              {speaker.featured && (
-                <span className="speaker-hero__badge">Featured</span>
-              )}
             </motion.div>
 
-            {/* Content Side */}
             <motion.div
               className="speaker-hero__content"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
+              transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
             >
               <span className="speaker-hero__label">Speaker Profile</span>
-
               <h1 className="speaker-hero__name">{speaker.name}</h1>
-
               <p className="speaker-hero__headline">{speaker.headline}</p>
 
-              {speaker.socialStats && Object.keys(speaker.socialStats).length > 0 && (() => {
-                const profiles = speaker.socialProfiles || {}
-                const platformOrder = ['youtube', 'instagram', 'tiktok', 'x']
-                const statsMap = speaker.socialStats
-                const entries = platformOrder
-                  .filter(platform => statsMap[platform])
-                  .map(platform => {
-                    const data = statsMap[platform]
-                    const count = data.followers ?? data.subscribers ?? 0
-                    return {
-                      platform,
-                      count,
-                      url: profiles[platform] && PLATFORM_URLS[platform] ? PLATFORM_URLS[platform](profiles[platform]) : null,
-                    }
-                  })
-                  .filter(e => e.count > 0)
-                const totalFollowing = entries.reduce((sum, e) => sum + e.count, 0)
-
-                return (
-                  <motion.div
-                    className="speaker-hero__social"
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                  >
-                    {totalFollowing > 0 && (
-                      <span className="speaker-hero__social-total">
-                        {formatFollowers(totalFollowing)} total following
-                      </span>
-                    )}
-                    <div className="speaker-hero__social-pills">
-                      {entries.map(({ platform, count, url }, i) => (
-                        <motion.a
-                          key={platform}
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`speaker-hero__social-pill speaker-hero__social-pill--${platform}`}
-                          initial={{ opacity: 0, scale: 0.85 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.35, delay: 0.4 + i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-                        >
-                          {platformIcons[platform]}
-                          {formatFollowers(count)}
-                        </motion.a>
-                      ))}
-                    </div>
-                  </motion.div>
-                )
-              })()}
-
-              <div className="speaker-hero__topics">
-                {speaker.topics.map((topic, index) => (
-                  <span key={index} className="speaker-hero__topic">
-                    {topic}
-                  </span>
-                ))}
-              </div>
+              {socialEntries.length > 0 && (
+                <div className="speaker-hero__social">
+                  {totalFollowing > 0 && (
+                    <span className="speaker-hero__social-total">
+                      {formatFollowers(totalFollowing)} total following
+                    </span>
+                  )}
+                  <div className="speaker-hero__social-pills">
+                    {socialEntries.map(({ platform, count, url }, i) => (
+                      <motion.a
+                        key={platform}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`speaker-hero__social-pill speaker-hero__social-pill--${platform}`}
+                        initial={{ opacity: 0, scale: 0.85 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.35, delay: 0.4 + i * 0.08, ease: EASE }}
+                      >
+                        {platformIcons[platform]}
+                        {formatFollowers(count)}
+                      </motion.a>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="speaker-hero__actions">
                 <motion.button
@@ -269,7 +240,6 @@ function SpeakerDetailPage() {
                     <path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </motion.button>
-
                 {speaker.videoUrl && (
                   <a href="#video" className="btn btn-secondary btn-lg">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -284,111 +254,225 @@ function SpeakerDetailPage() {
         </div>
       </section>
 
-      {/* Bio Section */}
-      <section className="section speaker-bio-section">
+      {/* ========== ROW 2: Bio (left) + Topics/Reasoning (right) ========== */}
+      <section className="speaker-body" ref={bodyRef}>
         <div className="container">
-          <div className="speaker-bio-grid">
+          <div className="speaker-body__grid">
+            {/* Left — Bio (sticky, scales down on scroll) */}
             <motion.div
-              className="speaker-bio"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
+              className="speaker-body__left"
+              style={{ scale: bioScale, opacity: bioOpacity }}
             >
-              <h2>About {speaker.name}</h2>
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, ease: EASE }}
+              >
+                <h2 className="speaker-body__bio-title">About {speaker.name}</h2>
+                <div className="speaker-body__bio">
+                  {speaker.bio.split('\n\n').map((paragraph, index) => (
+                    <p key={index}>{paragraph}</p>
+                  ))}
+                </div>
+              </motion.div>
+            </motion.div>
 
-              <div className="speaker-bio__content">
-                {speaker.bio.split('\n\n').map((paragraph, index) => (
-                  <p key={index}>{paragraph}</p>
-                ))}
-              </div>
-
+            {/* Right — Dynamic content */}
+            <div className="speaker-body__right">
+              {/* AI Reasoning — animated gradient border */}
               {briefReasoning && (
                 <motion.div
-                  className="speaker-bio__reasoning"
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, duration: 0.4 }}
+                  className="speaker-block speaker-block--reasoning speaker-block--glow"
+                  initial={{ opacity: 0, y: 24, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ delay: 0.1, duration: 0.5, ease: EASE }}
+                  whileHover={{ y: -2 }}
                 >
-                  <div className="speaker-bio__reasoning-header">
-                    <svg width="14" height="14" viewBox="0 0 12 12" fill="currentColor">
+                  <div className="speaker-block__header">
+                    <svg width="14" height="14" viewBox="0 0 12 12" fill="currentColor" style={{ color: '#22c55e' }}>
                       <path d="M6 0L7.76 3.58L11.71 4.15L8.85 6.95L9.53 10.88L6 9.02L2.47 10.88L3.15 6.95L0.29 4.15L4.24 3.58L6 0Z"/>
                     </svg>
                     <span>Why {speaker.name} matches your brief</span>
                     {briefScore != null && (
-                      <span className="speaker-bio__reasoning-score">{briefScore}% match</span>
+                      <span className="speaker-block__score">{briefScore}% match</span>
                     )}
                   </div>
-                  <p className="speaker-bio__reasoning-text">{briefReasoning}</p>
+                  <p className="speaker-block__text">{briefReasoning}</p>
                 </motion.div>
               )}
-            </motion.div>
 
-            <motion.aside
-              className="speaker-sidebar"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              <div className="sidebar-card">
-                <h3>Key Topics</h3>
-                <ul className="sidebar-list">
-                  {speaker.topics.map((topic, index) => (
-                    <li key={index}>{topic}</li>
-                  ))}
-                </ul>
-              </div>
-
-              {speaker.audiences && (
-                <div className="sidebar-card">
-                  <h3>Ideal Audiences</h3>
-                  <ul className="sidebar-list">
-                    {speaker.audiences.map((audience, index) => (
-                      <li key={index}>{audience}</li>
-                    ))}
-                  </ul>
+              {/* Key Topics — expandable on hover */}
+              <motion.div
+                className="speaker-block speaker-block--glow"
+                initial={{ opacity: 0, y: 24, scale: 0.97 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.15, duration: 0.5, ease: EASE }}
+                whileHover={{ y: -2 }}
+              >
+                <h3 className="speaker-block__title">Key Topics</h3>
+                <div className="speaker-topics-list">
+                  {speaker.topics.map((topic, index) => {
+                    const isHovered = hoveredTopic === index
+                    return (
+                      <motion.div
+                        key={index}
+                        className={`speaker-topic-row${isHovered ? ' speaker-topic-row--active' : ''}`}
+                        onHoverStart={() => setHoveredTopic(index)}
+                        onHoverEnd={() => setHoveredTopic(null)}
+                        initial={{ opacity: 0, x: -8 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.2 + index * 0.06, duration: 0.35, ease: EASE }}
+                        layout
+                      >
+                        <div className="speaker-topic-row__header">
+                          <span className="speaker-topic-row__counter">{String(index + 1).padStart(2, '0')}</span>
+                          <span className="speaker-topic-row__label">{topic}</span>
+                          <motion.svg
+                            className="speaker-topic-row__arrow"
+                            width="14" height="14" viewBox="0 0 14 14" fill="none"
+                            animate={{ rotate: isHovered ? 180 : 0 }}
+                            transition={{ duration: 0.25, ease: EASE }}
+                          >
+                            <path d="M3.5 5.5L7 9L10.5 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </motion.svg>
+                        </div>
+                        <AnimatePresence>
+                          {isHovered && (
+                            <motion.div
+                              className="speaker-topic-row__detail"
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.25, ease: EASE }}
+                            >
+                              <p>
+                                {briefReasoning && briefReasoning.toLowerCase().includes(topic.toLowerCase().split(' ')[0])
+                                  ? `Directly relevant to your brief — ${speaker.name}'s work in ${topic.toLowerCase()} addresses the themes and outcomes you're looking for.`
+                                  : `A core area of ${speaker.name}'s expertise, delivering practical frameworks and proven strategies in ${topic.toLowerCase()}.`
+                                }
+                              </p>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </motion.div>
+                    )
+                  })}
                 </div>
+              </motion.div>
+
+              {/* Ideal Audiences — interactive hover rows */}
+              {speaker.audiences && speaker.audiences.length > 0 && (
+                <motion.div
+                  className="speaker-block speaker-block--glow"
+                  initial={{ opacity: 0, y: 24, scale: 0.97 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, ease: EASE }}
+                  whileHover={{ y: -2 }}
+                >
+                  <h3 className="speaker-block__title">Ideal Audiences</h3>
+                  <div className="speaker-audiences-list">
+                    {speaker.audiences.map((audience, index) => {
+                      const isActive = hoveredAudience === index
+                      return (
+                        <motion.div
+                          key={index}
+                          className={`speaker-audience-row${isActive ? ' speaker-audience-row--active' : ''}`}
+                          onHoverStart={() => setHoveredAudience(index)}
+                          onHoverEnd={() => setHoveredAudience(null)}
+                          initial={{ opacity: 0, x: -8 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: 0.1 + index * 0.06, duration: 0.35, ease: EASE }}
+                          layout
+                        >
+                          <div className="speaker-audience-row__header">
+                            <motion.span
+                              className="speaker-audience-row__check"
+                              animate={{ scale: isActive ? 1.15 : 1 }}
+                              transition={{ duration: 0.2, ease: EASE }}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                <path d="M3 7L6 10L11 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </motion.span>
+                            <span className="speaker-audience-row__label">{audience}</span>
+                          </div>
+                          <AnimatePresence>
+                            {isActive && (
+                              <motion.div
+                                className="speaker-audience-row__detail"
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.25, ease: EASE }}
+                              >
+                                <p>
+                                  {briefReasoning
+                                    ? `Recommended for your event — ${speaker.name} has a proven track record engaging ${audience.toLowerCase()} with content tailored to their needs.`
+                                    : `${speaker.name} adapts their delivery and content to resonate deeply with ${audience.toLowerCase()}, ensuring maximum engagement and lasting impact.`
+                                  }
+                                </p>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </motion.div>
+                      )
+                    })}
+                  </div>
+                </motion.div>
               )}
 
-              <div className="sidebar-card sidebar-card--cta">
-                <h3>Ready to Book?</h3>
-                <p>Get in touch to discuss your event.</p>
-                <button
+              {/* CTA card — animated gradient */}
+              <motion.div
+                className="speaker-block speaker-block--cta"
+                initial={{ opacity: 0, y: 24, scale: 0.97 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, ease: EASE }}
+              >
+                <div className="speaker-block--cta__glow" />
+                <h3>Ready to book {speaker.name}?</h3>
+                <p>Submit an enquiry and we'll get back to you within 24 hours.</p>
+                <motion.button
                   onClick={handleEnquireClick}
                   onMouseEnter={handleEnquireHover}
-                  className="btn btn-primary w-full"
+                  className="btn btn-primary"
+                  whileHover={{ scale: 1.04, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  Submit Enquiry
+                  Start Your Enquiry
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                     <path d="M2.5 7H11.5M11.5 7L7 2.5M11.5 7L7 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                </button>
-              </div>
-            </motion.aside>
+                </motion.button>
+              </motion.div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Video Section */}
+      {/* ========== ROW 3: Video — full width ========== */}
       {speaker.videoUrl && /^https?:\/\//.test(speaker.videoUrl) && (
-        <section id="video" className="section speaker-video-section">
+        <section id="video" className="speaker-video-section">
           <div className="container">
-            <motion.div
-              className="video-header"
+            <motion.h2
+              className="speaker-video-section__title"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              <h2>{speaker.name.split(' ')[0]} in Action</h2>
-            </motion.div>
-
+              {speaker.name.split(' ')[0]} in Action
+            </motion.h2>
             <motion.div
-              className="video-wrapper"
+              className="speaker-video-wrap"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.5, ease: EASE }}
             >
               <iframe
                 src={speaker.videoUrl}
@@ -396,13 +480,13 @@ function SpeakerDetailPage() {
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
-              ></iframe>
+              />
             </motion.div>
           </div>
         </section>
       )}
 
-      {/* Related Speakers */}
+      {/* ========== ROW 4: Related Speakers — full width ========== */}
       {relatedSpeakers.length > 0 && (
         <section className="section related-speakers-section">
           <div className="container">
@@ -420,33 +504,6 @@ function SpeakerDetailPage() {
           </div>
         </section>
       )}
-
-      {/* Final CTA */}
-      <section className="section speaker-final-cta">
-        <div className="container">
-          <motion.div
-            className="final-cta__content"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2>Ready to elevate your event?</h2>
-            <p>Let's discuss how {speaker.name} can inspire your audience.</p>
-            <motion.button
-              onClick={handleEnquireClick}
-              onMouseEnter={handleEnquireHover}
-              className="btn btn-primary btn-lg"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              Start Your Enquiry
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </motion.button>
-          </motion.div>
-        </div>
-      </section>
     </div>
   )
 }

@@ -157,7 +157,6 @@ export default function AdminSpeakerDetailPage() {
             <div>
               <h1 className="speaker-detail__name">
                 {speaker.name}
-                {speaker.featured && <span className="speaker-analytics__featured">Featured</span>}
               </h1>
               <p className="speaker-detail__headline">{speaker.headline}</p>
               {speaker.topics && speaker.topics.length > 0 && (
