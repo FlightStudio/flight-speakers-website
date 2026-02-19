@@ -61,7 +61,7 @@ function Header() {
             <div className="nav-right">
               <motion.button
                 className="btn btn-primary nav-cta hide-mobile"
-                onClick={() => navigate('/enquiry')}
+                onClick={() => navigate('/book')}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -146,7 +146,7 @@ function Header() {
                   className="btn btn-primary btn-lg w-full"
                   onClick={() => {
                     setMobileMenuOpen(false)
-                    navigate('/enquiry')
+                    navigate('/book')
                   }}
                 >
                   Book a Speaker

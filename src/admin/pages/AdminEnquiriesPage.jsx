@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { EASE } from '../../constants/animation'
-import AdminStatCards from '../components/AdminStatCards'
 import EnquiryList from '../components/EnquiryList'
 
 const ENGAGEMENT_TABS = [
@@ -11,13 +10,7 @@ const ENGAGEMENT_TABS = [
 ]
 
 export default function AdminEnquiriesPage() {
-  const [activeFilter, setActiveFilter] = useState('all')
   const [engagementType, setEngagementType] = useState('all')
-
-  function handleEngagementChange(type) {
-    setEngagementType(type)
-    setActiveFilter('all')
-  }
 
   return (
     <motion.div
@@ -36,15 +29,14 @@ export default function AdminEnquiriesPage() {
           <button
             key={tab.key}
             className={`enq-type-tabs__tab ${engagementType === tab.key ? 'enq-type-tabs__tab--active' : ''}`}
-            onClick={() => handleEngagementChange(tab.key)}
+            onClick={() => setEngagementType(tab.key)}
           >
             {tab.label}
           </button>
         ))}
       </div>
 
-      <AdminStatCards activeFilter={activeFilter} onFilterChange={setActiveFilter} engagementType={engagementType} />
-      <EnquiryList initialFilter={activeFilter} engagementType={engagementType} />
+      <EnquiryList engagementType={engagementType} />
     </motion.div>
   )
 }

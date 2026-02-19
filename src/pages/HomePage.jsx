@@ -1,5 +1,5 @@
-import { useState, useMemo, useRef, useEffect } from 'react'
-import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-motion'
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react'
+import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 import SpeakerCard from '../components/speakers/SpeakerCard'
 import GradientMesh from '../components/effects/GradientMesh'
@@ -148,88 +148,272 @@ function FloatingParticles() {
   )
 }
 
-// Enhanced AI Matching Demo with WebGL - Interactive Hover with Sequential Animations
+// Enhanced AI Matching Demo — pipeline inside window
 function EnhancedAIDemo() {
-  const steps = [
-    {
-      number: '01',
-      title: 'Describe Your Event',
-      description: 'Tell us about your audience, goals, and ideal speaker.',
-    },
-    {
-      number: '02',
-      title: 'AI Finds Matches',
-      description: 'Our AI analyzes your brief to find the best speakers.',
-    },
-    {
-      number: '03',
-      title: 'Book With Confidence',
-      description: 'Review recommendations and book directly.',
-    },
+  const containerRef = useRef(null)
+  const extractRef = useRef(null)
+  const tokenElRefs = useRef([])
+  const isInView = useInView(containerRef, { once: false, amount: 0.3 })
+  const [phase, setPhase] = useState(0)
+  const [dynamicPaths, setDynamicPaths] = useState(null)
+  const timersRef = useRef([])
+  const runIdRef = useRef(0)
+
+  const tokens = [
+    { label: 'Leadership', color: '#b5783a' },
+    { label: '500 execs', color: '#8b7352' },
+    { label: 'Sales kickoff', color: '#7a6e52' },
+    { label: 'Motivational', color: '#9a7a4a' },
+    { label: 'Q3', color: '#6b8a5e' },
   ]
 
+  const results = [
+    { name: 'Sarah Chen', topic: 'Leadership & Growth', score: 98 },
+    { name: 'Marcus Williams', topic: 'Sales Performance', score: 94 },
+    { name: 'Dr. Priya Patel', topic: 'Executive Mindset', score: 91 },
+  ]
+
+  const brief = 'We need a high-energy leadership speaker for our Q3 sales kickoff with 500 executives...'
+  const [typedText, setTypedText] = useState('')
+
+  // Timing constants
+  const TOKEN_STAGGER = 600      // ms between each token appearing
+  const PATH_DRAW_DUR = 1.0      // seconds for each path line to draw
+  const DOT_DUR = 2.2            // seconds for each dot to travel
+  const DOT_STAGGER = 0.55       // seconds between each dot dispatching
+
+  const SVG_W = 300
+  const SVG_H = 160
+  const END_X = SVG_W / 2
+  const END_Y = SVG_H - 6
+
+  // When everything is visible (all tokens + all paths drawn)
+  const LAST_TOKEN_DELAY = (tokens.length - 1) * (TOKEN_STAGGER / 1000) // 2.4s
+  const ALL_VISIBLE_AT = LAST_TOKEN_DELAY + 0.45 + PATH_DRAW_DUR       // ~3.85s after phase 2
+  // Dots dispatch after everything is visible
+  const DOTS_START = ALL_VISIBLE_AT + 0.3                               // ~4.15s after phase 2
+  const LAST_DOT_DONE = DOTS_START + (tokens.length - 1) * DOT_STAGGER + DOT_DUR // ~8.55s after phase 2
+
+  // Build a smooth bezier from (sx, 0) → (END_X, END_Y)
+  // Outer tokens get more dramatic S-curves
+  const buildPath = useCallback((sx) => {
+    const dx = Math.abs(sx - END_X)
+    const spread = dx / (SVG_W / 2) // 0 = center, 1 = edge
+    // First CP: stays at token x, drops down proportional to spread
+    const cp1x = sx
+    const cp1y = END_Y * (0.55 + spread * 0.15)
+    // Second CP: at center x, but pulled up — outer tokens need more pull
+    const cp2x = END_X
+    const cp2y = END_Y * (0.35 + spread * 0.1)
+    return `M${sx.toFixed(1)},0 C${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${END_X},${END_Y}`
+  }, [])
+
+  const fallbackPaths = useMemo(() => {
+    return [38, 95, 150, 205, 262].map(x => buildPath(x))
+  }, [buildPath])
+
+  // Measure real token positions → dynamic SVG paths
+  const measurePaths = useCallback(() => {
+    const container = extractRef.current
+    if (!container) return
+    const rect = container.getBoundingClientRect()
+    if (rect.width === 0) return
+
+    const measured = tokenElRefs.current.map((el) => {
+      if (!el) return null
+      const elRect = el.getBoundingClientRect()
+      const sx = ((elRect.left + elRect.width / 2) - rect.left) / rect.width * SVG_W
+      return buildPath(sx)
+    })
+
+    if (measured.every(Boolean)) setDynamicPaths(measured)
+  }, [buildPath])
+
+  // Measure on mount (tokens are in DOM at opacity 0, layout positions are correct)
+  useEffect(() => {
+    requestAnimationFrame(measurePaths)
+    window.addEventListener('resize', measurePaths)
+    return () => window.removeEventListener('resize', measurePaths)
+  }, [measurePaths])
+
+  const paths = dynamicPaths || fallbackPaths
+
+  useEffect(() => {
+    if (isInView) {
+      runIdRef.current++
+      setPhase(0)
+      setTypedText('')
+      setDynamicPaths(null)
+      timersRef.current.forEach(clearTimeout)
+      const phase2At = 2800
+      const t = []
+      t.push(setTimeout(() => setPhase(1), 300))
+      t.push(setTimeout(() => setPhase(2), phase2At))
+      // Star pulses when dots start traveling
+      t.push(setTimeout(() => setPhase(3), phase2At + DOTS_START * 1000))
+      // Results appear right after last dot arrives
+      t.push(setTimeout(() => setPhase(4), phase2At + LAST_DOT_DONE * 1000 + 200))
+      timersRef.current = t
+    } else {
+      timersRef.current.forEach(clearTimeout)
+      setPhase(0)
+      setTypedText('')
+    }
+    return () => timersRef.current.forEach(clearTimeout)
+  }, [isInView])
+
+  useEffect(() => {
+    if (phase !== 1) return
+    let i = 0
+    const iv = setInterval(() => { i++; setTypedText(brief.slice(0, i)); if (i >= brief.length) clearInterval(iv) }, 26)
+    return () => clearInterval(iv)
+  }, [phase])
+
   return (
-    <div className="ai-demo-simple">
-      <div className="ai-demo-simple__steps">
-        {steps.map((step, i) => (
-          <div key={i} className="ai-demo-step">
-            <div className="ai-demo-step__number">{step.number}</div>
-            <div className="ai-demo-step__content">
-              <h4 className="ai-demo-step__title">{step.title}</h4>
-              <p className="ai-demo-step__description">{step.description}</p>
-            </div>
-            {i < steps.length - 1 && <div className="ai-demo-step__arrow">→</div>}
-          </div>
-        ))}
+    <div className="ai-pipe" ref={containerRef}>
+      {/* Search bar */}
+      <div className="ai-pipe__search">
+        <svg className="ai-pipe__search-icon" width="14" height="14" viewBox="0 0 22 22" fill="none">
+          <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M18 18L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+        <div className="ai-pipe__search-text">
+          {typedText || <span className="ai-pipe__placeholder">Describe your ideal speaker...</span>}
+          {phase === 1 && <span className="ai-pipe__cursor" />}
+        </div>
       </div>
 
-      <div className="ai-demo-simple__mockup">
-        <div className="ai-demo-mockup__panel ai-demo-mockup__panel--input">
-          <div className="ai-demo-mockup__header">
-            <span className="ai-demo-mockup__dot"></span>
-            <span>Your Brief</span>
-          </div>
-          <div className="ai-demo-mockup__body">
-            <div className="ai-demo-mockup__placeholder-line ai-demo-mockup__placeholder-line--long"></div>
-            <div className="ai-demo-mockup__placeholder-line ai-demo-mockup__placeholder-line--medium"></div>
-            <div className="ai-demo-mockup__placeholder-line ai-demo-mockup__placeholder-line--short"></div>
-          </div>
+      {/* Visualization — tokens, paths, convergence */}
+      <div className="ai-pipe__viz" ref={extractRef}>
+        {/* Token pills */}
+        <div className="ai-pipe__token-row">
+          {tokens.map((tk, i) => (
+            <motion.span
+              key={`${tk.label}-${runIdRef.current}`}
+              ref={el => { tokenElRefs.current[i] = el }}
+              className="ai-pipe__token"
+              style={{ '--tk': tk.color }}
+              initial={{ opacity: 0, y: -6 }}
+              animate={phase >= 2 ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: i * (TOKEN_STAGGER / 1000), duration: 0.45, ease: EASE }}
+            >
+              {tk.label}
+            </motion.span>
+          ))}
         </div>
 
-        <div className="ai-demo-mockup__arrow">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
+        {/* SVG — one line per token, one dot per line */}
+        <svg className="ai-pipe__paths" viewBox={`0 0 ${SVG_W} ${SVG_H}`} preserveAspectRatio="none">
+          {/* Lines — draw with each token, staggered */}
+          {paths.map((d, i) => (
+            <motion.path
+              key={`line-${i}-${runIdRef.current}`}
+              d={d}
+              stroke={tokens[i].color}
+              strokeWidth="1.5"
+              strokeOpacity="0"
+              fill="none"
+              initial={{ pathLength: 0 }}
+              animate={phase >= 2 ? { pathLength: 1, strokeOpacity: 0.22 } : {}}
+              transition={{
+                pathLength: { delay: i * (TOKEN_STAGGER / 1000) + 0.3, duration: PATH_DRAW_DUR, ease: EASE },
+                strokeOpacity: { delay: i * (TOKEN_STAGGER / 1000) + 0.3, duration: 0.3 },
+              }}
+            />
+          ))}
 
-        <div className="ai-demo-mockup__panel ai-demo-mockup__panel--results">
-          <div className="ai-demo-mockup__header">
-            <span className="ai-demo-mockup__dot ai-demo-mockup__dot--blue"></span>
-            <span>Matched Speakers</span>
-          </div>
-          <div className="ai-demo-mockup__body">
-            {[98, 94, 91].map((match, i) => (
-              <div key={i} className="ai-demo-mockup__result">
-                <div className="ai-demo-mockup__avatar"></div>
-                <div className="ai-demo-mockup__result-lines">
-                  <div className="ai-demo-mockup__placeholder-line ai-demo-mockup__placeholder-line--name"></div>
-                  <div className="ai-demo-mockup__placeholder-line ai-demo-mockup__placeholder-line--topic"></div>
-                </div>
-                <div className="ai-demo-mockup__match">{match}%</div>
+          {/* Dots — dispatch AFTER all tokens + paths are visible */}
+          {phase >= 2 && tokens.map((tk, i) => {
+            const begin = `${DOTS_START + i * DOT_STAGGER}s`
+            const dur = `${DOT_DUR}s`
+            return (
+              <circle
+                key={`dot-${i}-${runIdRef.current}`}
+                r="4" fill={tk.color} opacity="0"
+              >
+                <animateMotion
+                  dur={dur} begin={begin} fill="freeze" path={paths[i]}
+                  calcMode="spline" keySplines="0.4 0 0.2 1" keyTimes="0;1"
+                />
+                <animate attributeName="opacity" values="0;0.85;0.85;0" keyTimes="0;0.04;0.75;1" dur={dur} begin={begin} fill="freeze" />
+                <animate attributeName="r" values="3;4.5;4;2" keyTimes="0;0.05;0.8;1" dur={dur} begin={begin} fill="freeze" />
+              </circle>
+            )
+          })}
+        </svg>
+
+        {/* Analyzing orb at convergence */}
+        <motion.div
+          className="ai-pipe__orb"
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={
+            phase >= 3 ? { opacity: 1, scale: 1 } :
+            phase >= 2 ? { opacity: 0.15, scale: 0.8 } :
+            { opacity: 0, scale: 0.5 }
+          }
+          transition={{ duration: 0.5, ease: EASE }}
+        >
+          {phase >= 3 && (
+            <motion.div
+              className="ai-pipe__orb-ring ai-pipe__orb-ring--outer"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
+            />
+          )}
+          {phase >= 3 && (
+            <motion.div
+              className="ai-pipe__orb-ring ai-pipe__orb-ring--inner"
+              animate={{ rotate: -360 }}
+              transition={{ duration: 4.5, repeat: Infinity, ease: 'linear' }}
+            />
+          )}
+          <motion.div
+            className="ai-pipe__orb-core"
+            animate={phase >= 3 ? { scale: [1, 1.2, 1] } : {}}
+            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        </motion.div>
+
+        {/* Results */}
+        <div className="ai-pipe__results">
+          {results.map((s, i) => (
+            <motion.div
+              key={s.name}
+              className="ai-pipe__result"
+              initial={{ opacity: 0, y: 12 }}
+              animate={phase >= 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+              transition={{ delay: i * 0.12, duration: 0.4, ease: EASE }}
+            >
+              <div className="ai-pipe__result-av" />
+              <div className="ai-pipe__result-info">
+                <span className="ai-pipe__result-name">{s.name}</span>
+                <span className="ai-pipe__result-topic">{s.topic}</span>
               </div>
-            ))}
-          </div>
+              <motion.span
+                className="ai-pipe__result-score"
+                initial={{ scale: 0 }}
+                animate={phase >= 4 ? { scale: 1 } : { scale: 0 }}
+                transition={{ delay: 0.2 + i * 0.12, type: 'spring', stiffness: 300, damping: 15 }}
+              >
+                {s.score}%
+              </motion.span>
+            </motion.div>
+          ))}
         </div>
       </div>
 
-      <div className="ai-demo-simple__cta">
-        <Link to="/search" className="btn btn-primary">
-          Try It Yourself
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+      {/* Footer CTA */}
+      <motion.div
+        className="ai-pipe__footer"
+        initial={{ opacity: 0 }}
+        animate={phase >= 4 ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <Link to="/search" className="ai-pipe__cta">
+          Try it yourself
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </Link>
-      </div>
+      </motion.div>
     </div>
   )
 }
@@ -302,7 +486,7 @@ function HomePage() {
   const [speakers, setSpeakers] = useState([])
 
   useEffect(() => {
-    fetch('/api/speakers?limit=8')
+    fetch('/api/speakers?limit=20')
       .then(res => res.json())
       .then(data => {
         if (data.success) setSpeakers(data.speakers)
@@ -484,65 +668,72 @@ function HomePage() {
               </div>
             </motion.div>
 
-            {/* How It Works — compact inline strip */}
-            <motion.div
-              className="hero-how"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.95 }}
-            >
-              {[
-                { num: '1', label: 'Describe your event', icon: (
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4H14M2 8H10M2 12H12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
-                )},
-                { num: '2', label: 'AI matches speakers', icon: (
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L9.76 5.58L14.71 6.15L11.35 9.45L12.18 14.38L8 12.02L3.82 14.38L4.65 9.45L1.29 6.15L6.24 5.58L8 1Z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                )},
-                { num: '3', label: 'Book with confidence', icon: (
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8L7 11L12 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                )},
-              ].map((step, i) => (
-                <div key={i} className="hero-how__step">
-                  <span className="hero-how__icon">{step.icon}</span>
-                  <span className="hero-how__label">{step.label}</span>
-                  {i < 2 && (
-                    <span className="hero-how__connector">
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    </span>
-                  )}
-                </div>
-              ))}
-            </motion.div>
-
           </div>
         </motion.div>
       </section>
 
-      {/* ========== AI MATCHING DEMO (How It Works) ========== */}
+      {/* ========== HOW IT WORKS — Pipeline in window ========== */}
       <section className="section ai-demo-section">
         <div className="container">
-          <motion.div
-            className="section-header section-header--center"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <span className="section-label">How It Works</span>
-            <h2 className="section-title">How our AI search works</h2>
-            <p className="section-subtitle">
-              Three simple steps powered by cutting-edge AI technology.
-            </p>
-          </motion.div>
-
-          <EnhancedAIDemo />
+          <div className="ai-demo-layout">
+            <motion.div
+              className="ai-demo-layout__text"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <span className="section-label">How It Works</span>
+              <h2 className="section-title">AI-powered<br/>speaker matching</h2>
+              <p className="section-subtitle">
+                Describe your event in plain language. Our AI extracts what matters, scans our curated roster, and surfaces the speakers who'll make the biggest impact.
+              </p>
+              <div className="ai-demo-layout__steps">
+                {[
+                  { num: '01', title: 'Describe', desc: 'Tell us about your event, audience & goals' },
+                  { num: '02', title: 'Extract', desc: 'AI identifies key themes and requirements' },
+                  { num: '03', title: 'Match', desc: 'Semantic search ranks the best speakers' },
+                ].map((s, i) => (
+                  <motion.div
+                    key={i}
+                    className="ai-demo-layout__step"
+                    initial={{ opacity: 0, x: -16 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.2 + i * 0.1, duration: 0.4, ease: EASE }}
+                  >
+                    <span className="ai-demo-layout__step-num">{s.num}</span>
+                    <div>
+                      <span className="ai-demo-layout__step-title">{s.title}</span>
+                      <span className="ai-demo-layout__step-desc">{s.desc}</span>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+            <motion.div
+              className="ai-demo-layout__window"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.15, ease: EASE }}
+            >
+              {/* Window chrome */}
+              <div className="ai-window__bar">
+                <div className="ai-window__dots">
+                  <span /><span /><span />
+                </div>
+                <span className="ai-window__title">flight-speakers — AI matching</span>
+              </div>
+              <div className="ai-window__body">
+                <EnhancedAIDemo />
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* ========== TRUSTED PARTNERS ========== */}
-      <SocialProofBar />
-
-      {/* ========== SPEAKER GRID (Bento/Masonry) ========== */}
+      {/* ========== SPEAKER CATALOGUE ========== */}
       <section className="section speakers-section">
         <div className="container">
           <motion.div
@@ -578,20 +769,46 @@ function HomePage() {
             ))}
           </motion.div>
 
-          {/* Speaker Grid */}
-          <div className="speakers-grid">
-            {filteredSpeakers.slice(0, 6).map((speaker, i) => (
-              <motion.div
-                key={speaker.id}
-                className="speaker-grid-item"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-50px' }}
-                transition={{ duration: 0.4, delay: i * 0.08 }}
-              >
-                <SpeakerCard speaker={speaker} />
-              </motion.div>
-            ))}
+          {/* Speaker Carousel */}
+          <div className="speakers-carousel">
+            <button
+              className="speakers-carousel__arrow speakers-carousel__arrow--left"
+              onClick={() => {
+                const track = document.querySelector('.speakers-carousel__track')
+                if (track) track.scrollBy({ left: -track.offsetWidth * 0.75, behavior: 'smooth' })
+              }}
+              aria-label="Previous speakers"
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M11 4L6 9L11 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <div className="speakers-carousel__track">
+              {filteredSpeakers.map((speaker, i) => (
+                <motion.div
+                  key={speaker.id}
+                  className="speakers-carousel__item"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-50px' }}
+                  transition={{ duration: 0.4, delay: i * 0.06 }}
+                >
+                  <SpeakerCard speaker={speaker} />
+                </motion.div>
+              ))}
+            </div>
+            <button
+              className="speakers-carousel__arrow speakers-carousel__arrow--right"
+              onClick={() => {
+                const track = document.querySelector('.speakers-carousel__track')
+                if (track) track.scrollBy({ left: track.offsetWidth * 0.75, behavior: 'smooth' })
+              }}
+              aria-label="Next speakers"
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M7 4L12 9L7 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
           </div>
 
           <motion.div
@@ -610,6 +827,9 @@ function HomePage() {
           </motion.div>
         </div>
       </section>
+
+      {/* ========== TRUSTED BY ========== */}
+      <SocialProofBar />
 
       {/* ========== CTA ========== */}
       <section className="section cta-section">
@@ -636,8 +856,8 @@ function HomePage() {
                   <path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </MagneticButton>
-              <Link to="/enquiry" className="btn btn-secondary btn-lg">
-                Submit a Brief
+              <Link to="/speakers" className="btn btn-secondary btn-lg">
+                View Catalogue
               </Link>
             </div>
           </motion.div>

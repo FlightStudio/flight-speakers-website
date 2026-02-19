@@ -22,7 +22,6 @@ export default function SpeakerCardGrid({ speakers = [] }) {
           <div className="speaker-card-admin__body">
             <div className="speaker-card-admin__name">
               {s.name}
-              {s.featured && <span className="speaker-analytics__featured">Featured</span>}
             </div>
             <div className="speaker-card-admin__headline">{s.headline}</div>
             <div className="speaker-card-admin__stats">

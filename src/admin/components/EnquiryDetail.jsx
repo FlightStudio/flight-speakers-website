@@ -5,6 +5,12 @@ import { EASE } from '../../constants/animation'
 
 const CURRENCY_SYMBOLS = { USD: '$', GBP: '£', EUR: '€' }
 
+const REJECTION_LABELS = {
+  pro_bono: 'Pro Bono',
+  no_availability: 'No Availability',
+  exclusivity: 'Exclusivity',
+}
+
 function formatEventDate(dateStr) {
   if (!dateStr) return null
   function fmt(s) {
@@ -62,7 +68,14 @@ export default function EnquiryDetail({ enquiry, additionalSpeakers = [] }) {
             {enquiry.organization}{enquiry.email ? ` — ${enquiry.email}` : ''}
           </div>
         </div>
-        <StatusBadge status={enquiry.status} />
+        <div className="enquiry-detail__status-col">
+          <StatusBadge status={enquiry.status} />
+          {enquiry.status === 'rejected' && enquiry.rejection_reason && (
+            <span className="enquiry-detail__rejection-badge">
+              {REJECTION_LABELS[enquiry.rejection_reason] || enquiry.rejection_reason}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="enquiry-detail__grid">

@@ -368,7 +368,7 @@ router.patch('/enquiries/:id', requireAdmin, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Enquiry not found' })
     }
 
-    const { status, admin_notes, response_message } = req.body
+    const { status, admin_notes, response_message, rejection_reason } = req.body
     const updates = {}
 
     const VALID_STATUSES = ['new', 'reviewed', 'accepted', 'rejected', 'responded']
@@ -380,6 +380,7 @@ router.patch('/enquiries/:id', requireAdmin, async (req, res) => {
     }
     if (admin_notes !== undefined) updates.admin_notes = admin_notes
     if (response_message !== undefined) updates.response_message = response_message
+    if (rejection_reason !== undefined) updates.rejection_reason = rejection_reason
 
     const updated = await updateEnquiry(req.params.id, updates)
 

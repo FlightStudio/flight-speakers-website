@@ -275,14 +275,14 @@ async function generateReasoningsAndScores(query, speakers) {
 async function fullTextFallback(query, limit) {
   const speakers = await fullTextSearch(query, limit)
 
-  // If full-text search returns nothing, return featured speakers
+  // If full-text search returns nothing, return a sample of speakers
   if (speakers.length === 0) {
-    const featured = await getAllSpeakers({ featured: true, limit })
-    const result = await generateReasoningsAndScores(query, featured)
+    const sample = await getAllSpeakers({ limit })
+    const result = await generateReasoningsAndScores(query, sample)
     const reasonings = result?.reasonings
-      || Object.fromEntries(featured.map(s => [s.id, 'Featured speaker who may bring valuable perspective.']))
+      || Object.fromEntries(sample.map(s => [s.id, 'Speaker who may bring valuable perspective.']))
     const scores = result?.scores || {}
-    return { speakers: featured, reasonings, scores }
+    return { speakers: sample, reasonings, scores }
   }
 
   const result = await generateReasoningsAndScores(query, speakers)

@@ -62,10 +62,6 @@ function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScor
             animate={{ scale: isHovered ? 1.05 : 1 }}
             transition={{ duration: 0.6, ease: EASE }}
           />
-          {speaker.featured && (
-            <span className="speaker-card__badge">Featured</span>
-          )}
-
           {/* Video preview overlay - shows before video loads */}
           <motion.div
             className="speaker-card__video-overlay"

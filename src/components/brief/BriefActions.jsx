@@ -24,7 +24,7 @@ function buildSpeakerCard(s) {
   `
 }
 
-function buildHtmlBrief({ speaker, reasoning, matchScore, selectedSpeakers, aiRecommendations, query }) {
+function buildHtmlBrief({ speaker, reasoning, matchScore, selectedSpeakers, aiRecommendations, query, hasAiMatch }) {
   const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
   const bioPreview = speaker.bio ? speaker.bio.split('\n\n').slice(0, 2).map(p => esc(p)).join('<br><br>') : ''
   const topics = (speaker.topics || []).map(t => `<span style="display:inline-block;padding:2px 10px;background:#f5f5f3;border-radius:4px;font-size:12px;color:#404040;margin:2px 4px 2px 0">${esc(t)}</span>`).join('')
@@ -60,7 +60,7 @@ function buildHtmlBrief({ speaker, reasoning, matchScore, selectedSpeakers, aiRe
     <div style="font-size:14px;color:#404040;line-height:1.6;font-style:italic">${esc(query)}</div>
   </div>` : ''}
 
-  <div style="font-size:11px;font-weight:700;color:#E85D4C;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px">AI Recommended Speaker</div>
+  <div style="font-size:11px;font-weight:700;color:#E85D4C;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px">${hasAiMatch ? 'AI Recommended Speaker' : 'Recommended Speaker'}</div>
   <div style="display:flex;gap:20px;margin-bottom:16px">
     ${speaker.photo ? `<img src="${esc(speaker.photo)}" style="width:90px;height:90px;border-radius:12px;object-fit:cover" />` : ''}
     <div style="flex:1">
@@ -92,7 +92,7 @@ function buildHtmlBrief({ speaker, reasoning, matchScore, selectedSpeakers, aiRe
   <div>${selectedCards}</div>` : ''}
 
   ${aiCards ? `
-  <div class="section-title">Other AI Recommendations</div>
+  <div class="section-title">${hasAiMatch ? 'Other AI Recommendations' : 'Other Recommendations'}</div>
   <div>${aiCards}</div>` : ''}
 
   <div style="margin-top:32px;padding-top:12px;border-top:1px solid #e8e8e6;display:flex;justify-content:space-between;font-size:12px;color:#94a3b8">
@@ -159,7 +159,8 @@ export default function BriefActions({ speaker, reasoning, matchScore, otherSpea
 
   const handleShareEmail = useCallback(() => {
     // Open the HTML brief in a new tab
-    const html = buildHtmlBrief({ speaker, reasoning, matchScore, selectedSpeakers: resolvedSelected, aiRecommendations: resolvedAiRecs, query })
+    const hasAiMatch = !!(reasoning || matchScore)
+    const html = buildHtmlBrief({ speaker, reasoning, matchScore, selectedSpeakers: resolvedSelected, aiRecommendations: resolvedAiRecs, query, hasAiMatch })
     const blob = new Blob([html], { type: 'text/html' })
     const url = URL.createObjectURL(blob)
     window.open(url, '_blank')

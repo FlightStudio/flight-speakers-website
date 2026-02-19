@@ -97,7 +97,7 @@ app.get('/api', async (req, res) => {
   const isOk = dbStatus === 'connected'
 
   const endpoints = [
-    { method: 'GET', path: '/api/speakers', desc: 'List all speakers', params: 'featured, topic, audience, limit' },
+    { method: 'GET', path: '/api/speakers', desc: 'List all speakers', params: 'topic, audience, limit' },
     { method: 'GET', path: '/api/speakers/meta/topics', desc: 'List all topics', params: '' },
     { method: 'GET', path: '/api/speakers/meta/audiences', desc: 'List all audiences', params: '' },
     { method: 'GET', path: '/api/speakers/:id', desc: 'Speaker detail + related', params: '' },

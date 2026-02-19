@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { useMultiStepForm, STEPS, TOTAL_STEPS, FIELD_STEP_MAP, CURRENCIES, getBudgetRanges, HAS_BUDGET_OPTIONS, ENGAGEMENT_TYPES } from '../../hooks/useMultiStepForm'
 import FormProgressBar from './FormProgressBar'
@@ -203,21 +203,25 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '', preSelectedSp
   const isReviewStep = step.id === 'review'
 
   // Prefetch recommended speakers — start immediately for prefilled briefs,
-  // debounce for manual typing on/past the brief step
+  // debounce for manual typing on/past the brief step.
+  // Uses a ref (not state) for dedup to avoid triggering effect cleanup
+  // which would abort the in-flight fetch via the AbortController.
   const briefForSearch = prefillBrief || formData.brief
-  const [prefetchedBrief, setPrefetchedBrief] = useState('')
+  const prefetchedBriefRef = useRef('')
   useEffect(() => {
     if (!briefForSearch || briefForSearch.length < 20) return
-    if (briefForSearch === prefetchedBrief) return
+    if (briefForSearch === prefetchedBriefRef.current) return
 
     // For prefilled briefs, start immediately; for typed briefs, debounce
     const isPrefilled = !!prefillBrief && briefForSearch === prefillBrief
 
+    // Show skeleton immediately so the review step has visual feedback
+    setRecsLoading(true)
+
     const controller = new AbortController()
     const delay = isPrefilled ? 0 : 800
     const timer = setTimeout(() => {
-      setPrefetchedBrief(briefForSearch)
-      setRecsLoading(true)
+      prefetchedBriefRef.current = briefForSearch
       fetch(`/api/search?q=${encodeURIComponent(briefForSearch)}&limit=6`, { signal: controller.signal })
         .then(res => res.json())
         .then(data => {
@@ -232,11 +236,20 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '', preSelectedSp
             setRecommendedReasonings(data.reasonings || {})
           }
         })
-        .catch(() => {})
+        .catch(err => {
+          if (err.name !== 'AbortError') {
+            console.warn('[Recommendations] Fetch failed:', err)
+          }
+          // Allow retry on next brief change
+          prefetchedBriefRef.current = ''
+        })
         .finally(() => setRecsLoading(false))
     }, delay)
-    return () => { clearTimeout(timer); controller.abort() }
-  }, [briefForSearch, prefetchedBrief, formData.speakerId, formData.preSelectedSpeakerIds, prefillBrief])
+    return () => {
+      clearTimeout(timer)
+      controller.abort()
+    }
+  }, [briefForSearch, formData.speakerId, formData.preSelectedSpeakerIds, prefillBrief])
 
   const toggleSpeaker = useCallback((speakerId) => {
     setFormData(prev => {

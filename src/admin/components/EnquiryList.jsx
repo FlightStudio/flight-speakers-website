@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEnquiries } from '../hooks/useEnquiries'
 import EnquiryCard from './EnquiryCard'
-import EnquiryAnalytics from './EnquiryAnalytics'
+import EnquiryAnalyticsModal from './EnquiryAnalyticsModal'
 import StatusBadge from './StatusBadge'
 
 const CURRENCY_SYMBOLS = { USD: '$', GBP: '£', EUR: '€' }
@@ -50,20 +50,46 @@ function timeAgo(dateStr) {
   return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 }
 
-export default function EnquiryList({ initialFilter = 'all', engagementType = 'all' }) {
-  const [status, setStatus] = useState(initialFilter)
+function SortArrows({ column, sort }) {
+  const upActive = (column === 'date' && sort === 'event_date_oldest')
+    || (column === 'budget' && sort === 'budget_low')
+    || (column === 'received' && sort === 'oldest')
+  const downActive = (column === 'date' && sort === 'event_date_newest')
+    || (column === 'budget' && sort === 'budget_high')
+    || (column === 'received' && sort === 'newest')
+
+  return (
+    <span className="enquiry-table__sort-arrows">
+      <span className={`enquiry-table__sort-arrow ${upActive ? 'enquiry-table__sort-arrow--active' : ''}`}>▲</span>
+      <span className={`enquiry-table__sort-arrow ${downActive ? 'enquiry-table__sort-arrow--active' : ''}`}>▼</span>
+    </span>
+  )
+}
+
+export default function EnquiryList({ engagementType = 'all' }) {
+  const [status, setStatus] = useState('all')
   const [page, setPage] = useState(1)
   const [view, setView] = useState('cards')
   const [sort, setSort] = useState('newest')
+  const [showAnalytics, setShowAnalytics] = useState(false)
+  const [stats, setStats] = useState(null)
   const { enquiries, total, isLoading } = useEnquiries({ status, engagementType, sort, page })
 
-  // Sync with external filter (stat card clicks)
+  // Fetch stats for filter pill counts
   useEffect(() => {
-    if (initialFilter !== status) {
-      setStatus(initialFilter)
-      setPage(1)
+    async function fetchStats() {
+      try {
+        const params = new URLSearchParams()
+        if (engagementType && engagementType !== 'all') params.set('engagementType', engagementType)
+        const res = await fetch(`/api/admin/stats?${params}`, { credentials: 'include' })
+        const data = await res.json()
+        if (data.success) setStats(data.stats)
+      } catch (err) {
+        console.error('Failed to fetch stats:', err)
+      }
     }
-  }, [initialFilter])
+    fetchStats()
+  }, [engagementType])
 
   // Reset page when engagement type changes
   useEffect(() => {
@@ -71,6 +97,13 @@ export default function EnquiryList({ initialFilter = 'all', engagementType = 'a
   }, [engagementType])
 
   const totalPages = Math.ceil(total / 20)
+
+  function pillLabel(f) {
+    const label = f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)
+    if (!stats) return label
+    const count = f === 'all' ? stats.total : stats[f]
+    return count != null ? `${label} (${count})` : label
+  }
 
   return (
     <div>
@@ -82,10 +115,21 @@ export default function EnquiryList({ initialFilter = 'all', engagementType = 'a
               className={`enquiry-filter-pill ${status === f ? 'enquiry-filter-pill--active' : ''}`}
               onClick={() => { setStatus(f); setPage(1) }}
             >
-              {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+              {pillLabel(f)}
             </button>
           ))}
         </div>
+        <button
+          className="enq-modal__trigger"
+          onClick={() => setShowAnalytics(true)}
+        >
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="9" width="3" height="6" rx="1" fill="currentColor" />
+            <rect x="6.5" y="5" width="3" height="10" rx="1" fill="currentColor" />
+            <rect x="12" y="1" width="3" height="14" rx="1" fill="currentColor" />
+          </svg>
+          Analytics
+        </button>
         <div className="speakers-page__view-toggle">
           <button
             className={`speakers-page__view-btn ${view === 'cards' ? 'speakers-page__view-btn--active' : ''}`}
@@ -112,8 +156,6 @@ export default function EnquiryList({ initialFilter = 'all', engagementType = 'a
           </button>
         </div>
       </div>
-
-      <EnquiryAnalytics engagementType={engagementType} />
 
       {isLoading ? (
         <div className="admin-loading">
@@ -151,7 +193,16 @@ export default function EnquiryList({ initialFilter = 'all', engagementType = 'a
                     <tr>
                       <th>Speaker</th>
                       <th>Client</th>
-                      <th>Event Date</th>
+                      <th
+                        className="enquiry-table__th-sortable"
+                        onClick={() => {
+                          setSort(s => s === 'event_date_newest' ? 'event_date_oldest' : s === 'event_date_oldest' ? 'newest' : 'event_date_newest')
+                          setPage(1)
+                        }}
+                      >
+                        Event Date
+                        <SortArrows column="date" sort={sort} />
+                      </th>
                       <th>Location</th>
                       <th
                         className="enquiry-table__th-sortable"
@@ -161,11 +212,19 @@ export default function EnquiryList({ initialFilter = 'all', engagementType = 'a
                         }}
                       >
                         Budget
-                        {sort === 'budget_high' && <span className="enquiry-table__sort-icon"> ↓</span>}
-                        {sort === 'budget_low' && <span className="enquiry-table__sort-icon"> ↑</span>}
+                        <SortArrows column="budget" sort={sort} />
                       </th>
                       <th>Status</th>
-                      <th className="enquiry-table__th-right">Received</th>
+                      <th
+                        className="enquiry-table__th-sortable enquiry-table__th-right"
+                        onClick={() => {
+                          setSort(s => s === 'newest' ? 'oldest' : 'newest')
+                          setPage(1)
+                        }}
+                      >
+                        Received
+                        <SortArrows column="received" sort={sort} />
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -241,6 +300,12 @@ export default function EnquiryList({ initialFilter = 'all', engagementType = 'a
           </button>
         </div>
       )}
+
+      <EnquiryAnalyticsModal
+        open={showAnalytics}
+        onClose={() => setShowAnalytics(false)}
+        engagementType={engagementType}
+      />
     </div>
   )
 }

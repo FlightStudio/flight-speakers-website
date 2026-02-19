@@ -1,8 +1,8 @@
-function SpeakerCard({ speaker, featured = false, matchLabel, added, score }) {
+function SpeakerCard({ speaker, highlighted = false, matchLabel, added, score }) {
   const imgSrc = speaker.photo || speaker.headshot_url || speaker.image_url || ''
 
   return (
-    <div className={`speaker-rec-card${featured ? ' speaker-rec-card--featured' : ''}${added === true ? ' speaker-rec-card--added' : ''}${added === false ? ' speaker-rec-card--skipped' : ''}`}>
+    <div className={`speaker-rec-card${highlighted ? ' speaker-rec-card--highlighted' : ''}${added === true ? ' speaker-rec-card--added' : ''}${added === false ? ' speaker-rec-card--skipped' : ''}`}>
       <div className="speaker-rec-card__header">
         {imgSrc ? (
           <img className="speaker-rec-card__avatar" src={imgSrc} alt={speaker.name} />
@@ -62,7 +62,7 @@ export default function SpeakerRecommendations({ speakers }) {
       {requested && (
         <>
           <div className="speaker-recs__section-title">Requested Speaker</div>
-          <SpeakerCard speaker={requested} featured matchLabel="Requested" />
+          <SpeakerCard speaker={requested} highlighted matchLabel="Requested" />
         </>
       )}
 
