@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEnquiries } from '../hooks/useEnquiries'
 import EnquiryCard from './EnquiryCard'
+import EnquiryAnalytics from './EnquiryAnalytics'
 import StatusBadge from './StatusBadge'
 
 const CURRENCY_SYMBOLS = { USD: '$', GBP: '£', EUR: '€' }
@@ -49,11 +50,12 @@ function timeAgo(dateStr) {
   return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 }
 
-export default function EnquiryList({ initialFilter = 'all' }) {
+export default function EnquiryList({ initialFilter = 'all', engagementType = 'all' }) {
   const [status, setStatus] = useState(initialFilter)
   const [page, setPage] = useState(1)
   const [view, setView] = useState('cards')
-  const { enquiries, total, isLoading } = useEnquiries({ status, page })
+  const [sort, setSort] = useState('newest')
+  const { enquiries, total, isLoading } = useEnquiries({ status, engagementType, sort, page })
 
   // Sync with external filter (stat card clicks)
   useEffect(() => {
@@ -62,6 +64,11 @@ export default function EnquiryList({ initialFilter = 'all' }) {
       setPage(1)
     }
   }, [initialFilter])
+
+  // Reset page when engagement type changes
+  useEffect(() => {
+    setPage(1)
+  }, [engagementType])
 
   const totalPages = Math.ceil(total / 20)
 
@@ -106,6 +113,8 @@ export default function EnquiryList({ initialFilter = 'all' }) {
         </div>
       </div>
 
+      <EnquiryAnalytics engagementType={engagementType} />
+
       {isLoading ? (
         <div className="admin-loading">
           <div className="admin-loading__spinner" />
@@ -144,7 +153,17 @@ export default function EnquiryList({ initialFilter = 'all' }) {
                       <th>Client</th>
                       <th>Event Date</th>
                       <th>Location</th>
-                      <th>Budget</th>
+                      <th
+                        className="enquiry-table__th-sortable"
+                        onClick={() => {
+                          setSort(s => s === 'budget_high' ? 'budget_low' : s === 'budget_low' ? 'newest' : 'budget_high')
+                          setPage(1)
+                        }}
+                      >
+                        Budget
+                        {sort === 'budget_high' && <span className="enquiry-table__sort-icon"> ↓</span>}
+                        {sort === 'budget_low' && <span className="enquiry-table__sort-icon"> ↑</span>}
+                      </th>
                       <th>Status</th>
                       <th className="enquiry-table__th-right">Received</th>
                     </tr>

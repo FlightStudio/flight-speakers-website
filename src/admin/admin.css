@@ -533,6 +533,21 @@
   text-align: right !important;
 }
 
+.enquiry-table__th-sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 150ms ease;
+}
+
+.enquiry-table__th-sortable:hover {
+  color: #1a1a1a;
+}
+
+.enquiry-table__sort-icon {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
 .enquiry-table td {
   padding: 0.7rem 1rem;
   border-bottom: 1px solid #f0f0ee;
@@ -1084,7 +1099,7 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
-.speaker-rec-card--featured {
+.speaker-rec-card--highlighted {
   border-color: #E85D4C;
   background: #fef8f7;
 }
@@ -1466,6 +1481,130 @@
   background: #d4d4d4;
 }
 
+.admin-settings-card__status-dot--connected {
+  background: #22c55e;
+}
+
+.admin-settings-card__status-dot--disconnected {
+  background: #ef4444;
+}
+
+.admin-settings-card__status-dot--loading {
+  background: #f59e0b;
+  animation: admin-pulse 1s ease infinite;
+}
+
+@keyframes admin-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.admin-settings-card__status--connected {
+  color: #16a34a;
+}
+
+.admin-settings-card__status--disconnected {
+  color: #dc2626;
+}
+
+.admin-settings-card__lists {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.admin-settings-card__list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  padding: 0.4rem 0.6rem;
+  background: #f8f8f7;
+  border-radius: 8px;
+}
+
+.admin-settings-card__list-label {
+  color: #737373;
+  font-weight: 500;
+}
+
+.admin-settings-card__list-value {
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.admin-settings-card__test {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e8e8e6;
+}
+
+.admin-settings-card__test-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.admin-settings-card__test-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.admin-settings-card__test-input {
+  flex: 1;
+  padding: 0.45rem 0.65rem;
+  font-size: 0.8rem;
+  border: 1px solid #e0e0de;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+
+.admin-settings-card__test-input:focus {
+  border-color: #1a1a1a;
+}
+
+.admin-settings-card__test-btn {
+  padding: 0.45rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: inherit;
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+
+.admin-settings-card__test-btn:hover {
+  opacity: 0.85;
+}
+
+.admin-settings-card__test-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.admin-settings-card__test-result {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.admin-settings-card__test-result--success {
+  color: #16a34a;
+}
+
+.admin-settings-card__test-result--error {
+  color: #dc2626;
+}
+
 /* ---- Loading ---- */
 .admin-loading {
   display: flex;
@@ -1631,17 +1770,6 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-}
-
-.speaker-analytics__featured {
-  font-size: 0.55rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #E85D4C;
-  background: #fef2f0;
-  padding: 0.1rem 0.4rem;
-  border-radius: 4px;
 }
 
 .speaker-analytics__headline {
@@ -4093,4 +4221,140 @@
 .review-submitted__actions .btn--secondary:hover {
   background: #f8f8f6;
   border-color: #d1d1d1;
+}
+
+/* ================================
+   Enquiry Type Tabs
+   ================================ */
+
+.enq-type-tabs {
+  display: flex;
+  gap: 4px;
+  background: #f1f1ef;
+  border-radius: 10px;
+  padding: 4px;
+  width: fit-content;
+  margin-bottom: 20px;
+}
+
+.enq-type-tabs__tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border: none;
+  background: transparent;
+  border-radius: 7px;
+  font-size: 0.82rem;
+  font-weight: 520;
+  color: #71717a;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.enq-type-tabs__tab--active {
+  background: #fff;
+  color: #1a1a1a;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.enq-type-tabs__tab:hover:not(.enq-type-tabs__tab--active) {
+  color: #3f3f46;
+}
+
+/* ================================
+   Enquiry Analytics Strip
+   ================================ */
+
+.enq-analytics {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: #fafaf9;
+  border-radius: 12px;
+  padding: 14px 8px;
+  margin-bottom: 20px;
+}
+
+.enq-analytics__card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px;
+  position: relative;
+}
+
+.enq-analytics__card:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 28px;
+  background: #e5e5e2;
+}
+
+.enq-analytics__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d4d4d4;
+  flex-shrink: 0;
+}
+
+.enq-analytics__text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.enq-analytics__value {
+  font-size: 1.05rem;
+  font-weight: 650;
+  color: #1a1a1a;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.enq-analytics__label {
+  font-size: 0.65rem;
+  font-weight: 520;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #a1a1aa;
+}
+
+.enq-analytics__card--revenue .enq-analytics__dot { background: #16a34a; }
+.enq-analytics__card--revenue .enq-analytics__value { color: #16a34a; }
+
+.enq-analytics__card--rejected .enq-analytics__dot { background: #dc2626; }
+.enq-analytics__card--rejected .enq-analytics__value { color: #dc2626; }
+
+.enq-analytics__card--probono .enq-analytics__dot { background: #7c3aed; }
+.enq-analytics__card--probono .enq-analytics__value { color: #7c3aed; }
+
+@media (max-width: 1024px) {
+  .enq-analytics {
+    flex-wrap: wrap;
+    gap: 8px 0;
+  }
+  .enq-analytics__card {
+    padding: 4px 16px;
+  }
+  .enq-analytics__card:not(:last-child)::after {
+    height: 22px;
+  }
+}
+
+@media (max-width: 768px) {
+  .enq-analytics {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px 0;
+    padding: 14px 12px;
+  }
+  .enq-analytics__card::after {
+    display: none;
+  }
 }

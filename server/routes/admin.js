@@ -6,6 +6,7 @@ import {
   getEnquiryById,
   updateEnquiry,
   getEnquiryStats,
+  getEnquiryAnalytics,
   getAdminUser,
   getSpeakerAnalytics,
   getSpeakerDetailAnalytics,
@@ -18,6 +19,7 @@ import { createToken } from '../db/token-queries.js'
 import { semanticSearch } from '../services/claude.js'
 import { notifyEnquiryResponse } from '../services/notifications.js'
 import { refreshAllSpeakerStats } from '../services/socialStats.js'
+import { getAccountInfo, getList, trackEvent, createOrUpdateProfile } from '../services/klaviyo.js'
 
 const router = express.Router()
 
@@ -70,11 +72,22 @@ router.get('/me', requireAdmin, (req, res) => {
 // GET /api/admin/stats
 router.get('/stats', requireAdmin, async (req, res) => {
   try {
-    const stats = await getEnquiryStats()
+    const stats = await getEnquiryStats(req.query.engagementType)
     res.json({ success: true, stats })
   } catch (err) {
     console.error('Stats error:', err)
     res.status(500).json({ success: false, message: 'Failed to fetch stats' })
+  }
+})
+
+// GET /api/admin/enquiry-analytics
+router.get('/enquiry-analytics', requireAdmin, async (req, res) => {
+  try {
+    const analytics = await getEnquiryAnalytics(req.query.engagementType)
+    res.json({ success: true, analytics })
+  } catch (err) {
+    console.error('Enquiry analytics error:', err)
+    res.status(500).json({ success: false, message: 'Failed to fetch enquiry analytics' })
   }
 })
 
@@ -110,7 +123,7 @@ router.post('/speakers', requireAdmin, async (req, res) => {
     if (!name || !headline || !photo || !bio) {
       return res.status(400).json({ success: false, message: 'Name, headline, photo, and bio are required' })
     }
-    const SPEAKER_FIELDS = ['name', 'headline', 'photo', 'bio', 'topics', 'audiences', 'keynotes', 'speaking_format', 'video_url', 'social_profiles', 'featured', 'fee_min', 'gender', 'ethnicity', 'nationality', 'location']
+    const SPEAKER_FIELDS = ['name', 'headline', 'photo', 'bio', 'topics', 'audiences', 'keynotes', 'speaking_format', 'video_url', 'social_profiles', 'fee_min', 'gender', 'ethnicity', 'nationality', 'location']
     const filtered = {}
     for (const key of SPEAKER_FIELDS) {
       if (req.body[key] !== undefined) filtered[key] = req.body[key]
@@ -130,7 +143,7 @@ router.patch('/speakers/:id', requireAdmin, async (req, res) => {
     if (!existing) {
       return res.status(404).json({ success: false, message: 'Speaker not found' })
     }
-    const SPEAKER_FIELDS = ['name', 'headline', 'photo', 'bio', 'topics', 'audiences', 'keynotes', 'speaking_format', 'video_url', 'social_profiles', 'featured', 'fee_min', 'gender', 'ethnicity', 'nationality', 'location']
+    const SPEAKER_FIELDS = ['name', 'headline', 'photo', 'bio', 'topics', 'audiences', 'keynotes', 'speaking_format', 'video_url', 'social_profiles', 'fee_min', 'gender', 'ethnicity', 'nationality', 'location']
     const filtered = {}
     for (const key of SPEAKER_FIELDS) {
       if (req.body[key] !== undefined) filtered[key] = req.body[key]
@@ -206,7 +219,7 @@ router.post('/review/:id/approve', requireAdmin, async (req, res) => {
   try {
     let editedData = null
     if (req.body && Object.keys(req.body).length > 0) {
-      const SPEAKER_FIELDS = ['name', 'headline', 'photo', 'bio', 'topics', 'audiences', 'keynotes', 'speaking_format', 'video_url', 'social_profiles', 'featured', 'fee_min', 'gender', 'ethnicity', 'nationality', 'location']
+      const SPEAKER_FIELDS = ['name', 'headline', 'photo', 'bio', 'topics', 'audiences', 'keynotes', 'speaking_format', 'video_url', 'social_profiles', 'fee_min', 'gender', 'ethnicity', 'nationality', 'location']
       editedData = {}
       for (const key of SPEAKER_FIELDS) {
         if (req.body[key] !== undefined) editedData[key] = req.body[key]
@@ -268,9 +281,10 @@ router.delete('/speakers/:id', requireAdmin, async (req, res) => {
 // GET /api/admin/enquiries
 router.get('/enquiries', requireAdmin, async (req, res) => {
   try {
-    const { status, page = 1, limit = 20, sort = 'newest' } = req.query
+    const { status, engagementType, page = 1, limit = 20, sort = 'newest' } = req.query
     const result = await getEnquiries({
       status,
+      engagementType,
       page: Math.max(parseInt(page, 10) || 1, 1),
       limit: Math.min(Math.max(parseInt(limit, 10) || 20, 1), 100),
       sort,
@@ -378,6 +392,78 @@ router.patch('/enquiries/:id', requireAdmin, async (req, res) => {
   } catch (err) {
     console.error('Enquiry update error:', err)
     res.status(500).json({ success: false, message: 'Failed to update enquiry' })
+  }
+})
+
+// GET /api/admin/integrations/klaviyo — health check + list stats
+router.get('/integrations/klaviyo', requireAdmin, async (req, res) => {
+  if (!process.env.KLAVIYO_API_KEY) {
+    return res.json({ success: true, connected: false, error: 'No API key configured' })
+  }
+
+  try {
+    const account = await getAccountInfo()
+
+    const lists = []
+    const enquiryListId = process.env.KLAVIYO_ENQUIRY_LIST_ID
+    const newsletterListId = process.env.KLAVIYO_NEWSLETTER_LIST_ID
+
+    if (enquiryListId) {
+      try {
+        const list = await getList(enquiryListId)
+        lists.push({ ...list, type: 'enquiry' })
+      } catch (err) {
+        lists.push({ id: enquiryListId, type: 'enquiry', error: err.message })
+      }
+    }
+
+    if (newsletterListId) {
+      try {
+        const list = await getList(newsletterListId)
+        lists.push({ ...list, type: 'newsletter' })
+      } catch (err) {
+        lists.push({ id: newsletterListId, type: 'newsletter', error: err.message })
+      }
+    }
+
+    res.json({ success: true, connected: true, account, lists })
+  } catch (err) {
+    console.error('Klaviyo health check error:', err.message)
+    res.json({ success: true, connected: false, error: err.message })
+  }
+})
+
+// POST /api/admin/integrations/klaviyo/test — send test event
+router.post('/integrations/klaviyo/test', requireAdmin, async (req, res) => {
+  const { email } = req.body
+  if (!email) {
+    return res.status(400).json({ success: false, message: 'Email address required' })
+  }
+
+  if (!process.env.KLAVIYO_API_KEY) {
+    return res.status(400).json({ success: false, message: 'Klaviyo API key not configured' })
+  }
+
+  try {
+    await createOrUpdateProfile({
+      email,
+      name: 'Test User',
+      organization: 'Flight Speakers (Test)',
+      properties: { source: 'admin_test' },
+    })
+
+    await trackEvent('Enquiry Submitted', email, {
+      name: 'Test User',
+      organization: 'Flight Speakers (Test)',
+      speaker_name: 'Test Speaker',
+      event_date: new Date().toISOString().split('T')[0],
+      brief: 'This is a test enquiry sent from the admin panel to verify Klaviyo integration.',
+    })
+
+    res.json({ success: true, message: `Test event sent to ${email}` })
+  } catch (err) {
+    console.error('Klaviyo test error:', err.message)
+    res.status(500).json({ success: false, message: err.message })
   }
 })
 
