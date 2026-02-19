@@ -417,6 +417,34 @@
   }
 }
 
+/* ================================
+   Dark Theme Overrides
+   ================================ */
+
+[data-theme="dark"] .analyzing-overlay {
+  background: linear-gradient(135deg, #0a0a0a 0%, #111111 40%, #130e0e 70%, #110e14 100%);
+}
+
+[data-theme="dark"] .analyzing-orb__ring--outer {
+  border-right-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] .analyzing-orb__ring--inner {
+  border-left-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .analyzing-orb__core {
+  background: radial-gradient(circle, #ffffff 0%, rgba(255, 255, 255, 0.5) 100%);
+}
+
+[data-theme="dark"] .search-hero {
+  background: linear-gradient(180deg, #111111 0%, var(--color-off-white) 100%);
+}
+
+[data-theme="dark"] .browse-cta {
+  background: linear-gradient(180deg, var(--color-off-white) 0%, #111111 100%);
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .analyzing-orb__ring,

@@ -111,14 +111,29 @@ const fragmentShader = `
   varying vec2 vUv;
   varying float vElevation;
   uniform float uTime;
+  uniform float uDarkMode;
 
   void main() {
-    // Sophisticated light color palette
+    // Light color palette
     vec3 warmWhite = vec3(0.98, 0.97, 0.95);     // #FAF8F2
     vec3 softCream = vec3(0.96, 0.94, 0.90);     // #F5EFE6
     vec3 blushPink = vec3(0.97, 0.92, 0.91);     // #F8EBE8
     vec3 paleGold = vec3(0.98, 0.95, 0.88);      // #FAF2E0
     vec3 softLavender = vec3(0.95, 0.94, 0.97);  // #F2F0F8
+
+    // Dark color palette
+    vec3 deepBlack = vec3(0.04, 0.04, 0.04);     // #0A0A0A
+    vec3 darkCharcoal = vec3(0.07, 0.07, 0.07);  // #121212
+    vec3 darkWarm = vec3(0.08, 0.06, 0.05);      // #140F0D
+    vec3 darkCool = vec3(0.05, 0.06, 0.08);      // #0D0F14
+    vec3 darkPurple = vec3(0.06, 0.05, 0.08);    // #0F0D14
+
+    // Mix palettes based on dark mode
+    vec3 c1 = mix(warmWhite, deepBlack, uDarkMode);
+    vec3 c2 = mix(softCream, darkCharcoal, uDarkMode);
+    vec3 c3 = mix(blushPink, darkWarm, uDarkMode);
+    vec3 c4 = mix(paleGold, darkCool, uDarkMode);
+    vec3 c5 = mix(softLavender, darkPurple, uDarkMode);
 
     // Create flowing gradient
     float mixStrength = (vElevation + 0.5) * 0.8;
@@ -129,19 +144,19 @@ const fragmentShader = `
     float timeFlow2 = cos(uTime * 0.06) * 0.5 + 0.5;
 
     // Base gradient
-    vec3 color = mix(warmWhite, softCream, vUv.y * 0.5 + vUv.x * 0.3);
+    vec3 color = mix(c1, c2, vUv.y * 0.5 + vUv.x * 0.3);
 
     // Layer in warm and cool tones based on elevation and position
-    color = mix(color, blushPink, mixStrength * 0.4 * (1.0 - vUv.x));
-    color = mix(color, paleGold, mixStrength * 0.3 * vUv.x * timeFlow);
-    color = mix(color, softLavender, (1.0 - mixStrength) * 0.25 * timeFlow2);
+    color = mix(color, c3, mixStrength * 0.4 * (1.0 - vUv.x));
+    color = mix(color, c4, mixStrength * 0.3 * vUv.x * timeFlow);
+    color = mix(color, c5, (1.0 - mixStrength) * 0.25 * timeFlow2);
 
-    // Subtle iridescent shimmer
+    // Subtle iridescent shimmer (reduced in dark mode)
     float shimmer = sin(vUv.x * 30.0 + uTime * 0.5) * cos(vUv.y * 30.0 + uTime * 0.3);
-    color += shimmer * 0.012;
+    color += shimmer * mix(0.012, 0.006, uDarkMode);
 
-    // Elevation-based luminance
-    color += vElevation * 0.04;
+    // Elevation-based luminance (reduced in dark mode)
+    color += vElevation * mix(0.04, 0.02, uDarkMode);
 
     // Soft edges
     float alpha = 0.9;
@@ -158,10 +173,12 @@ function GradientPlane() {
   const meshRef = useRef()
   const { viewport } = useThree()
   const mouse = useRef({ x: 0, y: 0 })
+  const darkModeTarget = useRef(0)
 
   const uniforms = useMemo(() => ({
     uTime: { value: 0 },
     uMouse: { value: new THREE.Vector2(0, 0) },
+    uDarkMode: { value: 0 },
   }), [])
 
   useEffect(() => {
@@ -173,6 +190,17 @@ function GradientPlane() {
     return () => window.removeEventListener('mousemove', handleMouseMove)
   }, [])
 
+  // Watch for theme changes
+  useEffect(() => {
+    const update = () => {
+      darkModeTarget.current = document.documentElement.getAttribute('data-theme') === 'dark' ? 1 : 0
+    }
+    update()
+    const observer = new MutationObserver(update)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+    return () => observer.disconnect()
+  }, [])
+
   useFrame((state) => {
     if (meshRef.current) {
       meshRef.current.material.uniforms.uTime.value = state.clock.elapsedTime
@@ -181,6 +209,10 @@ function GradientPlane() {
       const currentMouse = meshRef.current.material.uniforms.uMouse.value
       currentMouse.x += (mouse.current.x - currentMouse.x) * 0.03
       currentMouse.y += (mouse.current.y - currentMouse.y) * 0.03
+
+      // Smooth dark mode transition
+      const dm = meshRef.current.material.uniforms.uDarkMode
+      dm.value += (darkModeTarget.current - dm.value) * 0.04
     }
   })
 
@@ -204,6 +236,19 @@ function GradientPlane() {
 // Floating gradient orbs
 function FloatingOrbs() {
   const groupRef = useRef()
+  const [isDark, setIsDark] = useState(() =>
+    document.documentElement.getAttribute('data-theme') === 'dark'
+  )
+
+  useEffect(() => {
+    const update = () => setIsDark(document.documentElement.getAttribute('data-theme') === 'dark')
+    const observer = new MutationObserver(update)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+    return () => observer.disconnect()
+  }, [])
+
+  const lightColors = ['#f8f0e8', '#f0e8f4', '#e8f0f8', '#f8f4e8', '#f4e8f0', '#e8f4f0']
+  const darkColors = ['#1a1410', '#16101a', '#101418', '#1a1810', '#181016', '#101816']
 
   const orbs = useMemo(() =>
     Array.from({ length: 6 }, (_, i) => ({
@@ -215,7 +260,6 @@ function FloatingOrbs() {
       scale: 0.3 + Math.random() * 0.5,
       speed: 0.15 + Math.random() * 0.2,
       offset: Math.random() * Math.PI * 2,
-      color: ['#f8f0e8', '#f0e8f4', '#e8f0f8', '#f8f4e8', '#f4e8f0', '#e8f4f0'][i]
     }))
   , [])
 
@@ -229,13 +273,15 @@ function FloatingOrbs() {
     }
   })
 
+  const colors = isDark ? darkColors : lightColors
+
   return (
     <group ref={groupRef}>
       {orbs.map((orb, i) => (
         <mesh key={i} position={orb.position}>
           <sphereGeometry args={[orb.scale, 32, 32]} />
           <meshBasicMaterial
-            color={orb.color}
+            color={colors[i]}
             transparent
             opacity={0.15}
           />
@@ -283,11 +329,14 @@ export default function GradientMesh() {
   const webglSupported = useWebGLSupport()
 
   if (reducedMotion || !webglSupported) {
+    const isDark = typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme') === 'dark'
     return (
       <div
         className="gradient-mesh gradient-mesh--fallback"
         style={{
-          background: 'linear-gradient(135deg, #faf8f2 0%, #f5efe6 50%, #f8ebe8 100%)',
+          background: isDark
+            ? 'linear-gradient(135deg, #0a0a0a 0%, #111111 50%, #0e0e12 100%)'
+            : 'linear-gradient(135deg, #faf8f2 0%, #f5efe6 50%, #f8ebe8 100%)',
         }}
       />
     )

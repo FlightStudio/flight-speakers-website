@@ -1285,6 +1285,178 @@
 }
 
 /* ================================
+   Dark Theme Overrides
+   ================================ */
+
+/* Hide the light WebGL gradient mesh in dark mode */
+[data-theme="dark"] .hero__background .gradient-mesh canvas {
+  opacity: 0.06;
+}
+
+[data-theme="dark"] .gradient-mesh--fallback {
+  background: linear-gradient(135deg, #0a0a0a 0%, #111111 50%, #0e0e12 100%) !important;
+}
+
+/* Hero text — brilliant white for maximum contrast */
+[data-theme="dark"] .hero__title {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .hero__title-emphasis {
+  background: linear-gradient(135deg, #ffffff 0%, #b0b0b0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+[data-theme="dark"] .hero__subtitle {
+  color: #b0b0b0;
+}
+
+[data-theme="dark"] .hero__badge {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #b0b0b0;
+}
+
+[data-theme="dark"] .hero__stat-value {
+  color: #ffffff;
+}
+
+/* Search bar placeholder typing animation — brilliant white */
+[data-theme="dark"] .hero-search__placeholder {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .hero-search__input {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .hero-search__cursor {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .hero-search__icon {
+  color: #808080;
+}
+
+[data-theme="dark"] .hero-search__container {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .hero-search__container:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="dark"] .hero-search__container--focused {
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3), 0 0 0 4px rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .hero-examples__item {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .hero-examples__item:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .particle {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.04));
+}
+
+[data-theme="dark"] .ai-demo-section {
+  background: #111111;
+}
+
+[data-theme="dark"] .ai-demo-layout__text .section-label {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .ai-demo-layout__step-num {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .ai-demo-layout__window {
+  background: #1a1a1a;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .ai-window__bar {
+  background: #222222;
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .ai-pipe__search {
+  background: #0a0a0a;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .ai-pipe__token {
+  background: color-mix(in srgb, var(--tk) 12%, #1a1a1a);
+  border-color: color-mix(in srgb, var(--tk) 25%, transparent);
+}
+
+[data-theme="dark"] .ai-pipe__orb-ring--outer {
+  border-right-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] .ai-pipe__orb-ring--inner {
+  border-left-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .ai-pipe__orb-core {
+  background: radial-gradient(circle, #ffffff 0%, rgba(255, 255, 255, 0.5) 100%);
+}
+
+[data-theme="dark"] .ai-pipe__result {
+  background: #0a0a0a;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .ai-pipe__result:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .ai-pipe__result-av {
+  background: linear-gradient(135deg, #2a2a2a, #3a3a3a);
+}
+
+[data-theme="dark"] .ai-pipe__cta {
+  color: #0a0a0a;
+}
+
+[data-theme="dark"] .cta-section {
+  background: #111111;
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .cta-title {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .section-title {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .process-card__title {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .process-card:hover {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .speakers-carousel__arrow {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ================================
    Reduced Motion
    ================================ */
 
