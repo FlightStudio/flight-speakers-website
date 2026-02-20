@@ -85,9 +85,6 @@ function SearchResultsPage() {
   const searchBarRef = useRef(null)
   const query = searchParams.get('q') || ''
 
-  // Always scroll to top on mount
-  useEffect(() => { window.scrollTo(0, 0) }, [])
-
   const [isLoading, setIsLoading] = useState(false)
   const [results, setResults] = useState(() => {
     // Restore cached results for this query (back navigation)

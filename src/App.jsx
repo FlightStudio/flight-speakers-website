@@ -1,4 +1,5 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import Layout from './components/layout/Layout'
 import HomePage from './pages/HomePage'
 import SpeakerDetailPage from './pages/SpeakerDetailPage'
@@ -10,8 +11,16 @@ import SpeakerPortalPage from './pages/SpeakerPortalPage'
 import SpeakersPage from './pages/SpeakersPage'
 import BookPage from './pages/BookPage'
 
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => { window.scrollTo(0, 0) }, [pathname])
+  return null
+}
+
 function App() {
   return (
+    <>
+    <ScrollToTop />
     <Routes>
       {/* Admin dashboard — separate shell, no public layout */}
       <Route path="/admin/*" element={<AdminApp />} />
@@ -37,6 +46,7 @@ function App() {
         </Layout>
       } />
     </Routes>
+    </>
   )
 }
 
