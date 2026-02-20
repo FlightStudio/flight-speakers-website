@@ -6,6 +6,160 @@ import { prefetchSpeaker, prefetchParseBrief } from '../utils/prefetch'
 import { EASE } from '../constants/animation'
 import './SpeakerDetailPage.css'
 
+function getYouTubeId(url) {
+  const match = url?.match(/\/embed\/([^?&#]+)/)
+  return match ? match[1] : null
+}
+
+function VideoHero({ speaker, videoId, socialEntries, totalFollowing, brief, handleEnquireClick, handleEnquireHover, briefReasoning, briefScore, id, isSelected, setIsSelected, handleSelectAndBack }) {
+  const [isMuted, setIsMuted] = useState(true)
+
+  const iframeSrc = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${isMuted ? 1 : 0}&loop=1&playlist=${videoId}&controls=0&modestbranding=1&rel=0`
+
+  return (
+    <section className="speaker-video-hero-section">
+      <motion.div
+        className="speaker-video-hero"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, ease: EASE }}
+      >
+        {/* Nav buttons overlaid at top */}
+        <motion.div
+          className="speaker-video-hero__nav"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Link
+            to={brief ? `/search?q=${encodeURIComponent(brief)}` : '/speakers'}
+            className="speaker-video-hero__back"
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            {brief ? 'Back to Results' : 'All Speakers'}
+          </Link>
+          {brief && (
+            <button
+              className={`speaker-video-hero__select-btn ${isSelected ? 'speaker-video-hero__select-btn--selected' : ''}`}
+              onClick={() => {
+                if (isSelected) {
+                  try {
+                    const stored = sessionStorage.getItem('selectedSpeakerIds')
+                    const ids = stored ? JSON.parse(stored) : []
+                    const numId = parseInt(id)
+                    sessionStorage.setItem('selectedSpeakerIds', JSON.stringify(ids.filter(i => i !== numId)))
+                  } catch {}
+                  setIsSelected(false)
+                } else {
+                  handleSelectAndBack()
+                }
+              }}
+            >
+              {isSelected ? (
+                <>
+                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                    <path d="M2.5 7L5.5 10L11.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Selected
+                </>
+              ) : (
+                <>
+                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                    <path d="M7 2.5V11.5M2.5 7H11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Select Speaker
+                </>
+              )}
+            </button>
+          )}
+        </motion.div>
+
+        <iframe
+          className="speaker-video-hero__iframe"
+          src={iframeSrc}
+          title={`${speaker.name} Speaker Reel`}
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+        <div className="speaker-video-hero__scrim" />
+        <div className="speaker-video-hero__overlay">
+          <div className="speaker-video-hero__info">
+            <div className="speaker-video-hero__identity">
+              <img
+                src={speaker.photo}
+                alt={speaker.name}
+                className="speaker-video-hero__photo"
+              />
+              <div>
+                <h1 className="speaker-video-hero__name">{speaker.name}</h1>
+                <p className="speaker-video-hero__headline">
+                  {speaker.headline}
+                  {totalFollowing > 0 && (
+                    <span className="speaker-video-hero__following"> · {formatFollowers(totalFollowing)} following</span>
+                  )}
+                </p>
+              </div>
+            </div>
+            {socialEntries.length > 0 && (
+              <div className="speaker-video-hero__social-pills">
+                {socialEntries.map(({ platform, count, url }, i) => (
+                  <motion.a
+                    key={platform}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`speaker-video-hero__social-pill speaker-video-hero__social-pill--${platform}`}
+                    initial={{ opacity: 0, scale: 0.85 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.35, delay: 0.5 + i * 0.08, ease: EASE }}
+                  >
+                    {platformIcons[platform]}
+                    {formatFollowers(count)}
+                  </motion.a>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="speaker-video-hero__actions">
+            <motion.button
+              onClick={handleEnquireClick}
+              onMouseEnter={handleEnquireHover}
+              className="speaker-video-hero__enquire-btn"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Enquire Now
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </motion.button>
+            <button
+              className="speaker-video-hero__sound-btn"
+              onClick={() => setIsMuted(m => !m)}
+              title={isMuted ? 'Unmute' : 'Mute'}
+            >
+              {isMuted ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                  <line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                </svg>
+              )}
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </section>
+  )
+}
+
 function formatFollowers(n) {
   if (!n || n === 0) return '0'
   if (n >= 1_000_000) return `${(Math.floor(n / 100_000) / 10).toFixed(1).replace(/\.0$/, '')}M`
@@ -175,143 +329,164 @@ function SpeakerDetailPage() {
 
   const totalFollowing = socialEntries.reduce((sum, e) => sum + e.count, 0)
 
+  const videoId = getYouTubeId(speaker.videoUrl)
+
   return (
     <div className="speaker-detail-page">
-      {/* Back nav */}
-      <motion.div
-        className="speaker-nav"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-      >
-        <div className="container">
-          <div className="speaker-nav__row">
-            <Link
-              to={brief ? `/search?q=${encodeURIComponent(brief)}` : '/speakers'}
-              className="speaker-nav__back"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              {brief ? 'Back to Results' : 'All Speakers'}
-            </Link>
-            {brief && (
-              <button
-                className={`speaker-nav__select-btn ${isSelected ? 'speaker-nav__select-btn--selected' : ''}`}
-                onClick={() => {
-                  if (isSelected) {
-                    // Deselect
-                    try {
-                      const stored = sessionStorage.getItem('selectedSpeakerIds')
-                      const ids = stored ? JSON.parse(stored) : []
-                      const numId = parseInt(id)
-                      sessionStorage.setItem('selectedSpeakerIds', JSON.stringify(ids.filter(i => i !== numId)))
-                    } catch {}
-                    setIsSelected(false)
-                  } else {
-                    handleSelectAndBack()
-                  }
-                }}
+      {/* Back nav — only for photo hero; video hero has its own overlay nav */}
+      {!videoId && (
+        <motion.div
+          className="speaker-nav"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          <div className="container">
+            <div className="speaker-nav__row">
+              <Link
+                to={brief ? `/search?q=${encodeURIComponent(brief)}` : '/speakers'}
+                className="speaker-nav__back"
               >
-                {isSelected ? (
-                  <>
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path d="M2.5 7L5.5 10L11.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    Selected
-                  </>
-                ) : (
-                  <>
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path d="M7 2.5V11.5M2.5 7H11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    Select Speaker
-                  </>
-                )}
-              </button>
-            )}
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ========== ROW 1: Hero — photo + info side by side ========== */}
-      <section className="speaker-hero">
-        <div className="container">
-          <div className="speaker-hero__grid">
-            <motion.div
-              className="speaker-hero__image-col"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: EASE }}
-            >
-              <div className="speaker-hero__image-wrapper">
-                <img src={speaker.photo} alt={speaker.name} className="speaker-hero__image" />
-              </div>
-            </motion.div>
-
-            <motion.div
-              className="speaker-hero__content"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
-            >
-              <span className="speaker-hero__label">Speaker Profile</span>
-              <h1 className="speaker-hero__name">{speaker.name}</h1>
-              <p className="speaker-hero__headline">{speaker.headline}</p>
-
-              {socialEntries.length > 0 && (
-                <div className="speaker-hero__social">
-                  {totalFollowing > 0 && (
-                    <span className="speaker-hero__social-total">
-                      {formatFollowers(totalFollowing)} total following
-                    </span>
-                  )}
-                  <div className="speaker-hero__social-pills">
-                    {socialEntries.map(({ platform, count, url }, i) => (
-                      <motion.a
-                        key={platform}
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`speaker-hero__social-pill speaker-hero__social-pill--${platform}`}
-                        initial={{ opacity: 0, scale: 0.85 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.35, delay: 0.4 + i * 0.08, ease: EASE }}
-                      >
-                        {platformIcons[platform]}
-                        {formatFollowers(count)}
-                      </motion.a>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="speaker-hero__actions">
-                <motion.button
-                  onClick={handleEnquireClick}
-                  onMouseEnter={handleEnquireHover}
-                  className="btn btn-primary btn-lg"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                {brief ? 'Back to Results' : 'All Speakers'}
+              </Link>
+              {brief && (
+                <button
+                  className={`speaker-nav__select-btn ${isSelected ? 'speaker-nav__select-btn--selected' : ''}`}
+                  onClick={() => {
+                    if (isSelected) {
+                      try {
+                        const stored = sessionStorage.getItem('selectedSpeakerIds')
+                        const ids = stored ? JSON.parse(stored) : []
+                        const numId = parseInt(id)
+                        sessionStorage.setItem('selectedSpeakerIds', JSON.stringify(ids.filter(i => i !== numId)))
+                      } catch {}
+                      setIsSelected(false)
+                    } else {
+                      handleSelectAndBack()
+                    }
+                  }}
                 >
-                  Enquire Now
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </motion.button>
-                {speaker.videoUrl && (
-                  <a href="#video" className="btn btn-secondary btn-lg">
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path d="M3 2.5V11.5L11.5 7L3 2.5Z" fill="currentColor"/>
-                    </svg>
-                    Watch Reel
-                  </a>
-                )}
-              </div>
-            </motion.div>
+                  {isSelected ? (
+                    <>
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M2.5 7L5.5 10L11.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      Selected
+                    </>
+                  ) : (
+                    <>
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M7 2.5V11.5M2.5 7H11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      Select Speaker
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-      </section>
+        </motion.div>
+      )}
+
+      {/* ========== ROW 1: Hero ========== */}
+      {videoId ? (
+        <VideoHero
+          speaker={speaker}
+          videoId={videoId}
+          socialEntries={socialEntries}
+          totalFollowing={totalFollowing}
+          brief={brief}
+          handleEnquireClick={handleEnquireClick}
+          handleEnquireHover={handleEnquireHover}
+          briefReasoning={briefReasoning}
+          briefScore={briefScore}
+          id={id}
+          isSelected={isSelected}
+          setIsSelected={setIsSelected}
+          handleSelectAndBack={handleSelectAndBack}
+        />
+      ) : (
+        <section className="speaker-hero">
+          <div className="container">
+            <div className="speaker-hero__grid">
+              <motion.div
+                className="speaker-hero__image-col"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: EASE }}
+              >
+                <div className="speaker-hero__image-wrapper">
+                  <img src={speaker.photo} alt={speaker.name} className="speaker-hero__image" />
+                </div>
+              </motion.div>
+
+              <motion.div
+                className="speaker-hero__content"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
+              >
+                <span className="speaker-hero__label">Speaker Profile</span>
+                <h1 className="speaker-hero__name">{speaker.name}</h1>
+                <p className="speaker-hero__headline">{speaker.headline}</p>
+
+                {socialEntries.length > 0 && (
+                  <div className="speaker-hero__social">
+                    {totalFollowing > 0 && (
+                      <span className="speaker-hero__social-total">
+                        {formatFollowers(totalFollowing)} total following
+                      </span>
+                    )}
+                    <div className="speaker-hero__social-pills">
+                      {socialEntries.map(({ platform, count, url }, i) => (
+                        <motion.a
+                          key={platform}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`speaker-hero__social-pill speaker-hero__social-pill--${platform}`}
+                          initial={{ opacity: 0, scale: 0.85 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.35, delay: 0.4 + i * 0.08, ease: EASE }}
+                        >
+                          {platformIcons[platform]}
+                          {formatFollowers(count)}
+                        </motion.a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="speaker-hero__actions">
+                  <motion.button
+                    onClick={handleEnquireClick}
+                    onMouseEnter={handleEnquireHover}
+                    className="btn btn-primary btn-lg"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Enquire Now
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </motion.button>
+                  {speaker.videoUrl && (
+                    <a href="#video" className="btn btn-secondary btn-lg">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M3 2.5V11.5L11.5 7L3 2.5Z" fill="currentColor"/>
+                      </svg>
+                      Watch Reel
+                    </a>
+                  )}
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ========== ROW 2: Bio (left) + Topics/Reasoning (right) ========== */}
       <section className="speaker-body" ref={bodyRef}>
@@ -514,38 +689,7 @@ function SpeakerDetailPage() {
         </div>
       </section>
 
-      {/* ========== ROW 3: Video — full width ========== */}
-      {speaker.videoUrl && /^https?:\/\//.test(speaker.videoUrl) && (
-        <section id="video" className="speaker-video-section">
-          <div className="container">
-            <motion.h2
-              className="speaker-video-section__title"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-              {speaker.name.split(' ')[0]} in Action
-            </motion.h2>
-            <motion.div
-              className="speaker-video-wrap"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, ease: EASE }}
-            >
-              <iframe
-                src={speaker.videoUrl}
-                title={`${speaker.name} Speaker Reel`}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </motion.div>
-          </div>
-        </section>
-      )}
-
-      {/* ========== ROW 4: Related Speakers — full width ========== */}
+      {/* ========== ROW 3: Related Speakers — full width ========== */}
       {relatedSpeakers.length > 0 && (
         <section className="section related-speakers-section">
           <div className="container">

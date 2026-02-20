@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import SpeakerGrid from '../components/speakers/SpeakerGrid'
 import { EASE } from '../constants/animation'
+import { sessionShuffle } from '../utils/shuffle'
 import './SpeakersPage.css'
 
 export default function SpeakersPage() {
@@ -30,13 +31,11 @@ export default function SpeakersPage() {
       .then(res => res.json())
       .then(data => {
         if (data.speakers) {
-          // Shuffle for fairness (not AI-ranked)
-          const shuffled = [...data.speakers]
-          for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-          }
-          setSpeakers(shuffled)
+          // Same session seed as homepage, but rotate so homepage preview speakers
+          // (first 6) aren't at the top of this catalogue
+          const shuffled = sessionShuffle(data.speakers)
+          const rotated = [...shuffled.slice(6), ...shuffled.slice(0, 6)]
+          setSpeakers(rotated)
         }
         setLoading(false)
       })

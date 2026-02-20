@@ -6,6 +6,7 @@ import GradientMesh from '../components/effects/GradientMesh'
 import { useSmoothScroll } from '../hooks/useSmoothScroll'
 import { useMagneticEffect } from '../hooks/useMagneticEffect'
 import { EASE } from '../constants/animation'
+import { sessionShuffle } from '../utils/shuffle'
 import './HomePage.css'
 
 // Magnetic button wrapper
@@ -299,10 +300,12 @@ function EnhancedAIDemo() {
     if (measured.every(Boolean)) setDynamicPaths(measured)
   }, [buildPath])
 
-  // Measure on mount (tokens are in DOM at opacity 0, layout positions are correct)
+  // Measure on mount, resize, and font load
   useEffect(() => {
-    requestAnimationFrame(measurePaths)
+    const measure = () => requestAnimationFrame(measurePaths)
+    measure()
     window.addEventListener('resize', measurePaths)
+    document.fonts?.ready?.then(measure)
     return () => window.removeEventListener('resize', measurePaths)
   }, [measurePaths])
 
@@ -315,10 +318,16 @@ function EnhancedAIDemo() {
       setTypedText('')
       setDynamicPaths(null)
       timersRef.current.forEach(clearTimeout)
+      // Re-measure paths after reset (tokens still in DOM at opacity 0)
+      requestAnimationFrame(() => requestAnimationFrame(measurePaths))
       const phase2At = 2800
       const t = []
       t.push(setTimeout(() => setPhase(1), 300))
-      t.push(setTimeout(() => setPhase(2), phase2At))
+      t.push(setTimeout(() => {
+        setPhase(2)
+        // Re-measure again when tokens animate into position
+        requestAnimationFrame(measurePaths)
+      }, phase2At))
       // Star pulses when dots start traveling
       t.push(setTimeout(() => setPhase(3), phase2At + DOTS_START * 1000))
       // Results appear right after last dot arrives
@@ -330,7 +339,7 @@ function EnhancedAIDemo() {
       setTypedText('')
     }
     return () => timersRef.current.forEach(clearTimeout)
-  }, [isInView])
+  }, [isInView, measurePaths])
 
   useEffect(() => {
     if (phase !== 1) return
@@ -341,8 +350,14 @@ function EnhancedAIDemo() {
 
   return (
     <div className="ai-pipe" ref={containerRef}>
-      {/* Search bar */}
-      <div className="ai-pipe__search">
+      {/* Search bar — starts compact and centered, expands to full width */}
+      <motion.div
+        className="ai-pipe__search"
+        initial={{ width: '60%' }}
+        animate={phase >= 1 ? { width: '100%' } : { width: '60%' }}
+        transition={{ duration: 0.5, ease: EASE }}
+        style={{ margin: '0 auto' }}
+      >
         <svg className="ai-pipe__search-icon" width="14" height="14" viewBox="0 0 22 22" fill="none">
           <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1.5"/>
           <path d="M18 18L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
@@ -351,10 +366,22 @@ function EnhancedAIDemo() {
           {typedText || <span className="ai-pipe__placeholder">Describe your ideal speaker...</span>}
           {phase === 1 && <span className="ai-pipe__cursor" />}
         </div>
-      </div>
+      </motion.div>
 
       {/* Visualization — tokens, paths, convergence */}
-      <div className="ai-pipe__viz" ref={extractRef}>
+      <motion.div
+        className="ai-pipe__viz"
+        ref={extractRef}
+        initial={{ height: 0, opacity: 0 }}
+        animate={phase >= 2
+          ? { height: 'auto', opacity: 1 }
+          : { height: 0, opacity: 0 }
+        }
+        transition={{ duration: 0.6, ease: EASE }}
+        onAnimationComplete={() => {
+          if (phase >= 2) requestAnimationFrame(measurePaths)
+        }}
+      >
         {/* Token pills */}
         <div className="ai-pipe__token-row">
           {tokens.map((tk, i) => (
@@ -470,7 +497,7 @@ function EnhancedAIDemo() {
             </motion.div>
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* Footer CTA */}
       <motion.div
@@ -629,13 +656,7 @@ function HomePage() {
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          // Shuffle for fairness (not AI-ranked)
-          const shuffled = [...data.speakers]
-          for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-          }
-          setSpeakers(shuffled)
+          setSpeakers(sessionShuffle(data.speakers))
         }
       })
       .catch(err => console.error('Failed to load speakers:', err))

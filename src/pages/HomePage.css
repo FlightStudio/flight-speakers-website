@@ -583,7 +583,7 @@
 }
 
 .ai-window__body {
-  padding: 20px;
+  padding: clamp(12px, 2vw, 20px);
 }
 
 /* ——— Pipeline inside window ——— */
@@ -596,8 +596,8 @@
 .ai-pipe__search {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
+  gap: clamp(6px, 1vw, 10px);
+  padding: clamp(8px, 1vw, 10px) clamp(10px, 1.2vw, 14px);
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 10px;
@@ -610,7 +610,7 @@
 
 .ai-pipe__search-text {
   flex: 1;
-  font-size: 13px;
+  font-size: clamp(11px, 1.3vw, 13px);
   color: var(--color-charcoal);
   line-height: 1.5;
   min-height: 18px;
@@ -635,27 +635,27 @@
   50% { opacity: 0; }
 }
 
-/* Visualization area — fills the rest of the window */
+/* Visualization area — expands from the search bar */
 .ai-pipe__viz {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding-top: 16px;
+  overflow: hidden;
 }
 
 /* Token pills */
 .ai-pipe__token-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: clamp(4px, 0.8vw, 8px);
   justify-content: center;
   width: 100%;
 }
 
 .ai-pipe__token {
-  padding: 7px 18px;
-  font-size: 12.5px;
+  padding: clamp(4px, 0.8vw, 7px) clamp(10px, 1.8vw, 18px);
+  font-size: clamp(10px, 1.4vw, 12.5px);
   font-weight: 600;
   letter-spacing: 0.01em;
   color: var(--tk);
@@ -668,16 +668,16 @@
 /* SVG paths area */
 .ai-pipe__paths {
   width: 100%;
-  height: 140px;
+  height: clamp(80px, 14vw, 140px);
   display: block;
 }
 
 /* Analyzing orb at convergence */
 .ai-pipe__orb {
   position: relative;
-  width: 36px;
-  height: 36px;
-  margin: -2px 0 14px;
+  width: clamp(28px, 3.5vw, 36px);
+  height: clamp(28px, 3.5vw, 36px);
+  margin: -2px 0 clamp(8px, 1.4vw, 14px);
 }
 
 .ai-pipe__orb-ring {
@@ -709,15 +709,15 @@
 .ai-pipe__results {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: clamp(4px, 0.6vw, 6px);
   width: 100%;
 }
 
 .ai-pipe__result {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
+  gap: clamp(6px, 1vw, 10px);
+  padding: clamp(6px, 1vw, 10px) clamp(8px, 1.2vw, 12px);
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 10px;
@@ -730,8 +730,8 @@
 }
 
 .ai-pipe__result-av {
-  width: 32px;
-  height: 32px;
+  width: clamp(24px, 3.2vw, 32px);
+  height: clamp(24px, 3.2vw, 32px);
   border-radius: 50%;
   background: linear-gradient(135deg, #e0e7ff, #ddd6fe);
   flex-shrink: 0;
@@ -744,21 +744,21 @@
 
 .ai-pipe__result-name {
   display: block;
-  font-size: 13px;
+  font-size: clamp(11px, 1.3vw, 13px);
   font-weight: 600;
   color: var(--color-charcoal);
 }
 
 .ai-pipe__result-topic {
   display: block;
-  font-size: 11px;
+  font-size: clamp(9px, 1.1vw, 11px);
   color: var(--color-gray-500);
 }
 
 .ai-pipe__result-score {
   flex-shrink: 0;
-  padding: 3px 8px;
-  font-size: 11px;
+  padding: clamp(2px, 0.4vw, 3px) clamp(5px, 0.8vw, 8px);
+  font-size: clamp(9px, 1.1vw, 11px);
   font-weight: 700;
   color: #6366f1;
   background: rgba(99, 102, 241, 0.12);
@@ -816,32 +816,6 @@
 @media (max-width: 768px) {
   .ai-demo-layout__steps {
     gap: 12px;
-  }
-
-  .ai-window__body {
-    padding: 14px;
-  }
-
-  .ai-pipe__token {
-    font-size: 11px;
-    padding: 5px 12px;
-  }
-
-  .ai-pipe__paths {
-    height: 90px;
-  }
-
-  .ai-pipe__orb {
-    width: 30px;
-    height: 30px;
-  }
-
-  .ai-pipe__orb-ring--inner {
-    inset: 5px;
-  }
-
-  .ai-pipe__orb-core {
-    inset: 9px;
   }
 }
 
