@@ -349,7 +349,7 @@ function EnhancedAIDemo() {
   }, [phase])
 
   return (
-    <div className="ai-pipe" ref={containerRef}>
+    <div className={`ai-pipe${phase >= 2 ? ' ai-pipe--expanded' : ''}`} ref={containerRef}>
       {/* Search bar — starts compact and centered, expands to full width */}
       <motion.div
         className="ai-pipe__search"
