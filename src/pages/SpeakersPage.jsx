@@ -10,13 +10,19 @@ import './SpeakersPage.css'
 export default function SpeakersPage() {
   const [speakers, setSpeakers] = useState([])
   const [loading, setLoading] = useState(true)
-  const [selectedSpeakerIds, setSelectedSpeakerIds] = useState(new Set())
+  const [selectedSpeakerIds, setSelectedSpeakerIds] = useState(() => {
+    try {
+      const stored = sessionStorage.getItem('selectedSpeakerIds')
+      return stored ? new Set(JSON.parse(stored)) : new Set()
+    } catch { return new Set() }
+  })
 
   const toggleSpeakerSelect = useCallback((speakerId) => {
     setSelectedSpeakerIds(prev => {
       const next = new Set(prev)
       if (next.has(speakerId)) next.delete(speakerId)
       else next.add(speakerId)
+      sessionStorage.setItem('selectedSpeakerIds', JSON.stringify([...next]))
       return next
     })
   }, [])
