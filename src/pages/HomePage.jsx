@@ -224,7 +224,7 @@ function EnhancedAIDemo() {
   const containerRef = useRef(null)
   const extractRef = useRef(null)
   const tokenElRefs = useRef([])
-  const isInView = useInView(containerRef, { once: false, amount: 0.3 })
+  const isInView = useInView(containerRef, { once: true, amount: 0.5 })
   const [phase, setPhase] = useState(0)
   const [dynamicPaths, setDynamicPaths] = useState(null)
   const timersRef = useRef([])
