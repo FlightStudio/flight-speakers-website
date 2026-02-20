@@ -8,6 +8,12 @@ import StatusBadge from './StatusBadge'
 
 const CURRENCY_SYMBOLS = { USD: '$', GBP: '£', EUR: '€' }
 
+const REJECTION_LABELS = {
+  pro_bono: 'Pro Bono',
+  no_availability: 'No Availability',
+  exclusivity: 'Exclusivity',
+}
+
 function formatTableBudget(budget, currency) {
   if (!budget) return null
   if (/^\d+$/.test(budget)) {
@@ -72,8 +78,9 @@ export default function EnquiryList({ engagementType = 'all' }) {
   const [view, setView] = useState('cards')
   const [sort, setSort] = useState('newest')
   const [showAnalytics, setShowAnalytics] = useState(false)
+  const [rejectionReason, setRejectionReason] = useState('')
   const [stats, setStats] = useState(null)
-  const { enquiries, total, isLoading } = useEnquiries({ status, engagementType, sort, page })
+  const { enquiries, total, isLoading } = useEnquiries({ status, engagementType, rejectionReason, sort, page })
 
   // Fetch stats for filter pill counts
   useEffect(() => {
@@ -113,46 +120,55 @@ export default function EnquiryList({ engagementType = 'all' }) {
             <button
               key={f}
               className={`enquiry-filter-pill ${status === f ? 'enquiry-filter-pill--active' : ''}`}
-              onClick={() => { setStatus(f); setPage(1) }}
+              onClick={() => { setStatus(f); setRejectionReason(''); setPage(1) }}
             >
               {pillLabel(f)}
             </button>
           ))}
+          {rejectionReason && (
+            <button
+              className="enquiry-filter-pill enquiry-filter-pill--active enquiry-filter-pill--reason"
+              onClick={() => { setRejectionReason(''); setPage(1) }}
+            >
+              {REJECTION_LABELS[rejectionReason] || rejectionReason} &times;
+            </button>
+          )}
         </div>
-        <button
-          className="enq-modal__trigger"
-          onClick={() => setShowAnalytics(true)}
-        >
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-            <rect x="1" y="9" width="3" height="6" rx="1" fill="currentColor" />
-            <rect x="6.5" y="5" width="3" height="10" rx="1" fill="currentColor" />
-            <rect x="12" y="1" width="3" height="14" rx="1" fill="currentColor" />
-          </svg>
-          Analytics
-        </button>
-        <div className="speakers-page__view-toggle">
+        <div className="enquiry-list__controls">
           <button
-            className={`speakers-page__view-btn ${view === 'cards' ? 'speakers-page__view-btn--active' : ''}`}
+            className={`enquiry-list__icon-btn ${view === 'cards' ? 'enquiry-list__icon-btn--active' : ''}`}
             onClick={() => setView('cards')}
+            title="Card view"
           >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
               <rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor"/>
               <rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor"/>
               <rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor"/>
               <rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor"/>
             </svg>
-            Cards
           </button>
           <button
-            className={`speakers-page__view-btn ${view === 'table' ? 'speakers-page__view-btn--active' : ''}`}
+            className={`enquiry-list__icon-btn ${view === 'table' ? 'enquiry-list__icon-btn--active' : ''}`}
             onClick={() => setView('table')}
+            title="Table view"
           >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
               <rect x="1" y="2" width="14" height="2" rx="0.5" fill="currentColor"/>
               <rect x="1" y="7" width="14" height="2" rx="0.5" fill="currentColor"/>
               <rect x="1" y="12" width="14" height="2" rx="0.5" fill="currentColor"/>
             </svg>
-            Table
+          </button>
+          <div className="enquiry-list__controls-divider" />
+          <button
+            className="enquiry-list__icon-btn"
+            onClick={() => setShowAnalytics(true)}
+            title="Analytics"
+          >
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+              <rect x="1" y="9" width="3" height="6" rx="1" fill="currentColor" />
+              <rect x="6.5" y="5" width="3" height="10" rx="1" fill="currentColor" />
+              <rect x="12" y="1" width="3" height="14" rx="1" fill="currentColor" />
+            </svg>
           </button>
         </div>
       </div>
@@ -305,6 +321,12 @@ export default function EnquiryList({ engagementType = 'all' }) {
         open={showAnalytics}
         onClose={() => setShowAnalytics(false)}
         engagementType={engagementType}
+        onFilterByReason={(reason) => {
+          setStatus('rejected')
+          setRejectionReason(reason)
+          setPage(1)
+          setShowAnalytics(false)
+        }}
       />
     </div>
   )

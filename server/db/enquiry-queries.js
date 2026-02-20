@@ -36,7 +36,7 @@ export async function createEnquiry(data) {
   return rows[0]
 }
 
-export async function getEnquiries({ status, engagementType, page = 1, limit = 20, sort = 'newest' } = {}) {
+export async function getEnquiries({ status, engagementType, rejectionReason, page = 1, limit = 20, sort = 'newest' } = {}) {
   const conditions = []
   const params = []
   let paramIndex = 1
@@ -49,6 +49,11 @@ export async function getEnquiries({ status, engagementType, page = 1, limit = 2
   if (engagementType && engagementType !== 'all') {
     conditions.push(`e.engagement_type = $${paramIndex++}`)
     params.push(engagementType)
+  }
+
+  if (rejectionReason) {
+    conditions.push(`e.rejection_reason = $${paramIndex++}`)
+    params.push(rejectionReason)
   }
 
   const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''

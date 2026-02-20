@@ -281,10 +281,11 @@ router.delete('/speakers/:id', requireAdmin, async (req, res) => {
 // GET /api/admin/enquiries
 router.get('/enquiries', requireAdmin, async (req, res) => {
   try {
-    const { status, engagementType, page = 1, limit = 20, sort = 'newest' } = req.query
+    const { status, engagementType, rejectionReason, page = 1, limit = 20, sort = 'newest' } = req.query
     const result = await getEnquiries({
       status,
       engagementType,
+      rejectionReason,
       page: Math.max(parseInt(page, 10) || 1, 1),
       limit: Math.min(Math.max(parseInt(limit, 10) || 20, 1), 100),
       sort,
