@@ -294,7 +294,6 @@
 .enquiry-filters {
   display: flex;
   gap: 0.35rem;
-  margin-bottom: 1.25rem;
   flex-wrap: wrap;
 }
 
@@ -324,6 +323,16 @@
 .enquiry-filter-pill--active:hover {
   background: #000;
   color: #fff;
+}
+
+.enquiry-filter-pill--reason {
+  background: #dc2626;
+  border-color: #dc2626;
+  gap: 4px;
+}
+
+.enquiry-filter-pill--reason:hover {
+  background: #b91c1c;
 }
 
 .enquiry-list {
@@ -498,7 +507,47 @@
   justify-content: space-between;
   gap: 0.75rem;
   margin-bottom: 1rem;
-  flex-wrap: wrap;
+}
+
+.enquiry-list__controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: #f1f1ef;
+  border-radius: 10px;
+  padding: 3px;
+  flex-shrink: 0;
+}
+
+.enquiry-list__icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 30px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.enquiry-list__icon-btn:hover {
+  color: #52525b;
+}
+
+.enquiry-list__icon-btn--active {
+  background: #fff;
+  color: #1a1a1a;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.enquiry-list__controls-divider {
+  width: 1px;
+  height: 18px;
+  background: #ddddd9;
+  margin: 0 2px;
 }
 
 /* ---- Enquiry Table ---- */
@@ -4346,27 +4395,6 @@
    Enquiry Analytics Modal
    ================================ */
 
-.enq-modal__trigger {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: #f4f4f2;
-  border: 1px solid #e8e8e6;
-  border-radius: 8px;
-  font-size: 0.78rem;
-  font-weight: 550;
-  color: #52525b;
-  cursor: pointer;
-  padding: 6px 12px;
-  transition: all 150ms ease;
-}
-
-.enq-modal__trigger:hover {
-  background: #ebebea;
-  color: #1a1a1a;
-  border-color: #d4d4d4;
-}
-
 .enq-modal__overlay {
   position: fixed;
   inset: 0;
@@ -4622,7 +4650,7 @@
   gap: 10px;
   padding: 8px 10px;
   border-radius: 8px;
-  cursor: default;
+  cursor: pointer;
   transition: background 150ms ease;
 }
 
@@ -4681,6 +4709,7 @@
   gap: 12px;
   padding: 7px 10px;
   border-radius: 8px;
+  cursor: pointer;
   transition: background 150ms ease;
 }
 

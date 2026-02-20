@@ -84,7 +84,7 @@ const MODAL_TABS = [
   { key: 'rejections', label: 'Rejections' },
 ]
 
-export default function EnquiryAnalyticsModal({ open, onClose, engagementType = 'all' }) {
+export default function EnquiryAnalyticsModal({ open, onClose, engagementType = 'all', onFilterByReason }) {
   const [analytics, setAnalytics] = useState(null)
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
@@ -290,6 +290,7 @@ export default function EnquiryAnalyticsModal({ open, onClose, engagementType = 
                                     style={{ transformOrigin: '100px 100px', cursor: 'pointer' }}
                                     onMouseEnter={() => setHoveredReason(seg.reason)}
                                     onMouseLeave={() => setHoveredReason(null)}
+                                    onClick={() => onFilterByReason?.(seg.reason)}
                                   />
                                 ))}
                                 {/* Donut hole */}
@@ -308,6 +309,7 @@ export default function EnquiryAnalyticsModal({ open, onClose, engagementType = 
                                   className={`enq-modal__legend-item ${hoveredReason === seg.reason ? 'enq-modal__legend-item--active' : ''}`}
                                   onMouseEnter={() => setHoveredReason(seg.reason)}
                                   onMouseLeave={() => setHoveredReason(null)}
+                                  onClick={() => onFilterByReason?.(seg.reason)}
                                 >
                                   <span className="enq-modal__legend-dot" style={{ background: seg.color }} />
                                   <span className="enq-modal__legend-label">{REJECTION_LABELS[seg.reason] || seg.reason}</span>
@@ -327,6 +329,7 @@ export default function EnquiryAnalyticsModal({ open, onClose, engagementType = 
                                 className={`enq-modal__bar-row ${hoveredReason === seg.reason ? 'enq-modal__bar-row--active' : ''}`}
                                 onMouseEnter={() => setHoveredReason(seg.reason)}
                                 onMouseLeave={() => setHoveredReason(null)}
+                                onClick={() => onFilterByReason?.(seg.reason)}
                               >
                                 <div className="enq-modal__bar-label">{REJECTION_LABELS[seg.reason] || seg.reason}</div>
                                 <div className="enq-modal__bar-track">

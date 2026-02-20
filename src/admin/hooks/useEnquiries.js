@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 
-export function useEnquiries({ status = 'all', engagementType = 'all', sort = 'newest', page = 1 } = {}) {
+export function useEnquiries({ status = 'all', engagementType = 'all', rejectionReason = '', sort = 'newest', page = 1 } = {}) {
   const [enquiries, setEnquiries] = useState([])
   const [total, setTotal] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
@@ -11,6 +11,7 @@ export function useEnquiries({ status = 'all', engagementType = 'all', sort = 'n
       const params = new URLSearchParams({ page, limit: 20, sort })
       if (status && status !== 'all') params.set('status', status)
       if (engagementType && engagementType !== 'all') params.set('engagementType', engagementType)
+      if (rejectionReason) params.set('rejectionReason', rejectionReason)
 
       const res = await fetch(`/api/admin/enquiries?${params}`, { credentials: 'include' })
       const data = await res.json()
@@ -23,7 +24,7 @@ export function useEnquiries({ status = 'all', engagementType = 'all', sort = 'n
     } finally {
       setIsLoading(false)
     }
-  }, [status, engagementType, sort, page])
+  }, [status, engagementType, rejectionReason, sort, page])
 
   useEffect(() => { fetchEnquiries() }, [fetchEnquiries])
 
