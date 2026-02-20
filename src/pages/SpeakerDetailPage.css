@@ -768,8 +768,8 @@
 }
 
 .speaker-video-hero__photo {
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid rgba(255, 255, 255, 0.8);
@@ -960,8 +960,8 @@
   }
 
   .speaker-video-hero__photo {
-    width: 48px;
-    height: 48px;
+    width: 56px;
+    height: 56px;
   }
 
   .speaker-video-hero__name {
