@@ -417,7 +417,7 @@ function SearchResultsPage() {
             <div className="browse-cta__content">
               <h2>Browse Our Full Roster</h2>
               <p>Discover all the world-class speakers in our curated collection</p>
-              <Link to="/" className="btn btn-secondary btn-lg">
+              <Link to="/speakers" className="btn btn-secondary btn-lg">
                 View All Speakers
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <path d="M2.5 7H11.5M11.5 7L7 2.5M11.5 7L7 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>

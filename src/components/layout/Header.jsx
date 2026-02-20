@@ -26,7 +26,7 @@ function Header() {
   }, [location])
 
   const navItems = [
-    { path: '/', label: 'Speakers' },
+    { path: '/speakers', label: 'Speakers' },
     { path: '/about', label: 'About' },
   ]
 

@@ -147,7 +147,7 @@ function SpeakerDetailPage() {
           <motion.div className="speaker-not-found" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h1>Speaker Not Found</h1>
             <p>The speaker you're looking for doesn't exist or may have moved.</p>
-            <Link to="/" className="btn btn-primary">Browse All Speakers</Link>
+            <Link to="/speakers" className="btn btn-primary">Browse All Speakers</Link>
           </motion.div>
         </div>
       </div>
@@ -187,7 +187,7 @@ function SpeakerDetailPage() {
         <div className="container">
           <div className="speaker-nav__row">
             <Link
-              to={brief ? `/search?q=${encodeURIComponent(brief)}` : '/'}
+              to={brief ? `/search?q=${encodeURIComponent(brief)}` : '/speakers'}
               className="speaker-nav__back"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">

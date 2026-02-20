@@ -23,7 +23,7 @@ function Footer() {
             <div className="footer-section">
               <h4 className="footer-heading">Platform</h4>
               <ul>
-                <li><Link to="/">Browse Speakers</Link></li>
+                <li><Link to="/speakers">Browse Speakers</Link></li>
                 <li><Link to="/enquiry">Submit Brief</Link></li>
               </ul>
             </div>
