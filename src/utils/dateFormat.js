@@ -12,13 +12,13 @@ export function formatDisplayDate(dateStr) {
  * Format an eventDate value for display.
  * Handles both single dates ("2025-03-15") and
  * pipe-delimited ranges ("2025-03-15|2025-03-20").
- * Returns e.g. "13 March 2025" or "13 March 2025 — 20 March 2025"
+ * Returns e.g. "13 March 2025" or "13 March 2025 – 20 March 2025"
  */
 export function formatEventDate(value) {
   if (!value) return ''
   if (value.includes('|')) {
     const [start, end] = value.split('|')
-    return `${formatDisplayDate(start)} — ${formatDisplayDate(end)}`
+    return `${formatDisplayDate(start)} – ${formatDisplayDate(end)}`
   }
   return formatDisplayDate(value)
 }

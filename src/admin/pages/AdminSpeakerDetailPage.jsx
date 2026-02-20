@@ -252,13 +252,13 @@ export default function AdminSpeakerDetailPage() {
           </div>
           <div className="speaker-detail__stat">
             <div className="speaker-detail__stat-value">
-              {avgScore != null ? `${avgScore}%` : '—'}
+              {avgScore != null ? `${avgScore}%` : '-'}
             </div>
             <div className="speaker-detail__stat-label">Avg AI Score</div>
           </div>
           <div className="speaker-detail__stat">
             <div className="speaker-detail__stat-value speaker-detail__stat-value--green">
-              {totalBudget > 0 ? `$${totalBudget.toLocaleString()}` : '—'}
+              {totalBudget > 0 ? `$${totalBudget.toLocaleString()}` : '-'}
             </div>
             <div className="speaker-detail__stat-label">Total Enquired</div>
           </div>

@@ -8,9 +8,10 @@ function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme') === 'dark'
+      const stored = localStorage.getItem('theme')
+      return stored ? stored === 'dark' : true
     }
-    return false
+    return true
   })
   const navigate = useNavigate()
   const location = useLocation()

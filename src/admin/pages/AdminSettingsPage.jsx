@@ -90,7 +90,7 @@ export default function AdminSettingsPage() {
             <>
               <div className="admin-settings-card__status admin-settings-card__status--connected">
                 <span className="admin-settings-card__status-dot admin-settings-card__status-dot--connected" />
-                Connected{klaviyo.account?.name ? ` — ${klaviyo.account.name}` : ''}
+                Connected{klaviyo.account?.name ? ` / ${klaviyo.account.name}` : ''}
               </div>
 
               {(enquiryList || newsletterList) && (

@@ -29,7 +29,7 @@ function shortDate(dateStr) {
   // Handle pipe-delimited date ranges (e.g. "2025-03-15|2025-03-20")
   if (dateStr.includes('|')) {
     const [start, end] = dateStr.split('|')
-    return `${shortDateSingle(start)} — ${shortDateSingle(end)}`
+    return `${shortDateSingle(start)} – ${shortDateSingle(end)}`
   }
   return shortDateSingle(dateStr)
 }
@@ -111,7 +111,7 @@ export default function EnquiryCard({ enquiry }) {
       <div className="enquiry-card__bottom">
         <span className="enquiry-card__client">
           {enquiry.name}
-          {enquiry.organization ? ` — ${enquiry.organization}` : ''}
+          {enquiry.organization ? ` / ${enquiry.organization}` : ''}
         </span>
         <span className="enquiry-card__time">{timeAgo(enquiry.created_at)}</span>
       </div>

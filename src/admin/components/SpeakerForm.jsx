@@ -190,7 +190,7 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
               className="spkr-form__input"
               value={form.feeMin}
               onChange={e => set('feeMin', e.target.value)}
-              placeholder="—"
+              placeholder="-"
             />
           </div>
         )}
@@ -204,7 +204,7 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
             onChange={e => set('gender', e.target.value)}
           >
             {GENDER_OPTIONS.map(g => (
-              <option key={g} value={g}>{g || '— Select —'}</option>
+              <option key={g} value={g}>{g || 'Select'}</option>
             ))}
           </select>
         </div>

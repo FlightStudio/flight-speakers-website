@@ -141,7 +141,7 @@ export default function EnquiryAnalyticsModal({ open, onClose, engagementType = 
   function formatMetricValue(card) {
     if (card.value) return card.value
     if (card.suffix) return (v) => `${Math.round(v)}${card.suffix}`
-    if (card.key === 'avgbudget') return (v) => v > 0 ? formatCurrency(Math.round(v), analytics?.dominantCurrency) : '—'
+    if (card.key === 'avgbudget') return (v) => v > 0 ? formatCurrency(Math.round(v), analytics?.dominantCurrency) : '-'
     return (v) => `${Math.round(v)}`
   }
 

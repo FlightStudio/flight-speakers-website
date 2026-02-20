@@ -199,7 +199,7 @@ export default function SpeakerAnalyticsTable() {
                   {speaker.avgAiScore != null ? (
                     <span className="speaker-analytics__ai-score">{speaker.avgAiScore}%</span>
                   ) : (
-                    <span className="speaker-analytics__rate">—</span>
+                    <span className="speaker-analytics__rate">-</span>
                   )}
                 </td>
                 <td className="speaker-analytics__td-num" onClick={e => e.stopPropagation()}>
@@ -209,7 +209,7 @@ export default function SpeakerAnalyticsTable() {
                     value={fees[speaker.id]?.feeMin ?? ''}
                     onChange={e => handleFeeChange(speaker.id, e.target.value)}
                     onBlur={() => handleFeeBlur(speaker.id)}
-                    placeholder="—"
+                    placeholder="-"
                   />
                 </td>
               </tr>

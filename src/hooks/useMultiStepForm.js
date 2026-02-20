@@ -108,7 +108,7 @@ export const STEPS = [
     placeholder: 'e.g., 500 attendees',
     required: true,
     skippable: false,
-    whyText: 'Audience size helps us recommend speakers experienced with groups your size and suggest the right format — intimate fireside chat vs. large keynote.',
+    whyText: 'Audience size helps us recommend speakers experienced with groups your size and suggest the right format, from intimate fireside chat to large keynote.',
   },
   {
     id: 'engagementBudget',

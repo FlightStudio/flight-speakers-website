@@ -183,40 +183,45 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   otherSpeakerCard: {
-    flexDirection: 'row',
-    gap: 10,
-    padding: '8px 0',
+    padding: '10px 0',
     borderBottom: '1px solid #f0f0ee',
+    marginBottom: 4,
   },
-  otherPhoto: {
-    width: 36,
-    height: 36,
-    borderRadius: 6,
+  otherSpeakerRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 6,
+  },
+  otherPhotoLg: {
+    width: 80,
+    height: 80,
+    borderRadius: 10,
     objectFit: 'cover',
   },
   otherInfo: {
     flex: 1,
   },
   otherName: {
-    fontSize: 10,
+    fontSize: 13,
     fontFamily: 'Helvetica-Bold',
-    marginBottom: 1,
-  },
-  otherHeadline: {
-    fontSize: 8,
-    color: '#737373',
     marginBottom: 2,
   },
-  otherScore: {
-    fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
-    color: '#16a34a',
+  otherHeadline: {
+    fontSize: 9,
+    color: '#737373',
+    marginBottom: 4,
   },
-  otherReasoning: {
-    fontSize: 8,
-    color: '#666',
-    fontStyle: 'italic',
-    marginTop: 2,
+  otherVideoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 6,
+  },
+  otherReasoningBox: {
+    backgroundColor: '#fafaf8',
+    border: '1px solid #e8e8e6',
+    borderRadius: 6,
+    padding: 8,
   },
   footer: {
     position: 'absolute',
@@ -241,21 +246,44 @@ const styles = StyleSheet.create({
 })
 
 function SpeakerCard({ s }) {
+  const bio = s.bio ? s.bio.split('\n\n').slice(0, 2).join('\n\n') : ''
   return (
     <View style={styles.otherSpeakerCard}>
-      {s.photo && (
-        <Image style={styles.otherPhoto} src={s.photo} />
-      )}
-      <View style={styles.otherInfo}>
-        <Text style={styles.otherName}>{s.name}</Text>
-        <Text style={styles.otherHeadline}>{s.headline}</Text>
-        {s.matchScore != null && (
-          <Text style={styles.otherScore}>{s.matchScore}% match</Text>
+      <View style={styles.otherSpeakerRow}>
+        {s.photo && (
+          <Image style={styles.otherPhotoLg} src={s.photo} />
         )}
-        {s.reasoning && (
-          <Text style={styles.otherReasoning}>{s.reasoning}</Text>
-        )}
+        <View style={styles.otherInfo}>
+          <Text style={styles.otherName}>{s.name}</Text>
+          <Text style={styles.otherHeadline}>{s.headline}</Text>
+          {(s.topics || []).length > 0 && (
+            <View style={styles.topicsRow}>
+              {s.topics.slice(0, 5).map((topic, i) => (
+                <Text key={i} style={styles.topicTag}>{topic}</Text>
+              ))}
+            </View>
+          )}
+        </View>
       </View>
+      {bio ? <Text style={styles.bioText}>{bio}</Text> : null}
+      {s.videoUrl && (
+        <View style={styles.otherVideoRow}>
+          <Text style={styles.videoLabel}>Sizzle Reel</Text>
+          <Link src={s.videoUrl} style={styles.videoLink}>
+            <Text>Watch {s.name.split(' ')[0]}'s speaker reel</Text>
+          </Link>
+        </View>
+      )}
+      {(s.reasoning || s.matchScore != null) && (
+        <View style={styles.otherReasoningBox}>
+          {s.reasoning && (
+            <Text style={styles.reasoningText}>{s.reasoning}</Text>
+          )}
+          {s.matchScore != null && (
+            <Text style={styles.matchScore}>{s.matchScore}% match</Text>
+          )}
+        </View>
+      )}
     </View>
   )
 }

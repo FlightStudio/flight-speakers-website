@@ -1,11 +1,17 @@
-import { useState } from 'react'
+import { useState, useRef, useImperativeHandle, forwardRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import './AISearchBar.css'
 
-function AISearchBar({ variant = 'default', initialQuery = '', onSearch }) {
+const AISearchBar = forwardRef(function AISearchBar({ variant = 'default', initialQuery = '', onSearch }, ref) {
   const [query, setQuery] = useState(initialQuery)
+  const inputRef = useRef(null)
   const [isFocused, setIsFocused] = useState(false)
+
+  useImperativeHandle(ref, () => ({
+    setQuery,
+    focus: () => inputRef.current?.focus(),
+  }), [])
   const navigate = useNavigate()
 
   const handleSubmit = (e) => {
@@ -30,6 +36,7 @@ function AISearchBar({ variant = 'default', initialQuery = '', onSearch }) {
             </svg>
           </div>
           <input
+            ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -54,6 +61,6 @@ function AISearchBar({ variant = 'default', initialQuery = '', onSearch }) {
       </form>
     </div>
   )
-}
+})
 
 export default AISearchBar

@@ -28,7 +28,7 @@ function AboutPage() {
               <p>
                 Flight Story is a communications agency that works with the world's
                 most ambitious leaders and companies. We've spent years understanding
-                what makes a great speaker—and what makes a great event.
+                what makes a great speaker, and what makes a great event.
               </p>
               <p>
                 We built Flight Story Speakers because we saw a gap: traditional
@@ -76,7 +76,7 @@ function AboutPage() {
               <h3>AI-Powered Matching</h3>
               <p>
                 Describe your event in natural language and our AI surfaces speakers
-                who actually fit—not just keyword matches, but genuine alignment.
+                who actually fit. Not just keyword matches, but genuine alignment.
               </p>
             </div>
 

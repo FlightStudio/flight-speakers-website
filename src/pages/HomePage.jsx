@@ -25,6 +25,76 @@ function MagneticButton({ children, className, ...props }) {
   )
 }
 
+// CTA Orb Animation (matches BookPage)
+function CtaOrbAnimation() {
+  return (
+    <svg className="cta-card__orb" viewBox="0 0 160 160">
+      <motion.circle
+        className="cta-card__orb-ring cta-card__orb-ring--outer"
+        cx="80" cy="80" r="72"
+        strokeDasharray="8 12"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+        style={{ transformOrigin: '80px 80px' }}
+      />
+      <motion.circle
+        className="cta-card__orb-ring cta-card__orb-ring--mid"
+        cx="80" cy="80" r="52"
+        strokeDasharray="6 10"
+        animate={{ rotate: -360 }}
+        transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
+        style={{ transformOrigin: '80px 80px' }}
+      />
+      <motion.circle
+        className="cta-card__orb-ring cta-card__orb-ring--inner"
+        cx="80" cy="80" r="32"
+        strokeDasharray="4 8"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+        style={{ transformOrigin: '80px 80px' }}
+      />
+      <motion.circle
+        className="cta-card__orb-core"
+        cx="80" cy="80" r="8"
+        animate={{ scale: [1, 1.3, 1], opacity: [0.8, 1, 0.8] }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+        style={{ transformOrigin: '80px 80px' }}
+      />
+    </svg>
+  )
+}
+
+// CTA Speaker Preview grid (matches BookPage)
+const CTA_SCATTER = [
+  { x: -6, y: -5 }, { x: 4, y: -7 }, { x: 7, y: -4 },
+  { x: -5, y: 6 }, { x: 6, y: 5 }, { x: -4, y: 7 },
+]
+
+function CtaSpeakerPreview({ speakers, isHovered }) {
+  return (
+    <div className="cta-card__preview">
+      {Array.from({ length: 6 }).map((_, i) => {
+        const speaker = speakers[i]
+        const scatter = CTA_SCATTER[i]
+        return (
+          <motion.div
+            key={i}
+            className="cta-card__thumb-slot"
+            animate={isHovered ? { x: scatter.x, y: scatter.y } : { x: 0, y: 0 }}
+            transition={{ duration: 0.5, ease: EASE }}
+          >
+            {speaker?.photo ? (
+              <img className="cta-card__thumb" src={speaker.photo} alt={speaker.name} loading="lazy" />
+            ) : (
+              <div className="cta-card__thumb-placeholder" />
+            )}
+          </motion.div>
+        )
+      })}
+    </div>
+  )
+}
+
 // Animated text reveal
 function RevealText({ children, delay = 0 }) {
   const ref = useRef(null)
@@ -160,11 +230,11 @@ function EnhancedAIDemo() {
   const runIdRef = useRef(0)
 
   const tokens = [
-    { label: 'Leadership', color: '#b5783a' },
-    { label: '500 execs', color: '#8b7352' },
-    { label: 'Sales kickoff', color: '#7a6e52' },
-    { label: 'Motivational', color: '#9a7a4a' },
-    { label: 'Q3', color: '#6b8a5e' },
+    { label: 'Leadership', color: '#6366f1' },
+    { label: '500 execs', color: '#3b82f6' },
+    { label: 'Sales kickoff', color: '#8b5cf6' },
+    { label: 'Motivational', color: '#a855f7' },
+    { label: 'Q3', color: '#6d28d9' },
   ]
 
   const results = [
@@ -465,6 +535,74 @@ function SocialProofBar() {
 }
 
 
+function CtaSection({ speakers }) {
+  const navigate = useNavigate()
+  const [browseHovered, setBrowseHovered] = useState(false)
+
+  return (
+    <section className="section cta-section">
+      <div className="container">
+        <motion.div
+          className="cta-content"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          <span className="section-label">Get Started</span>
+          <h2 className="cta-title">Ready to find your perfect speaker?</h2>
+          <p className="cta-subtitle">
+            Use our AI for instant recommendations, or submit a brief for personalized service within 24 hours.
+          </p>
+          <div className="cta-cards">
+            <motion.div
+              className="cta-card cta-card--ai"
+              whileHover={{ y: -6 }}
+              onClick={() => navigate('/search')}
+            >
+              <div className="cta-card__visual">
+                <CtaOrbAnimation />
+              </div>
+              <h3 className="cta-card__title">AI-Powered Search</h3>
+              <p className="cta-card__subtitle">
+                Describe your event and let our AI find the perfect match
+              </p>
+              <span className="cta-card__cta cta-card__cta--green">
+                Start Searching
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M1 7H13M13 7L7 1M13 7L7 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </span>
+            </motion.div>
+
+            <motion.div
+              className="cta-card cta-card--browse"
+              whileHover={{ y: -6 }}
+              onClick={() => navigate('/speakers')}
+              onHoverStart={() => setBrowseHovered(true)}
+              onHoverEnd={() => setBrowseHovered(false)}
+            >
+              <div className="cta-card__visual">
+                <CtaSpeakerPreview speakers={speakers.slice(0, 6)} isHovered={browseHovered} />
+              </div>
+              <h3 className="cta-card__title">Browse Speakers</h3>
+              <p className="cta-card__subtitle">
+                Explore our full roster and discover the perfect fit
+              </p>
+              <span className="cta-card__cta cta-card__cta--dark">
+                View All Speakers
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M1 7H13M13 7L7 1M13 7L7 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </span>
+            </motion.div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
 function HomePage() {
   // Initialize smooth scrolling
   useSmoothScroll()
@@ -474,6 +612,7 @@ function HomePage() {
   const [isFocused, setIsFocused] = useState(false)
   const [typingText, setTypingText] = useState('')
   const [activeFilter, setActiveFilter] = useState('all')
+  const [hoveredStep, setHoveredStep] = useState(null)
   const inputRef = useRef(null)
   const heroRef = useRef(null)
 
@@ -690,22 +829,48 @@ function HomePage() {
               </p>
               <div className="ai-demo-layout__steps">
                 {[
-                  { num: '01', title: 'Describe', desc: 'Tell us about your event, audience & goals' },
-                  { num: '02', title: 'Extract', desc: 'AI identifies key themes and requirements' },
-                  { num: '03', title: 'Match', desc: 'Semantic search ranks the best speakers' },
+                  { num: '01', title: 'Describe', desc: 'Tell us about your event, audience & goals', detail: 'Share your event type, audience size, dates, location, and what you want the speaker to achieve' },
+                  { num: '02', title: 'Extract', desc: 'AI identifies key themes and requirements', detail: 'Our AI pulls out key themes (topics, tone, budget range, audience level) to build a smart search profile' },
+                  { num: '03', title: 'Match', desc: 'Semantic search ranks the best speakers', detail: 'Semantic search ranks speakers by relevance, availability, and fit, surfacing the best matches in seconds' },
                 ].map((s, i) => (
                   <motion.div
                     key={i}
-                    className="ai-demo-layout__step"
+                    className={`ai-demo-layout__step${hoveredStep === i ? ' ai-demo-layout__step--active' : ''}`}
                     initial={{ opacity: 0, x: -16 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.2 + i * 0.1, duration: 0.4, ease: EASE }}
+                    onHoverStart={() => setHoveredStep(i)}
+                    onHoverEnd={() => setHoveredStep(null)}
+                    layout
                   >
                     <span className="ai-demo-layout__step-num">{s.num}</span>
                     <div>
-                      <span className="ai-demo-layout__step-title">{s.title}</span>
+                      <div className="ai-demo-layout__step-header">
+                        <span className="ai-demo-layout__step-title">{s.title}</span>
+                        <motion.svg
+                          className="ai-demo-layout__step-arrow"
+                          width="12" height="12" viewBox="0 0 14 14" fill="none"
+                          animate={{ rotate: hoveredStep === i ? 180 : 0 }}
+                          transition={{ duration: 0.25, ease: EASE }}
+                        >
+                          <path d="M3.5 5.5L7 9L10.5 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </motion.svg>
+                      </div>
                       <span className="ai-demo-layout__step-desc">{s.desc}</span>
+                      <AnimatePresence>
+                        {hoveredStep === i && (
+                          <motion.div
+                            className="ai-demo-layout__step-detail"
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.25, ease: EASE }}
+                          >
+                            <p>{s.detail}</p>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   </motion.div>
                 ))}
@@ -723,7 +888,7 @@ function HomePage() {
                 <div className="ai-window__dots">
                   <span /><span /><span />
                 </div>
-                <span className="ai-window__title">flight-speakers — AI matching</span>
+                <span className="ai-window__title">flight-speakers / AI matching</span>
               </div>
               <div className="ai-window__body">
                 <EnhancedAIDemo />
@@ -832,37 +997,7 @@ function HomePage() {
       <SocialProofBar />
 
       {/* ========== CTA ========== */}
-      <section className="section cta-section">
-        <div className="container">
-          <motion.div
-            className="cta-content"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <span className="section-label">Get Started</span>
-            <h2 className="cta-title">Ready to find your perfect speaker?</h2>
-            <p className="cta-subtitle">
-              Use our AI for instant recommendations, or submit a brief for personalized service within 24 hours.
-            </p>
-            <div className="cta-buttons">
-              <MagneticButton
-                className="btn btn-primary btn-lg"
-                onClick={() => navigate('/search')}
-              >
-                Try AI Search
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </MagneticButton>
-              <Link to="/speakers" className="btn btn-secondary btn-lg">
-                View Catalogue
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      <CtaSection speakers={speakers} />
     </div>
   )
 }

@@ -69,6 +69,43 @@
   transform: translateX(-2px);
 }
 
+.speaker-nav__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.speaker-nav__select-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-charcoal);
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.speaker-nav__select-btn:hover {
+  border-color: var(--color-gray-300);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.speaker-nav__select-btn--selected {
+  color: #22c55e;
+  border-color: rgba(34, 197, 94, 0.3);
+  background: rgba(34, 197, 94, 0.06);
+}
+
+.speaker-nav__select-btn--selected:hover {
+  border-color: rgba(34, 197, 94, 0.4);
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.1);
+}
+
 /* ================================
    ROW 1: Hero Section
    ================================ */
@@ -749,6 +786,23 @@
 
 [data-theme="dark"] .speaker-detail-page .speaker-nav {
   background: #111111;
+}
+
+[data-theme="dark"] .speaker-nav__select-btn {
+  color: #e0e0e0;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .speaker-nav__select-btn:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .speaker-nav__select-btn--selected {
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.25);
 }
 
 [data-theme="dark"] .related-speakers-section {

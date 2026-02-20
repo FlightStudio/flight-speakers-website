@@ -17,7 +17,7 @@ export default function DashboardInsights({ responseMetrics, popularTopics = [],
         </div>
         <div className="dash-insights__metric">
           <div className="dash-insights__metric-value">
-            {avgResponseHours != null ? `${avgResponseHours}h` : '—'}
+            {avgResponseHours != null ? `${avgResponseHours}h` : '-'}
           </div>
           <div className="dash-insights__metric-label">Avg Response</div>
         </div>

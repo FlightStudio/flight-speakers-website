@@ -41,7 +41,7 @@ function StepConfirmPrefill({ extractedData, brief, isParsing = false, onConfirm
         </h3>
         {isParsing && (
           <p className="mstep-prefill__subtitle">
-            Extracting event details — just a moment.
+            Extracting event details, just a moment.
           </p>
         )}
       </div>

@@ -20,7 +20,7 @@ function formatEventDate(dateStr) {
   }
   if (dateStr.includes('|')) {
     const [start, end] = dateStr.split('|')
-    return `${fmt(start)} — ${fmt(end)}`
+    return `${fmt(start)} – ${fmt(end)}`
   }
   return fmt(dateStr)
 }
@@ -65,7 +65,7 @@ export default function EnquiryDetail({ enquiry, additionalSpeakers = [] }) {
         <div>
           <div className="enquiry-detail__title">{enquiry.name}</div>
           <div className="enquiry-detail__subtitle">
-            {enquiry.organization}{enquiry.email ? ` — ${enquiry.email}` : ''}
+            {enquiry.organization}{enquiry.email ? ` / ${enquiry.email}` : ''}
           </div>
         </div>
         <div className="enquiry-detail__status-col">
@@ -83,7 +83,7 @@ export default function EnquiryDetail({ enquiry, additionalSpeakers = [] }) {
           <div key={f.label} className="enquiry-detail__field">
             <div className="enquiry-detail__label">{f.label}</div>
             <div className={`enquiry-detail__value ${!f.value ? 'enquiry-detail__value--empty' : ''}`}>
-              {f.value || '—'}
+              {f.value || '-'}
             </div>
           </div>
         ))}

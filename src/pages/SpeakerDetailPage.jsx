@@ -58,6 +58,25 @@ function SpeakerDetailPage() {
   const [briefScore, setBriefScore] = useState(null)
   const [hoveredTopic, setHoveredTopic] = useState(null)
   const [hoveredAudience, setHoveredAudience] = useState(null)
+
+  // Check if this speaker is already selected (from search results)
+  const [isSelected, setIsSelected] = useState(() => {
+    try {
+      const stored = sessionStorage.getItem('selectedSpeakerIds')
+      return stored ? JSON.parse(stored).includes(parseInt(id)) : false
+    } catch { return false }
+  })
+
+  const handleSelectAndBack = useCallback(() => {
+    try {
+      const stored = sessionStorage.getItem('selectedSpeakerIds')
+      const ids = stored ? JSON.parse(stored) : []
+      const numId = parseInt(id)
+      if (!ids.includes(numId)) ids.push(numId)
+      sessionStorage.setItem('selectedSpeakerIds', JSON.stringify(ids))
+    } catch {}
+    navigate(`/search?q=${encodeURIComponent(brief)}`)
+  }, [id, brief, navigate])
   const bodyRef = useRef(null)
   const { scrollYProgress } = useScroll({ target: bodyRef, offset: ['start start', 'end start'] })
   const bioScale = useTransform(scrollYProgress, [0, 0.4], [1, 0.82])
@@ -166,12 +185,52 @@ function SpeakerDetailPage() {
         transition={{ delay: 0.2 }}
       >
         <div className="container">
-          <Link to="/" className="speaker-nav__back">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            All Speakers
-          </Link>
+          <div className="speaker-nav__row">
+            <Link
+              to={brief ? `/search?q=${encodeURIComponent(brief)}` : '/'}
+              className="speaker-nav__back"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              {brief ? 'Back to Results' : 'All Speakers'}
+            </Link>
+            {brief && (
+              <button
+                className={`speaker-nav__select-btn ${isSelected ? 'speaker-nav__select-btn--selected' : ''}`}
+                onClick={() => {
+                  if (isSelected) {
+                    // Deselect
+                    try {
+                      const stored = sessionStorage.getItem('selectedSpeakerIds')
+                      const ids = stored ? JSON.parse(stored) : []
+                      const numId = parseInt(id)
+                      sessionStorage.setItem('selectedSpeakerIds', JSON.stringify(ids.filter(i => i !== numId)))
+                    } catch {}
+                    setIsSelected(false)
+                  } else {
+                    handleSelectAndBack()
+                  }
+                }}
+              >
+                {isSelected ? (
+                  <>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <path d="M2.5 7L5.5 10L11.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    Selected
+                  </>
+                ) : (
+                  <>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <path d="M7 2.5V11.5M2.5 7H11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    Select Speaker
+                  </>
+                )}
+              </button>
+            )}
+          </div>
         </div>
       </motion.div>
 
@@ -350,7 +409,7 @@ function SpeakerDetailPage() {
                             >
                               <p>
                                 {briefReasoning && briefReasoning.toLowerCase().includes(topic.toLowerCase().split(' ')[0])
-                                  ? `Directly relevant to your brief — ${speaker.name}'s work in ${topic.toLowerCase()} addresses the themes and outcomes you're looking for.`
+                                  ? `Directly relevant to your brief. ${speaker.name}'s work in ${topic.toLowerCase()} addresses the themes and outcomes you're looking for.`
                                   : `A core area of ${speaker.name}'s expertise, delivering practical frameworks and proven strategies in ${topic.toLowerCase()}.`
                                 }
                               </p>
@@ -412,7 +471,7 @@ function SpeakerDetailPage() {
                               >
                                 <p>
                                   {briefReasoning
-                                    ? `Recommended for your event — ${speaker.name} has a proven track record engaging ${audience.toLowerCase()} with content tailored to their needs.`
+                                    ? `Recommended for your event. ${speaker.name} has a proven track record engaging ${audience.toLowerCase()} with content tailored to their needs.`
                                     : `${speaker.name} adapts their delivery and content to resonate deeply with ${audience.toLowerCase()}, ensuring maximum engagement and lasting impact.`
                                   }
                                 </p>

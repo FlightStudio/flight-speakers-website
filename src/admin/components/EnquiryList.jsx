@@ -24,7 +24,7 @@ function formatTableBudget(budget, currency) {
 }
 
 function formatTableDate(dateStr) {
-  if (!dateStr) return '—'
+  if (!dateStr) return '-'
   function fmt(s) {
     const d = new Date(s + 'T00:00:00')
     if (isNaN(d)) return s
@@ -35,7 +35,7 @@ function formatTableDate(dateStr) {
   }
   if (dateStr.includes('|')) {
     const [start, end] = dateStr.split('|')
-    return `${fmt(start)} — ${fmt(end)}`
+    return `${fmt(start)} – ${fmt(end)}`
   }
   return fmt(dateStr)
 }
@@ -270,13 +270,13 @@ export default function EnquiryList({ engagementType = 'all' }) {
                           {formatTableDate(enquiry.event_date)}
                         </td>
                         <td className="enquiry-table__muted">
-                          {enquiry.event_location || '—'}
+                          {enquiry.event_location || '-'}
                         </td>
                         <td>
                           {enquiry.budget_range ? (
                             <span className="enquiry-table__budget">{formatTableBudget(enquiry.budget_range, enquiry.currency)}</span>
                           ) : (
-                            <span className="enquiry-table__muted">—</span>
+                            <span className="enquiry-table__muted">-</span>
                           )}
                         </td>
                         <td>

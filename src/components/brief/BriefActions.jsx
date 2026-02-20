@@ -11,15 +11,31 @@ function esc(str) {
 }
 
 function buildSpeakerCard(s) {
+  const bioPreview = s.bio ? s.bio.split('\n\n').slice(0, 2).map(p => esc(p)).join('<br><br>') : ''
+  const topics = (s.topics || []).slice(0, 5).map(t => `<span style="display:inline-block;padding:2px 10px;background:#f5f5f3;border-radius:4px;font-size:12px;color:#404040;margin:2px 4px 2px 0">${esc(t)}</span>`).join('')
   return `
-    <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f0f0ee">
-      ${s.photo ? `<img src="${esc(s.photo)}" style="width:44px;height:44px;border-radius:8px;object-fit:cover" />` : ''}
-      <div style="flex:1">
-        <div style="font-weight:600;font-size:14px;margin-bottom:2px">${esc(s.name)}</div>
-        <div style="font-size:12px;color:#737373">${esc(s.headline)}</div>
-        ${s.matchScore != null ? `<div style="font-size:12px;font-weight:600;color:#16a34a;margin-top:2px">${s.matchScore}% match</div>` : ''}
-        ${s.reasoning ? `<div style="font-size:12px;color:#666;font-style:italic;margin-top:2px">${esc(s.reasoning)}</div>` : ''}
+    <div style="padding:16px 0;border-bottom:1px solid #f0f0ee">
+      <div style="display:flex;gap:16px;margin-bottom:10px">
+        ${s.photo ? `<img src="${esc(s.photo)}" style="width:80px;height:80px;border-radius:12px;object-fit:cover" />` : ''}
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:18px;margin-bottom:4px">${esc(s.name)}</div>
+          <div style="font-size:13px;color:#737373;margin-bottom:6px">${esc(s.headline)}</div>
+          ${topics ? `<div>${topics}</div>` : ''}
+        </div>
       </div>
+      ${bioPreview ? `<div style="font-size:14px;color:#404040;line-height:1.7;margin-bottom:12px">${bioPreview}</div>` : ''}
+      ${s.videoUrl ? `
+      <div style="display:flex;align-items:center;gap:12px;background:#fafaf8;border:1px solid #e8e8e6;border-radius:8px;padding:12px;margin-bottom:12px">
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:2px">Sizzle Reel</div>
+          <a href="${esc(s.videoUrl)}" target="_blank" style="font-size:12px;color:#3b82f6;text-decoration:none">Watch ${esc(s.name.split(' ')[0])}'s speaker reel &rarr;</a>
+        </div>
+      </div>` : ''}
+      ${s.reasoning || s.matchScore != null ? `
+      <div style="background:#fafaf8;border:1px solid #e8e8e6;border-radius:8px;padding:12px">
+        ${s.reasoning ? `<div style="font-size:13px;color:#404040;line-height:1.5;font-style:italic">${esc(s.reasoning)}</div>` : ''}
+        ${s.matchScore != null ? `<div style="font-size:13px;font-weight:700;color:#16a34a;margin-top:4px">${s.matchScore}% match</div>` : ''}
+      </div>` : ''}
     </div>
   `
 }
@@ -35,7 +51,7 @@ function buildHtmlBrief({ speaker, reasoning, matchScore, selectedSpeakers, aiRe
   return `<!DOCTYPE html>
 <html><head>
 <meta charset="utf-8">
-<title>Speaker Brief — ${esc(speaker.name)} | Flight Speakers</title>
+<title>Speaker Brief: ${esc(speaker.name)} | Flight Speakers</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:#1a1a1a; background:#fafaf8; }
@@ -167,16 +183,16 @@ export default function BriefActions({ speaker, reasoning, matchScore, otherSpea
     setTimeout(() => URL.revokeObjectURL(url), 60000)
 
     // Open mailto with text summary
-    const subject = encodeURIComponent(`Speaker Recommendation — ${speaker.name} | Flight Speakers`)
+    const subject = encodeURIComponent(`Speaker Recommendation: ${speaker.name} | Flight Speakers`)
     const topicsList = (speaker.topics || []).slice(0, 4).join(', ')
     const body = encodeURIComponent(
       `Hi,\n\n` +
       `I'd like to share a speaker recommendation with you.\n\n` +
-      `${speaker.name} — ${speaker.headline}\n` +
+      `${speaker.name} / ${speaker.headline}\n` +
       (topicsList ? `Topics: ${topicsList}\n` : '') +
       (reasoning ? `\nWhy they're a great fit:\n${reasoning}\n` : '') +
       (matchScore != null ? `Match: ${matchScore}%\n` : '') +
-      `\nI've opened the full brief in a new tab — paste the link here or forward the page directly.\n\n` +
+      `\nI've opened the full brief in a new tab. Paste the link here or forward the page directly.\n\n` +
       `Best regards`
     )
     window.location.href = `mailto:?subject=${subject}&body=${body}`

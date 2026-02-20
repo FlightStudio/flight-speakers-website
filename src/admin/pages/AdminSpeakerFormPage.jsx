@@ -130,7 +130,7 @@ export default function AdminSpeakerFormPage() {
       <div className="spkr-form__card">
         <h1 className="admin-page__title">
           {isDeploy
-            ? `Edit & Deploy — ${draftData?.name || 'Speaker'}`
+            ? `Edit & Deploy: ${draftData?.name || 'Speaker'}`
             : isEdit ? `Edit ${speaker?.name || 'Speaker'}` : 'Add New Speaker'}
         </h1>
         <p className="admin-page__subtitle">

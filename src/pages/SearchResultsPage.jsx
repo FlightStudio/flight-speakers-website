@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import AISearchBar from '../components/search/AISearchBar'
@@ -82,20 +82,49 @@ function AnalyzingMessages({ query }) {
 function SearchResultsPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+  const searchBarRef = useRef(null)
   const query = searchParams.get('q') || ''
 
+  // Always scroll to top on mount
+  useEffect(() => { window.scrollTo(0, 0) }, [])
+
   const [isLoading, setIsLoading] = useState(false)
-  const [results, setResults] = useState({ speakers: [], reasonings: {}, scores: {} })
-  const [selectedSpeakerIds, setSelectedSpeakerIds] = useState(new Set())
+  const [results, setResults] = useState(() => {
+    // Restore cached results for this query (back navigation)
+    try {
+      const cached = sessionStorage.getItem('searchResultsCache')
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        if (parsed.q === query && query) {
+          return { speakers: parsed.speakers, reasonings: parsed.reasonings, scores: parsed.scores || {} }
+        }
+      }
+    } catch {}
+    return { speakers: [], reasonings: {}, scores: {} }
+  })
+  const [selectedSpeakerIds, setSelectedSpeakerIds] = useState(() => {
+    try {
+      const stored = sessionStorage.getItem('selectedSpeakerIds')
+      return stored ? new Set(JSON.parse(stored)) : new Set()
+    } catch { return new Set() }
+  })
+
+  const updateSelectedIds = useCallback((updater) => {
+    setSelectedSpeakerIds(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater
+      sessionStorage.setItem('selectedSpeakerIds', JSON.stringify([...next]))
+      return next
+    })
+  }, [])
 
   const toggleSpeakerSelect = useCallback((speakerId) => {
-    setSelectedSpeakerIds(prev => {
+    updateSelectedIds(prev => {
       const next = new Set(prev)
       if (next.has(speakerId)) next.delete(speakerId)
       else next.add(speakerId)
       return next
     })
-  }, [])
+  }, [updateSelectedIds])
 
   const selectedSpeakers = useMemo(
     () => results.speakers.filter(s => selectedSpeakerIds.has(s.id)),
@@ -104,10 +133,25 @@ function SearchResultsPage() {
 
   useEffect(() => {
     if (!query) {
-      setResults({ speakers: [], reasonings: {} })
+      setResults({ speakers: [], reasonings: {}, scores: {} })
       return
     }
-    // Reset selection on new search
+
+    // Check if we already have cached results for this exact query (back navigation)
+    try {
+      const cached = sessionStorage.getItem('searchResultsCache')
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        if (parsed.q === query) {
+          // Restore from cache, preserve selections, skip fetch
+          setResults({ speakers: parsed.speakers, reasonings: parsed.reasonings, scores: parsed.scores || {} })
+          return
+        }
+      }
+    } catch {}
+
+    // New query: reset selections and fetch
+    sessionStorage.removeItem('selectedSpeakerIds')
     setSelectedSpeakerIds(new Set())
 
     const controller = new AbortController()
@@ -119,7 +163,10 @@ function SearchResultsPage() {
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          setResults({ speakers: data.speakers, reasonings: data.reasonings, scores: data.scores || {} })
+          const r = { speakers: data.speakers, reasonings: data.reasonings, scores: data.scores || {} }
+          setResults(r)
+          // Cache results so back navigation is instant
+          sessionStorage.setItem('searchResultsCache', JSON.stringify({ q: query, ...r }))
         }
         setIsLoading(false)
       })
@@ -178,8 +225,8 @@ function SearchResultsPage() {
         )}
       </AnimatePresence>
 
-      {/* Hero Search Section */}
-      <section className="search-hero">
+      {/* Single-screen hero: title, search bar, examples */}
+      <section className={`search-hero${!query ? ' search-hero--full' : ''}`}>
         <div className="container">
           <motion.div
             className="search-hero__content"
@@ -187,13 +234,7 @@ function SearchResultsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <span className="search-hero__label">AI-Powered Discovery</span>
-
             <h1 className="search-hero__title">Find Your Perfect Speaker</h1>
-
-            <p className="search-hero__subtitle">
-              Describe your event and let our AI match you with world-class talent
-            </p>
 
             <motion.div
               className="search-hero__search"
@@ -202,64 +243,52 @@ function SearchResultsPage() {
               transition={{ delay: 0.2 }}
             >
               <AISearchBar
+                ref={searchBarRef}
                 variant="large"
                 initialQuery={query}
                 onSearch={handleSearch}
               />
             </motion.div>
+
+            {!query && (
+              <motion.div
+                className="search-hero__examples"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <span className="search-hero__examples-label">Try an example:</span>
+                <div className="search-hero__examples-grid">
+                  {exampleSearches.map((example, index) => (
+                    <motion.button
+                      key={index}
+                      className="search-hero__example"
+                      onClick={() => {
+                        searchBarRef.current?.setQuery(example)
+                        searchBarRef.current?.focus()
+                      }}
+                      whileHover={{ y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {example}
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M2.5 7H11.5M11.5 7L7 2.5M11.5 7L7 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </motion.button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
           </motion.div>
         </div>
       </section>
 
       {/* Results Section */}
+      {query && (
       <section className="section search-results">
         <div className="container">
           <AnimatePresence mode="wait">
-            {!query ? (
-              <motion.div
-                key="empty"
-                className="search-empty"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-              >
-                <div className="search-empty__icon">
-                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                    <path d="M22 40C31.9411 40 40 31.9411 40 22C40 12.0589 31.9411 4 22 4C12.0589 4 4 12.0589 4 22C4 31.9411 12.0589 40 22 40Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M44 44L34.65 34.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-
-                <h2>Describe Your Event</h2>
-                <p>
-                  Tell us about your audience, theme, and goals. Our AI will analyze your brief
-                  and recommend the most relevant speakers.
-                </p>
-
-                <div className="search-empty__examples">
-                  <span className="search-empty__examples-label">Try an example:</span>
-                  <div className="search-empty__examples-grid">
-                    {exampleSearches.map((example, index) => (
-                      <motion.button
-                        key={index}
-                        className="search-empty__example"
-                        onClick={() => handleSearch(example)}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 + index * 0.05 }}
-                        whileHover={{ y: -2 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        {example}
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                          <path d="M2.5 7H11.5M11.5 7L7 2.5M11.5 7L7 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            ) : isLoading ? (
+            {isLoading ? (
               /* Invisible placeholder while overlay is showing */
               <motion.div
                 key="loading"
@@ -291,7 +320,7 @@ function SearchResultsPage() {
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
                         <path d="M6 0L7.76 3.58L11.71 4.15L8.85 6.95L9.53 10.88L6 9.02L2.47 10.88L3.15 6.95L0.29 4.15L4.24 3.58L6 0Z"/>
                       </svg>
-                      Ranked by AI semantic analysis — scores reflect how closely each speaker matches your brief
+                      Ranked by AI semantic analysis. Scores reflect how closely each speaker matches your brief
                     </span>
                   </div>
 
@@ -300,6 +329,7 @@ function SearchResultsPage() {
                       to={`/enquiry?brief=${encodeURIComponent(query)}`}
                       state={{ selectedSpeakers }}
                       className="btn btn-primary"
+                      onClick={() => sessionStorage.removeItem('selectedSpeakerIds')}
                     >
                       Submit This Brief
                       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -347,6 +377,7 @@ function SearchResultsPage() {
           </AnimatePresence>
         </div>
       </section>
+      )}
 
       {/* Sticky Brief Button — only when speakers are selected */}
       {query && !isLoading && selectedSpeakerIds.size > 0 && (

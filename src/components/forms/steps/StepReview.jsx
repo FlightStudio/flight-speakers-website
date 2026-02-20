@@ -51,7 +51,7 @@ function StepReview({ formData, handleChange, goToStep, recommendedSpeakers = []
             >
               <span className="mstep-review__label">{label}</span>
               <span className={`mstep-review__value${!display ? ' mstep-review__value--empty' : ''}`}>
-                {display || '—'}
+                {display || '-'}
               </span>
             </button>
           )
