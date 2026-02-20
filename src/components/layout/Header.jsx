@@ -6,8 +6,19 @@ import './Header.css'
 
 function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') === 'dark'
+    }
+    return false
+  })
   const navigate = useNavigate()
   const location = useLocation()
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light')
+    localStorage.setItem('theme', darkMode ? 'dark' : 'light')
+  }, [darkMode])
 
   useEffect(() => {
     setMobileMenuOpen(false)
@@ -69,6 +80,41 @@ function Header() {
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M1 7H13M13 7L7 1M13 7L7 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
+              </motion.button>
+
+              <motion.button
+                className="theme-toggle"
+                onClick={() => setDarkMode(d => !d)}
+                whileTap={{ scale: 0.9 }}
+                aria-label="Toggle dark mode"
+                title={darkMode ? 'Light mode' : 'Dark mode'}
+              >
+                <AnimatePresence mode="wait">
+                  {darkMode ? (
+                    <motion.svg
+                      key="sun"
+                      width="18" height="18" viewBox="0 0 24 24" fill="none"
+                      initial={{ rotate: -45, opacity: 0 }}
+                      animate={{ rotate: 0, opacity: 1 }}
+                      exit={{ rotate: 45, opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="1.5"/>
+                      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </motion.svg>
+                  ) : (
+                    <motion.svg
+                      key="moon"
+                      width="18" height="18" viewBox="0 0 24 24" fill="none"
+                      initial={{ rotate: 45, opacity: 0 }}
+                      animate={{ rotate: 0, opacity: 1 }}
+                      exit={{ rotate: -45, opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </motion.svg>
+                  )}
+                </AnimatePresence>
               </motion.button>
 
               <button

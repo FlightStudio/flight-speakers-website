@@ -133,3 +133,48 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ================================
+   Dark Theme — keep footer dark
+   ================================ */
+
+[data-theme="dark"] .footer {
+  background-color: #161616;
+  color: #e0e0e0;
+}
+
+[data-theme="dark"] .footer-logo {
+  color: #e0e0e0;
+}
+
+[data-theme="dark"] .footer-tagline {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+[data-theme="dark"] .footer-heading {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+[data-theme="dark"] .footer-section a {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .footer-section a:hover {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .footer-bottom {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .footer-bottom p {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+[data-theme="dark"] .footer-legal a {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+[data-theme="dark"] .footer-legal a:hover {
+  color: rgba(255, 255, 255, 0.7);
+}

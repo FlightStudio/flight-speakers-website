@@ -240,6 +240,35 @@
   }
 }
 
+/* ================================
+   Dark Theme Overrides
+   ================================ */
+
+/* Video overlay text/icon must stay white on dark overlay */
+[data-theme="dark"] .speaker-card__video-indicator {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .speaker-card__video-indicator svg {
+  color: #ffffff;
+}
+
+/* Selection button on card images — always on dark bg */
+[data-theme="dark"] .speaker-card__select {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .speaker-card__select--active {
+  background: #f0f0f0;
+  border-color: #f0f0f0;
+  color: #0a0a0a;
+}
+
+[data-theme="dark"] .speaker-card__select--active:hover {
+  background: #ffffff;
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .speaker-card,

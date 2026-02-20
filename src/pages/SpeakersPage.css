@@ -94,3 +94,25 @@
     font-size: 13px;
   }
 }
+
+/* ================================
+   Dark Theme Overrides
+   ================================ */
+
+[data-theme="dark"] .speakers-page__sticky-bar {
+  background: rgba(10, 10, 10, 0.85);
+  border-top-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .speakers-page__sticky-avatar {
+  border-color: #1a1a1a;
+}
+
+[data-theme="dark"] .speakers-page__sticky-cta {
+  color: #0a0a0a;
+}
+
+[data-theme="dark"] .speakers-page__sticky-cta:hover {
+  background: #ffffff;
+}
