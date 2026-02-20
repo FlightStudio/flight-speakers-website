@@ -628,7 +628,15 @@ function HomePage() {
     fetch('/api/speakers?limit=20')
       .then(res => res.json())
       .then(data => {
-        if (data.success) setSpeakers(data.speakers)
+        if (data.success) {
+          // Shuffle for fairness (not AI-ranked)
+          const shuffled = [...data.speakers]
+          for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+          }
+          setSpeakers(shuffled)
+        }
       })
       .catch(err => console.error('Failed to load speakers:', err))
   }, [])

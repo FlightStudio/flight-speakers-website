@@ -560,6 +560,19 @@ function SpeakerDetailPage() {
               <p className="section-subtitle">Speakers with complementary expertise</p>
             </motion.div>
             <SpeakerGrid speakers={relatedSpeakers} />
+            <motion.div
+              style={{ textAlign: 'center', marginTop: 'var(--space-10)' }}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+            >
+              <Link to="/speakers" className="btn btn-secondary btn-lg">
+                View All Speakers
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M2.5 7H11.5M11.5 7L7 2.5M11.5 7L7 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </Link>
+            </motion.div>
           </div>
         </section>
       )}

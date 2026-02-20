@@ -29,7 +29,15 @@ export default function SpeakersPage() {
     fetch('/api/speakers')
       .then(res => res.json())
       .then(data => {
-        if (data.speakers) setSpeakers(data.speakers)
+        if (data.speakers) {
+          // Shuffle for fairness (not AI-ranked)
+          const shuffled = [...data.speakers]
+          for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+          }
+          setSpeakers(shuffled)
+        }
         setLoading(false)
       })
       .catch(() => setLoading(false))
