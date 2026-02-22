@@ -136,3 +136,25 @@ CREATE TABLE IF NOT EXISTS admin_users (
     password_hash TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Response templates for enquiry rejections
+CREATE TABLE IF NOT EXISTS response_templates (
+    id TEXT PRIMARY KEY,
+    reason_key TEXT NOT NULL UNIQUE,
+    label TEXT NOT NULL,
+    subject TEXT NOT NULL DEFAULT '',
+    body TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+INSERT INTO response_templates (id, reason_key, label, subject, body) VALUES
+  ('tmpl_accepted', 'accepted', 'Accepted', 'Great news about your enquiry',
+   E'Hi {{name}},\n\nGreat news! We are pleased to confirm that {{speaker_name}} is available for your event on {{event_date}}.\n\nA member of our team will be in touch shortly to discuss next steps and finalise the details.\n\nWe look forward to working with you.\n\nKind regards,\nFlight Speakers'),
+  ('tmpl_pro_bono', 'pro_bono', 'Pro Bono', 'Regarding your enquiry',
+   E'Hi {{name}},\n\nThank you for your interest in booking {{speaker_name}} for your event on {{event_date}}.\n\nUnfortunately, {{speaker_name}} is unable to take on pro bono engagements at this time.\n\nWe appreciate your understanding and wish you all the best with your event.\n\nKind regards,\nFlight Speakers'),
+  ('tmpl_no_availability', 'no_availability', 'No Availability', 'Regarding your enquiry',
+   E'Hi {{name}},\n\nThank you for your interest in booking {{speaker_name}} for your event on {{event_date}}.\n\nUnfortunately, {{speaker_name}} is not available for the requested date. We would be happy to suggest alternative speakers who may be a great fit.\n\nPlease let us know if you would like us to look into this for you.\n\nKind regards,\nFlight Speakers'),
+  ('tmpl_exclusivity', 'exclusivity', 'Exclusivity', 'Regarding your enquiry',
+   E'Hi {{name}},\n\nThank you for your interest in booking {{speaker_name}} for your event on {{event_date}}.\n\nDue to existing exclusivity arrangements, {{speaker_name}} is unable to participate in this engagement at this time.\n\nWe would be happy to suggest alternative speakers if that would be helpful.\n\nKind regards,\nFlight Speakers')
+ON CONFLICT (reason_key) DO NOTHING;

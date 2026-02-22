@@ -1200,6 +1200,81 @@
   color: #1a1a1a;
 }
 
+/* Rejection banner */
+.enquiry-actions__rejection-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 0.85rem;
+  margin-bottom: 0.75rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: #991b1b;
+}
+
+.enquiry-actions__rejection-cancel {
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #991b1b;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.enquiry-actions__rejection-cancel:hover {
+  color: #7f1d1d;
+}
+
+/* Acceptance banner */
+.enquiry-actions__acceptance-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 0.85rem;
+  margin-bottom: 0.75rem;
+  background: #ecfdf5;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #166534;
+}
+
+.enquiry-actions__acceptance-cancel {
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #166534;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.enquiry-actions__acceptance-cancel:hover {
+  color: #14532d;
+}
+
+.enquiry-actions__send--accept {
+  background: #22c55e;
+}
+
+.enquiry-actions__send--accept:hover {
+  background: #16a34a;
+}
+
+.enquiry-actions__send--reject {
+  background: #dc2626;
+}
+
+.enquiry-actions__send--reject:hover {
+  background: #b91c1c;
+}
+
 /* ---- Speaker Recommendations ---- */
 .speaker-recs {
   display: flex;
@@ -4800,4 +4875,228 @@
   .enq-modal__summary-divider {
     display: none;
   }
+}
+
+/* ---- Settings Sections ---- */
+.admin-settings-section {
+  margin-top: 2.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.admin-settings-section:first-of-type {
+  margin-top: 0;
+}
+
+.admin-settings-section__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: -0.01em;
+}
+
+.admin-settings-section__desc {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-top: 0.35rem;
+  line-height: 1.5;
+}
+
+.admin-settings-section__desc code {
+  background: #f1f5f9;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: #475569;
+}
+
+/* ---- Template Cards ---- */
+.admin-templates {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-templates__loading,
+.admin-templates__empty {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  padding: 1.5rem 0;
+}
+
+.admin-template-card {
+  background: #fff;
+  border: 1px solid #e8e8e6;
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.admin-template-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.admin-template-card__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.admin-template-card__key {
+  font-size: 0.65rem;
+  font-weight: 500;
+  padding: 0.15em 0.5em;
+  background: #f1f5f9;
+  color: #64748b;
+  border-radius: 4px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.admin-template-card__edit-btn {
+  margin-left: auto;
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.admin-template-card__edit-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #1a1a1a;
+}
+
+.admin-template-card__preview {
+  font-size: 0.8rem;
+  color: #64748b;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.admin-template-card__editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-template-card__field-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+}
+
+.admin-template-card__subject-input {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+  color: #1a1a1a;
+  background: #fafafa;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  transition: border-color 150ms ease;
+}
+
+.admin-template-card__subject-input:focus {
+  outline: none;
+  border-color: #1a1a1a;
+  background: #fff;
+}
+
+.admin-template-card__textarea {
+  width: 100%;
+  min-height: 180px;
+  padding: 0.75rem;
+  font-size: 0.82rem;
+  font-family: inherit;
+  color: #1a1a1a;
+  background: #fafafa;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  resize: vertical;
+  line-height: 1.55;
+  transition: border-color 150ms ease;
+}
+
+.admin-template-card__textarea:focus {
+  outline: none;
+  border-color: #1a1a1a;
+  background: #fff;
+}
+
+.admin-template-card__actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+}
+
+.admin-template-card__btn--save {
+  padding: 0.45rem 1rem;
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.admin-template-card__btn--save:hover {
+  background: #000;
+}
+
+.admin-template-card__btn--save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-template-card__btn--cancel {
+  padding: 0.45rem 1rem;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.admin-template-card__btn--cancel:hover {
+  background: #e2e8f0;
+  color: #1a1a1a;
+}
+
+.admin-template-card__btn--cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-template-feedback {
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+
+.admin-template-feedback--success {
+  background: #ecfdf5;
+  color: #166534;
+}
+
+.admin-template-feedback--error {
+  background: #fef2f2;
+  color: #991b1b;
 }
