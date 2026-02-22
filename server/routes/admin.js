@@ -15,6 +15,7 @@ import {
 } from '../db/enquiry-queries.js'
 import { getSpeakerById, getRelatedSpeakers, updateSpeakerFees, createSpeaker, updateSpeaker } from '../db/queries.js'
 import { createDraft, getPendingDrafts, getDraftById, approveDraft, rejectDraft, getDraftCounts } from '../db/draft-queries.js'
+import { getAllTemplates, getTemplateByReasonKey, updateTemplate } from '../db/template-queries.js'
 import { createToken } from '../db/token-queries.js'
 import { semanticSearch } from '../services/claude.js'
 import { notifyEnquiryResponse } from '../services/notifications.js'
@@ -369,7 +370,7 @@ router.patch('/enquiries/:id', requireAdmin, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Enquiry not found' })
     }
 
-    const { status, admin_notes, response_message, rejection_reason } = req.body
+    const { status, admin_notes, response_message, rejection_reason, email_subject } = req.body
     const updates = {}
 
     const VALID_STATUSES = ['new', 'reviewed', 'accepted', 'rejected', 'responded']
@@ -385,15 +386,56 @@ router.patch('/enquiries/:id', requireAdmin, async (req, res) => {
 
     const updated = await updateEnquiry(req.params.id, updates)
 
-    // Trigger notification stub
+    // Trigger notification (Klaviyo events for rejected/responded, log-only for accepted)
     if (status && ['accepted', 'rejected', 'responded'].includes(status)) {
-      await notifyEnquiryResponse(updated, status, response_message)
+      await notifyEnquiryResponse(updated, status, { response_message, rejection_reason, email_subject })
     }
 
     res.json({ success: true, enquiry: updated })
   } catch (err) {
     console.error('Enquiry update error:', err)
     res.status(500).json({ success: false, message: 'Failed to update enquiry' })
+  }
+})
+
+// GET /api/admin/integrations/monday — health check
+router.get('/integrations/monday', requireAdmin, async (req, res) => {
+  if (!process.env.MONDAY_API_TOKEN) {
+    return res.json({ success: true, connected: false, error: 'No API token configured' })
+  }
+
+  try {
+    const boardId = process.env.MONDAY_BOARD_ID || '1153323847'
+    const query = `{ boards(ids: [${boardId}]) { id name groups { id title } } }`
+    const response = await fetch('https://api.monday.com/v2', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: process.env.MONDAY_API_TOKEN,
+      },
+      body: JSON.stringify({ query }),
+    })
+    const data = await response.json()
+
+    if (data.errors?.length) {
+      return res.json({ success: true, connected: false, error: data.errors[0].message })
+    }
+
+    const board = data.data?.boards?.[0]
+    if (!board) {
+      return res.json({ success: true, connected: false, error: `Board ${boardId} not found` })
+    }
+
+    const targetGroup = board.groups?.find(g => g.id === 'group_mkvnqw22')
+    res.json({
+      success: true,
+      connected: true,
+      board: { id: board.id, name: board.name },
+      group: targetGroup ? { id: targetGroup.id, title: targetGroup.title } : null,
+    })
+  } catch (err) {
+    console.error('Monday.com health check error:', err.message)
+    res.json({ success: true, connected: false, error: err.message })
   }
 })
 
@@ -466,6 +508,46 @@ router.post('/integrations/klaviyo/test', requireAdmin, async (req, res) => {
   } catch (err) {
     console.error('Klaviyo test error:', err.message)
     res.status(500).json({ success: false, message: err.message })
+  }
+})
+
+// GET /api/admin/templates — list all response templates
+router.get('/templates', requireAdmin, async (req, res) => {
+  try {
+    const templates = await getAllTemplates()
+    res.json({ success: true, templates })
+  } catch (err) {
+    console.error('Templates list error:', err)
+    res.status(500).json({ success: false, message: 'Failed to fetch templates' })
+  }
+})
+
+// GET /api/admin/templates/:reasonKey — single template lookup
+router.get('/templates/:reasonKey', requireAdmin, async (req, res) => {
+  try {
+    const template = await getTemplateByReasonKey(req.params.reasonKey)
+    if (!template) {
+      return res.status(404).json({ success: false, message: 'Template not found' })
+    }
+    res.json({ success: true, template })
+  } catch (err) {
+    console.error('Template lookup error:', err)
+    res.status(500).json({ success: false, message: 'Failed to fetch template' })
+  }
+})
+
+// PUT /api/admin/templates/:reasonKey — update template
+router.put('/templates/:reasonKey', requireAdmin, async (req, res) => {
+  try {
+    const { label, subject, body } = req.body
+    const updated = await updateTemplate(req.params.reasonKey, { label, subject, body })
+    if (!updated) {
+      return res.status(404).json({ success: false, message: 'Template not found or no changes' })
+    }
+    res.json({ success: true, template: updated })
+  } catch (err) {
+    console.error('Template update error:', err)
+    res.status(500).json({ success: false, message: 'Failed to update template' })
   }
 })
 
