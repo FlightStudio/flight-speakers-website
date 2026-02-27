@@ -6,7 +6,7 @@ export const speakers = [
     id: 'steven-bartlett',
     name: 'Steven Bartlett',
     headline: 'Founder & CEO, FlightStory | Host of The Diary of a CEO',
-    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+    photo: '/images/speakers/steven-bartlett.jpg',
     bio: `Steven Bartlett is one of the most compelling keynote speakers of his generation, known for his rare ability to combine commercial insight with emotional honesty. He first rose to prominence as the co-founder of Social Chain, scaling it from a student startup into a global business, before founding FlightStory and The Diary of a CEO, now one of the world's most listened-to podcasts.
 
 Steven speaks openly about leadership, pressure, mental health, trust, and ambition, drawing on real experience rather than theory. On stage, he is disarmingly candid and deeply human, creating moments of recognition that stay with audiences long after the event ends. He is a regular speaker at the World Economic Forum and global leadership forums, where his sessions are consistently cited as the standout.`,
