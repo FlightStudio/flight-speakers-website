@@ -2241,7 +2241,6 @@
   height: clamp(60px, 5vw, 100px);
   border-radius: clamp(10px, 0.8vw, 16px);
   object-fit: cover;
-  object-position: top;
   background: #f0f0ee;
   flex-shrink: 0;
 }
@@ -2739,7 +2738,6 @@
   width: 100%;
   height: clamp(140px, 11vw, 220px);
   object-fit: cover;
-  object-position: top;
   background: #f0f0ee;
 }
 
@@ -3874,7 +3872,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: top;
 }
 
 .review-card__photo-placeholder {
@@ -4139,7 +4136,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: top;
 }
 
 .review-detail__name {
@@ -4244,7 +4240,6 @@
   width: 120px;
   height: 150px;
   object-fit: cover;
-  object-position: top;
   border-radius: 10px;
   border: 1px solid #e5e5e5;
 }
