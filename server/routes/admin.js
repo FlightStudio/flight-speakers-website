@@ -1,8 +1,8 @@
 import express from 'express'
 import bcrypt from 'bcrypt'
 import multer from 'multer'
-import { fileURLToPath } from 'url'
-import { dirname, join, extname } from 'path'
+import { extname } from 'path'
+import { Storage } from '@google-cloud/storage'
 import { signToken, requireAdmin } from '../middleware/auth.js'
 import {
   getEnquiries,
@@ -27,16 +27,13 @@ import { getAccountInfo, getList, trackEvent, createOrUpdateProfile } from '../s
 
 const router = express.Router()
 
-// Photo upload config
-const __admin_dirname = dirname(fileURLToPath(import.meta.url))
+// Photo upload config — stores in Google Cloud Storage
+const GCS_BUCKET = process.env.GCS_BUCKET || 'flight-speakers-photos'
+const gcs = new Storage()
+const bucket = gcs.bucket(GCS_BUCKET)
+
 const upload = multer({
-  storage: multer.diskStorage({
-    destination: join(__admin_dirname, '..', 'uploads'),
-    filename: (req, file, cb) => {
-      const unique = `${Date.now()}-${Math.round(Math.random() * 1e6)}`
-      cb(null, `${unique}${extname(file.originalname)}`)
-    },
-  }),
+  storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (/^image\/(jpeg|png|webp|gif)$/.test(file.mimetype)) cb(null, true)
@@ -44,11 +41,17 @@ const upload = multer({
   },
 })
 
-// POST /api/admin/speakers/:id/photo — upload & update speaker photo
+// POST /api/admin/speakers/:id/photo — upload to GCS & update speaker photo
 router.post('/speakers/:id/photo', requireAdmin, upload.single('photo'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' })
-    const photoUrl = `/uploads/${req.file.filename}`
+    const filename = `speakers/${req.params.id}${extname(req.file.originalname)}`
+    const blob = bucket.file(filename)
+    await blob.save(req.file.buffer, {
+      contentType: req.file.mimetype,
+      metadata: { cacheControl: 'public, max-age=31536000' },
+    })
+    const photoUrl = `https://storage.googleapis.com/${GCS_BUCKET}/${filename}`
     await updateSpeaker(req.params.id, { photo: photoUrl })
     res.json({ success: true, photo: photoUrl })
   } catch (err) {

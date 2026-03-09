@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.74.0",
+    "@google-cloud/storage": "^7.19.0",
     "@react-pdf/renderer": "^4.3.2",
     "@react-spring/web": "^10.0.3",
     "@react-three/drei": "^10.7.7",
