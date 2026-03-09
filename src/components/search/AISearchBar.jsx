@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import './AISearchBar.css'
 
-const AISearchBar = forwardRef(function AISearchBar({ variant = 'default', initialQuery = '', onSearch }, ref) {
+const AISearchBar = forwardRef(function AISearchBar({ variant = 'default', initialQuery = '', onSearch, hideSubmit = false, showEditHint = false }, ref) {
   const [query, setQuery] = useState(initialQuery)
   const inputRef = useRef(null)
   const [isFocused, setIsFocused] = useState(false)
@@ -45,18 +45,31 @@ const AISearchBar = forwardRef(function AISearchBar({ variant = 'default', initi
             placeholder="Describe your event and ideal speaker..."
             className="ai-search__input"
           />
-          <motion.button
-            type="submit"
-            className="ai-search__button"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            disabled={!query.trim()}
-          >
-            Find Speakers
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M2.5 7H11.5M11.5 7L7 2.5M11.5 7L7 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </motion.button>
+          {!hideSubmit && (
+            <motion.button
+              type="submit"
+              className="ai-search__button"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              disabled={!query.trim()}
+            >
+              Find Speakers
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M2.5 7H11.5M11.5 7L7 2.5M11.5 7L7 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </motion.button>
+          )}
+          {showEditHint && (
+            <button
+              type="button"
+              className="ai-search__edit"
+              onClick={() => inputRef.current?.focus()}
+            >
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                <path d="M11.5 1.5L14.5 4.5M1 15L1.5 11.5L12 1L15 4L4.5 14.5L1 15Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          )}
         </div>
       </form>
     </div>

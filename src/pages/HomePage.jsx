@@ -220,7 +220,7 @@ function FloatingParticles() {
 }
 
 // Enhanced AI Matching Demo — pipeline inside window
-function EnhancedAIDemo() {
+function EnhancedAIDemo({ speakers: allSpeakers = [] }) {
   const containerRef = useRef(null)
   const extractRef = useRef(null)
   const tokenElRefs = useRef([])
@@ -238,11 +238,15 @@ function EnhancedAIDemo() {
     { label: 'Q3', color: '#6d28d9' },
   ]
 
-  const results = [
-    { name: 'Sarah Chen', topic: 'Leadership & Growth', score: 98 },
-    { name: 'Marcus Williams', topic: 'Sales Performance', score: 94 },
-    { name: 'Dr. Priya Patel', topic: 'Executive Mindset', score: 91 },
+  const demoConfig = [
+    { id: 'nir-eyal', topic: 'Behaviour Design & Focus', score: 98 },
+    { id: 'evy-poumpouras', topic: 'Leadership & Decision Making', score: 94 },
+    { id: 'paul-c-brunson', topic: 'Emotional Intelligence', score: 91 },
   ]
+  const results = demoConfig.map(d => {
+    const sp = allSpeakers.find(s => s.id === d.id)
+    return { name: sp?.name || d.id, topic: d.topic, score: d.score, photo: sp?.photo || '' }
+  })
 
   const brief = 'We need a high-energy leadership speaker for our Q3 sales kickoff with 500 executives...'
   const [typedText, setTypedText] = useState('')
@@ -481,7 +485,7 @@ function EnhancedAIDemo() {
               animate={phase >= 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
               transition={{ delay: i * 0.12, duration: 0.4, ease: EASE }}
             >
-              <div className="ai-pipe__result-av" />
+              <img className="ai-pipe__result-av" src={s.photo} alt={s.name} />
               <div className="ai-pipe__result-info">
                 <span className="ai-pipe__result-name">{s.name}</span>
                 <span className="ai-pipe__result-topic">{s.topic}</span>
@@ -518,14 +522,14 @@ function EnhancedAIDemo() {
 // Social Proof Bar Component
 function SocialProofBar() {
   const logos = [
-    'Google', 'Microsoft', 'Apple', 'Amazon', 'Meta',
-    'Netflix', 'Spotify', 'Salesforce', 'Adobe', 'Tesla'
+    'Adobe', 'Spotify', 'Google', 'LinkedIn', 'Meta',
+    'Microsoft', 'PwC', 'Deloitte', 'Mastercard', 'Revolut'
   ]
 
   const stats = [
-    { value: '500', suffix: '+', label: 'Events Delivered' },
-    { value: '50', suffix: 'M+', label: 'Audience Reached' },
+    { value: '260', suffix: 'K+', label: 'People Reached' },
     { value: '98', suffix: '%', label: 'Satisfaction' },
+    { value: '176', suffix: '', label: 'Speaking Engagements' },
   ]
 
   return (
@@ -920,7 +924,7 @@ function HomePage() {
                 <span className="ai-window__title">flight-speakers / AI matching</span>
               </div>
               <div className="ai-window__body">
-                <EnhancedAIDemo />
+                <EnhancedAIDemo speakers={speakers} />
               </div>
             </motion.div>
           </div>

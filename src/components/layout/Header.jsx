@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { EASE } from '../../constants/animation'
 import './Header.css'
@@ -13,8 +13,10 @@ function Header() {
     }
     return true
   })
+  const [scrolledMinimal, setScrolledMinimal] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+  const isSearchPage = location.pathname === '/search'
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light')
@@ -25,6 +27,18 @@ function Header() {
     setMobileMenuOpen(false)
   }, [location])
 
+  // On /search, collapse header to logo-only after scrolling
+  useEffect(() => {
+    if (!isSearchPage) {
+      setScrolledMinimal(false)
+      return
+    }
+    const onScroll = () => setScrolledMinimal(window.scrollY > 40)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [isSearchPage])
+
   const navItems = [
     { path: '/speakers', label: 'Speakers' },
     { path: '/about', label: 'About' },
@@ -33,7 +47,7 @@ function Header() {
   return (
     <>
       <motion.header
-        className="header"
+        className={`header${isSearchPage ? ' header--search' : ''}${scrolledMinimal ? ' header--minimal' : ''}`}
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: EASE }}

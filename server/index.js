@@ -68,6 +68,9 @@ const portalLimiter = rateLimit({
   message: { success: false, message: 'Too many requests, please try again later' },
 })
 
+// Serve uploaded speaker photos
+app.use('/uploads', express.static(join(__dirname, 'uploads')))
+
 // API Routes
 app.use('/api/speakers', speakersRouter)
 app.use('/api/enquiry', enquiryLimiter, enquiryRouter)

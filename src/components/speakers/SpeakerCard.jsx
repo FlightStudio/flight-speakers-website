@@ -86,7 +86,7 @@ function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScor
                 e.preventDefault()
                 onToggleSelect?.(speaker.id)
               }}
-              aria-label={isSelected ? `Deselect ${speaker.name}` : `Select ${speaker.name}`}
+              aria-label={isSelected ? `Remove ${speaker.name} from brief` : `Add ${speaker.name} to brief`}
             >
               {isSelected ? (
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7L6 10L11 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -109,6 +109,7 @@ function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScor
               </span>
             )}
           </div>
+
           <p className="speaker-card__headline">{speaker.headline}</p>
 
           <div className="speaker-card__topics">

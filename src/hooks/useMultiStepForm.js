@@ -117,7 +117,7 @@ export const STEPS = [
     type: 'engagementBudgetTree',
     required: true,
     skippable: false,
-    whyText: 'We use this to prioritize your request and match speakers based on your event type, budget, and location.',
+    whyText: 'We use this to prioritize your request and match speakers based on your event type, budget, and location. *We only reply to briefs with a legitimate entered speaker fee.',
   },
   {
     id: 'brief',
@@ -127,6 +127,15 @@ export const STEPS = [
     placeholder: 'Tell us about your event, audience, and the type of speaker you need...',
     required: true,
     skippable: false,
+  },
+  {
+    id: 'additionalDetails',
+    heading: 'Anything else you\'d like to add?',
+    field: 'additionalDetails',
+    type: 'textarea',
+    placeholder: 'Any other details, requirements, or preferences...',
+    required: false,
+    skippable: true,
   },
   {
     id: 'review',
@@ -159,6 +168,7 @@ const INITIAL_FORM_DATA = {
   speakerName: '',
   additionalSpeakerIds: [],
   preSelectedSpeakerIds: [],
+  additionalDetails: '',
   proBonoFlexible: false,
   newsletter: false,
 }

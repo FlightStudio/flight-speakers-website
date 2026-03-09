@@ -1,5 +1,8 @@
 import express from 'express'
 import bcrypt from 'bcrypt'
+import multer from 'multer'
+import { fileURLToPath } from 'url'
+import { dirname, join, extname } from 'path'
 import { signToken, requireAdmin } from '../middleware/auth.js'
 import {
   getEnquiries,
@@ -23,6 +26,36 @@ import { refreshAllSpeakerStats } from '../services/socialStats.js'
 import { getAccountInfo, getList, trackEvent, createOrUpdateProfile } from '../services/klaviyo.js'
 
 const router = express.Router()
+
+// Photo upload config
+const __admin_dirname = dirname(fileURLToPath(import.meta.url))
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: join(__admin_dirname, '..', 'uploads'),
+    filename: (req, file, cb) => {
+      const unique = `${Date.now()}-${Math.round(Math.random() * 1e6)}`
+      cb(null, `${unique}${extname(file.originalname)}`)
+    },
+  }),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (/^image\/(jpeg|png|webp|gif)$/.test(file.mimetype)) cb(null, true)
+    else cb(new Error('Only image files are allowed'))
+  },
+})
+
+// POST /api/admin/speakers/:id/photo — upload & update speaker photo
+router.post('/speakers/:id/photo', requireAdmin, upload.single('photo'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' })
+    const photoUrl = `/uploads/${req.file.filename}`
+    await updateSpeaker(req.params.id, { photo: photoUrl })
+    res.json({ success: true, photo: photoUrl })
+  } catch (err) {
+    console.error('Photo upload error:', err)
+    res.status(500).json({ success: false, message: 'Upload failed' })
+  }
+})
 
 // POST /api/admin/login
 router.post('/login', async (req, res) => {

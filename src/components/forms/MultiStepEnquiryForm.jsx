@@ -332,13 +332,14 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '', preSelectedSp
       <div className="mstep">
         <SuccessScreen
           name={formData.name}
-          onReset={resetForm}
           speaker={speaker}
           brief={prefillBrief || formData.brief}
-          recommendedSpeakers={recommendedSpeakers}
-          recommendedScores={recommendedScores}
-          recommendedReasonings={recommendedReasonings}
-          preSelectedSpeakers={preSelectedSpeakers}
+          selectedSpeakers={preSelectedSpeakers.filter(s => s.id !== speaker?.id)}
+          aiRecommendations={recommendedSpeakers.filter(s => s.id !== speaker?.id).map(s => ({
+            ...s,
+            matchScore: recommendedScores[s.id] ?? null,
+            reasoning: recommendedReasonings[s.id] ?? null,
+          }))}
         />
       </div>
     )
@@ -481,48 +482,21 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '', preSelectedSp
                       </select>
                     </div>
                     <div className="mstep-budget-row__range">
-                      <div className="mstep-budget-options">
-                        {budgetRanges.map(range => (
-                          <button
-                            key={range}
-                            type="button"
-                            className={`mstep-budget-options__btn ${formData.budgetRange === range ? 'mstep-budget-options__btn--active' : ''}`}
-                            onClick={() => handleChange({ target: { name: 'budgetRange', value: range } })}
-                          >
-                            {range}
-                          </button>
-                        ))}
-                        <button
-                          type="button"
-                          className={`mstep-budget-options__btn ${formData.budgetRange && !budgetRanges.includes(formData.budgetRange) ? 'mstep-budget-options__btn--active' : ''}`}
-                          onClick={() => handleChange({ target: { name: 'budgetRange', value: 'custom' } })}
-                        >
-                          Custom
-                        </button>
+                      <div className="mstep-budget-custom">
+                        <span className="mstep-budget-custom__symbol">{currencySymbol}</span>
+                        <input
+                          type="text"
+                          name="budgetRange"
+                          className="form-input mstep-budget-custom__input"
+                          placeholder=""
+                          value={formData.budgetRange || ''}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/[^0-9,.\-\s]/g, '')
+                            handleChange({ target: { name: 'budgetRange', value: val } })
+                          }}
+                          autoFocus
+                        />
                       </div>
-                      {formData.budgetRange && !budgetRanges.includes(formData.budgetRange) && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          transition={{ duration: 0.2, ease: EASE }}
-                          style={{ marginTop: 'var(--space-3)' }}
-                        >
-                          <div className="mstep-budget-custom">
-                            <span className="mstep-budget-custom__symbol">{currencySymbol}</span>
-                            <input
-                              type="number"
-                              name="budgetRange"
-                              className="form-input mstep-budget-custom__input"
-                              placeholder="Enter amount"
-                              min="0"
-                              value={formData.budgetRange === 'custom' ? '' : formData.budgetRange}
-                              onChange={handleChange}
-                              onKeyDown={(e) => { if (['e', 'E', '+', '-'].includes(e.key)) e.preventDefault() }}
-                              autoFocus
-                            />
-                          </div>
-                        </motion.div>
-                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -626,15 +600,6 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '', preSelectedSp
         isSubmitting={isSubmitting}
       />
 
-      {isReviewStep && speaker && (
-        <BriefActions
-          speaker={speaker}
-          selectedSpeakers={briefSelectedSpeakers}
-          aiRecommendations={briefAiRecommendations}
-          query={prefillBrief || formData.brief}
-          variant="sticky"
-        />
-      )}
     </div>
   )
 }

@@ -10,6 +10,7 @@ function EnquiryPage() {
   const location = useLocation()
   const brief = searchParams.get('brief') || ''
   const preSelectedSpeakers = location.state?.selectedSpeakers || []
+  const backTo = brief ? `/search?q=${encodeURIComponent(brief)}` : '/'
 
   const [speaker, setSpeaker] = useState(() => {
     if (location.state?.speaker) return location.state.speaker
@@ -43,14 +44,14 @@ function EnquiryPage() {
   return (
     <div className="enquiry-page">
       {/* Floating logo — no header feel */}
-      <Link to="/" className="enquiry-logo" aria-label="Flight Story home">
+      <Link to={backTo} className="enquiry-logo" aria-label="Go back">
         <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
           <path d="M8 24L16 6L24 24L16 18L8 24Z" fill="currentColor"/>
         </svg>
       </Link>
 
       {/* Floating close button */}
-      <Link to="/" className="enquiry-close" aria-label="Close">
+      <Link to={backTo} className="enquiry-close" aria-label="Close">
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
           <path d="M14 4L4 14M4 4L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
         </svg>

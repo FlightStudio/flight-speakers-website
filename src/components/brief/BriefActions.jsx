@@ -203,9 +203,8 @@ export default function BriefActions({ speaker, reasoning, matchScore, otherSpea
     return (
       <div className="brief-sticky">
         <motion.button
-          className="brief-sticky__trigger"
+          className="brief-sticky__trigger brief-sticky__trigger--icon"
           onClick={() => setShowMenu(!showMenu)}
-          whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           disabled={generating}
         >
@@ -215,7 +214,7 @@ export default function BriefActions({ speaker, reasoning, matchScore, otherSpea
             <circle cx="18" cy="19" r="3" stroke="currentColor" strokeWidth="2"/>
             <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
           </svg>
-          {generating ? 'Generating...' : 'Share'}
+          <span className="brief-sticky__label">{generating ? 'Generating...' : 'Share'}</span>
         </motion.button>
         <AnimatePresence>
           {showMenu && (

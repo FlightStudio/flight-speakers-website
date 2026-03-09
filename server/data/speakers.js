@@ -234,31 +234,6 @@ Nir's talks are thoughtful, balanced, and quietly confronting. He challenges the
     },
   },
   {
-    id: 'cliff-weitzman',
-    name: 'Cliff Weitzman',
-    headline: 'Founder & CEO, Speechify',
-    photo: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=400&h=400&fit=crop&crop=face',
-    bio: `Cliff Weitzman is an entrepreneur whose story stays with audiences. Dyslexic himself, Cliff built Speechify to solve a personal challenge, creating one of the world's most widely used accessibility tools.
-
-He speaks powerfully about inclusion, resilience, and building technology with empathy. Cliff combines personal storytelling with thoughtful insight into AI and product design, showing how constraints can become a competitive advantage. His talks resonate strongly with audiences interested in innovation that genuinely improves lives.`,
-    topics: ['Accessibility', 'Innovation', 'AI & Future of Work', 'Entrepreneurship', 'Diversity & Inclusion'],
-    audiences: ['Tech Industry', 'Entrepreneurs', 'Education', 'Corporate Events'],
-    keynotes: ['Accessibility Is Innovation', 'Turning a Personal Problem into a Global Product', 'Constraint as a Competitive Advantage'],
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-
-    feeMin: 15000,
-
-    gender: 'Male',
-    nationality: 'American',
-    location: 'San Francisco, CA, USA',
-    socialProfiles: {
-      instagram: 'cliffweitzman',
-      x: 'CliffWeitzman',
-      linkedin: 'cliffweitzman',
-      tiktok: 'cliffweitzman',
-    },
-  },
-  {
     id: 'vonda-wright',
     name: 'Dr Vonda Wright',
     headline: 'Orthopedic Surgeon | Longevity & Performance Expert',

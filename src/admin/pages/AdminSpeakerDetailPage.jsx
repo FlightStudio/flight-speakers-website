@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import StatusBadge from '../components/StatusBadge'
@@ -18,6 +18,9 @@ export default function AdminSpeakerDetailPage() {
   const [inviteLink, setInviteLink] = useState('')
   const [inviteLoading, setInviteLoading] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [photoUploading, setPhotoUploading] = useState(false)
+  const [photoDragOver, setPhotoDragOver] = useState(false)
+  const photoInputRef = useRef(null)
 
   useEffect(() => {
     setLoading(true)
@@ -97,6 +100,29 @@ export default function AdminSpeakerDetailPage() {
     setTimeout(() => setCopied(false), 2000)
   }, [inviteLink])
 
+  const handlePhotoUpload = useCallback(async (file) => {
+    if (!file || !file.type.startsWith('image/')) return
+    setPhotoUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('photo', file)
+      const res = await fetch(`/api/admin/speakers/${id}/photo`, {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      })
+      const data = await res.json()
+      if (data.success) {
+        setSpeaker(prev => ({ ...prev, photo: data.photo }))
+      }
+    } catch (err) {
+      console.error('Photo upload failed:', err)
+    } finally {
+      setPhotoUploading(false)
+      setPhotoDragOver(false)
+    }
+  }, [id])
+
   if (loading) {
     return (
       <div className="admin-loading" style={{ minHeight: '60vh' }}>
@@ -153,7 +179,34 @@ export default function AdminSpeakerDetailPage() {
         {/* Profile header */}
         <div className="speaker-detail__header">
           <div className="speaker-detail__header-left">
-            <img src={speaker.photo} alt={speaker.name} className="speaker-detail__photo" />
+            <div
+              className={`speaker-detail__photo-wrap${photoDragOver ? ' speaker-detail__photo-wrap--drag' : ''}`}
+              onClick={() => photoInputRef.current?.click()}
+              onDragOver={(e) => { e.preventDefault(); setPhotoDragOver(true) }}
+              onDragLeave={() => setPhotoDragOver(false)}
+              onDrop={(e) => { e.preventDefault(); handlePhotoUpload(e.dataTransfer.files[0]) }}
+            >
+              <img src={speaker.photo} alt={speaker.name} className="speaker-detail__photo" />
+              <div className="speaker-detail__photo-overlay">
+                {photoUploading ? (
+                  <span>Uploading...</span>
+                ) : (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M8 1v10M4 5l4-4 4 4M2 14h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span>Change photo</span>
+                  </>
+                )}
+              </div>
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={(e) => handlePhotoUpload(e.target.files[0])}
+              />
+            </div>
             <div>
               <h1 className="speaker-detail__name">
                 {speaker.name}

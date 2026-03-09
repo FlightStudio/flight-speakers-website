@@ -68,6 +68,16 @@ function StepReview({ formData, handleChange, goToStep, recommendedSpeakers = []
             <span className="mstep-review__value mstep-review__brief">{formData.brief}</span>
           </button>
         )}
+        {formData.additionalDetails && (
+          <button
+            type="button"
+            className="mstep-review__cell mstep-review__cell--wide"
+            onClick={() => goToStep(FIELD_STEP_MAP.additionalDetails)}
+          >
+            <span className="mstep-review__label">Additional Details</span>
+            <span className="mstep-review__value mstep-review__brief">{formData.additionalDetails}</span>
+          </button>
+        )}
       </motion.div>
 
       {recommendedSpeakers.length === 0 && !formData.brief && !recsLoading && (

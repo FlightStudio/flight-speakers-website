@@ -2238,13 +2238,48 @@
   min-width: 0;
 }
 
-.speaker-detail__photo {
+.speaker-detail__photo-wrap {
+  position: relative;
   width: clamp(60px, 5vw, 100px);
   height: clamp(60px, 5vw, 100px);
   border-radius: clamp(10px, 0.8vw, 16px);
+  overflow: hidden;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.speaker-detail__photo-wrap--drag {
+  outline: 2px dashed #3b82f6;
+  outline-offset: 2px;
+}
+
+.speaker-detail__photo {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
   object-fit: cover;
   background: #f0f0ee;
-  flex-shrink: 0;
+}
+
+.speaker-detail__photo-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.speaker-detail__photo-wrap:hover .speaker-detail__photo-overlay,
+.speaker-detail__photo-wrap--drag .speaker-detail__photo-overlay {
+  opacity: 1;
 }
 
 .speaker-detail__name {

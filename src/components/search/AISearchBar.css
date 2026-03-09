@@ -104,6 +104,28 @@
   transform: translateX(2px);
 }
 
+/* Inline edit hint button */
+.ai-search__edit {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--color-gray-400);
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+  margin-right: 8px;
+}
+
+.ai-search__edit:hover {
+  color: var(--color-charcoal);
+  background: var(--color-gray-100);
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .ai-search__container {

@@ -231,7 +231,9 @@ function SearchResultsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="search-hero__title">Find Your Perfect Speaker</h1>
+            <h1 className="search-hero__title">
+              {query ? 'Find Your Perfect Speaker for Your Brief' : 'Find Your Perfect Speaker'}
+            </h1>
 
             <motion.div
               className="search-hero__search"
@@ -244,6 +246,8 @@ function SearchResultsPage() {
                 variant="large"
                 initialQuery={query}
                 onSearch={handleSearch}
+                hideSubmit={!!query}
+                showEditHint={!!query}
               />
             </motion.div>
 
@@ -312,12 +316,19 @@ function SearchResultsPage() {
                         </span>
                       )}
                     </h2>
-                    <p className="search-results__query">for "{query}"</p>
                     <span className="search-results__ai-badge">
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
                         <path d="M6 0L7.76 3.58L11.71 4.15L8.85 6.95L9.53 10.88L6 9.02L2.47 10.88L3.15 6.95L0.29 4.15L4.24 3.58L6 0Z"/>
                       </svg>
                       Ranked by AI semantic analysis. Scores reflect how closely each speaker matches your brief
+                    </span>
+                    <span className="search-results__ai-badge">
+                      <span className="search-results__add-icon-demo">
+                        <svg width="7" height="7" viewBox="0 0 14 14" fill="none">
+                          <path d="M7 3V11M3 7H11" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+                        </svg>
+                      </span>
+                      Tap the button on each card to add speakers to your brief
                     </span>
                   </div>
 

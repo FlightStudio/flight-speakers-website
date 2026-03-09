@@ -133,6 +133,36 @@
   transform: translateX(2px);
 }
 
+/* Search page header — CTA always hidden, nav hides on scroll */
+.header--search .nav-cta {
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.header--search.header--minimal .nav-center,
+.header--search.header--minimal .mobile-menu-toggle {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.header--search.header--minimal .logo-text {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  transition: opacity 0.3s ease, width 0.3s ease;
+}
+
+.header .nav-center,
+.header .nav-cta,
+.header .mobile-menu-toggle,
+.header .logo-text {
+  transition: opacity 0.3s ease;
+}
+
 /* Theme Toggle */
 .theme-toggle {
   display: flex;

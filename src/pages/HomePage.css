@@ -735,6 +735,7 @@
   border-radius: 50%;
   background: linear-gradient(135deg, #e0e7ff, #ddd6fe);
   flex-shrink: 0;
+  object-fit: cover;
 }
 
 .ai-pipe__result-info {

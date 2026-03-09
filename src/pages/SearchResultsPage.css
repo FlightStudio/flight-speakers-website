@@ -136,9 +136,11 @@
 }
 
 .search-hero__search {
+  position: relative;
   max-width: 640px;
   margin: 0 auto;
 }
+
 
 /* Examples inline below search bar */
 .search-hero__examples {
@@ -240,7 +242,7 @@
 }
 
 .search-results__ai-badge {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 6px;
   margin-top: 8px;
@@ -252,6 +254,26 @@
 .search-results__ai-badge svg {
   flex-shrink: 0;
   color: var(--color-gray-400);
+}
+
+/* Mini replica of the card's + button */
+.search-results__add-icon-demo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+[data-theme="light"] .search-results__add-icon-demo {
+  border-color: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--color-gray-500);
 }
 
 .search-results__header .btn {
