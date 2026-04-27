@@ -36,9 +36,9 @@ function NewsArticlePage() {
   const article = getArticleBySlug(slug)
 
   useEffect(() => {
-    if (article) {
-      document.title = `${article.title} - Flight Story Speakers`
-    }
+    document.title = article
+      ? `${article.title} - Flight Story Speakers`
+      : 'Article not found - Flight Story Speakers'
   }, [article])
 
   if (!article) {

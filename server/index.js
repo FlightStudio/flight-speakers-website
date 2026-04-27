@@ -4,8 +4,6 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
-import { fileURLToPath } from 'url'
-import { dirname, join } from 'path'
 import speakersRouter from './routes/speakers.js'
 import enquiryRouter from './routes/enquiry.js'
 import searchRouter from './routes/search.js'
@@ -15,15 +13,12 @@ import portalRouter from './routes/portal.js'
 import pool from './db/connection.js'
 import { startDailyRefresh } from './services/socialStats.js'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-
 const app = express()
 const PORT = process.env.PORT || 3001
 
 // Middleware
 const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(',')
+  ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim()).filter(Boolean)
   : ['http://localhost:3000']
 
 app.use(helmet({
@@ -67,9 +62,6 @@ const portalLimiter = rateLimit({
   max: 10,
   message: { success: false, message: 'Too many requests, please try again later' },
 })
-
-// Serve uploaded speaker photos
-app.use('/uploads', express.static(join(__dirname, 'uploads')))
 
 // API Routes
 app.use('/api/speakers', speakersRouter)

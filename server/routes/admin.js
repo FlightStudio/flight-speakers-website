@@ -15,7 +15,7 @@ import {
   deleteSpeaker,
   getDashboardAnalytics,
 } from '../db/enquiry-queries.js'
-import { getSpeakerById, getRelatedSpeakers, updateSpeakerFees, createSpeaker, updateSpeaker } from '../db/queries.js'
+import { getSpeakerById, getRelatedSpeakers, createSpeaker, updateSpeaker } from '../db/queries.js'
 import { createDraft, getPendingDrafts, getDraftById, approveDraft, rejectDraft, getDraftCounts } from '../db/draft-queries.js'
 import { getAllTemplates, getTemplateByReasonKey, updateTemplate } from '../db/template-queries.js'
 import { createToken } from '../db/token-queries.js'
@@ -420,7 +420,7 @@ router.get('/enquiries/:id', requireAdmin, async (req, res) => {
         if (requestedSpeaker) {
           relatedSpeakers = await getRelatedSpeakers(enquiry.speaker_id, requestedSpeaker.topics, 6)
         }
-      } catch { /* speaker lookup failed gracefully */ }
+      } catch (err) { console.warn('[admin enquiry detail] requested-speaker lookup failed:', err.message) }
     }
 
     if (enquiry.brief) {
@@ -429,7 +429,7 @@ router.get('/enquiries/:id', requireAdmin, async (req, res) => {
         semanticMatches = (searchResult.speakers || []).filter(
           s => s.id !== enquiry.speaker_id
         )
-      } catch { /* semantic search failed gracefully */ }
+      } catch (err) { console.warn('[admin enquiry detail] semantic search failed:', err.message) }
     }
 
     // Resolve additional speaker IDs to full objects
@@ -438,7 +438,7 @@ router.get('/enquiries/:id', requireAdmin, async (req, res) => {
       try {
         const resolved = await Promise.all(additionalIds.map(id => getSpeakerById(id)))
         additionalSpeakers = resolved.filter(Boolean)
-      } catch { /* additional speaker lookup failed gracefully */ }
+      } catch (err) { console.warn('[admin enquiry detail] additional-speaker lookup failed:', err.message) }
     }
 
     res.json({

@@ -43,6 +43,20 @@ router.post('/:token', async (req, res) => {
       return res.status(400).json({ success: false, message: 'URL fields exceed maximum length' })
     }
 
+    // Cap array sizes to prevent abuse.
+    const ARRAY_FIELDS = ['topics', 'audiences', 'keynotes']
+    for (const field of ARRAY_FIELDS) {
+      const v = req.body[field]
+      if (v !== undefined) {
+        if (!Array.isArray(v)) {
+          return res.status(400).json({ success: false, message: `${field} must be an array` })
+        }
+        if (v.length > 30) {
+          return res.status(400).json({ success: false, message: `${field} has too many entries (max 30)` })
+        }
+      }
+    }
+
     // Whitelist allowed fields. camelCase to match SpeakerForm (portalMode) submission.
     // No feeMin: speakers do not set their own fee via the portal.
     const allowedFields = ['name', 'headline', 'bio', 'photo', 'topics', 'audiences', 'keynotes', 'speakingFormat', 'videoUrl', 'socialProfiles', 'gender', 'ethnicity', 'nationality', 'location']

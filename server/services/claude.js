@@ -100,15 +100,29 @@ Return the top ${limit} most relevant speakers as JSON.`
     messages: [{ role: 'user', content: userMessage }],
   })
 
-  const text = response.content[0].text
+  const textBlock = response.content.find(b => b.type === 'text')
+  if (!textBlock) throw new Error('Claude response had no text block')
+  const text = textBlock.text
 
-  // Extract JSON from response, handling possible markdown code blocks
-  const jsonMatch = text.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) {
-    throw new Error('Claude response did not contain valid JSON')
+  return parseLlmJson(text)
+}
+
+// Robust JSON extraction for LLM output. Tries direct JSON.parse first; falls
+// back to a regex extraction if Claude wraps the JSON in prose or fences.
+// Uses a reviver that drops prototype-pollution keys.
+function parseLlmJson(text) {
+  const reviver = (key, value) => {
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') return undefined
+    return value
   }
-
-  return JSON.parse(jsonMatch[0])
+  const trimmed = text.trim().replace(/^```(?:json)?\s*|\s*```$/g, '')
+  try {
+    return JSON.parse(trimmed, reviver)
+  } catch {
+    const match = trimmed.match(/\{[\s\S]*\}/)
+    if (!match) throw new Error('Claude response did not contain valid JSON')
+    return JSON.parse(match[0], reviver)
+  }
 }
 
 async function vectorRetrieveThenRerank(query, limit, budget) {

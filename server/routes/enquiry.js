@@ -92,7 +92,7 @@ router.post('/', async (req, res) => {
       })
     }
 
-    if (brief.length > 5000 || name.length > 200 || organization.length > 200) {
+    if (brief.length > 5000 || name.length > 200 || organization.length > 200 || email.length > 254) {
       return res.status(400).json({
         success: false,
         message: 'One or more fields exceed the maximum length',

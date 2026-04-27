@@ -71,17 +71,22 @@ router.post('/', async (req, res) => {
       messages: [{ role: 'user', content: `Brief: "${brief}"` }],
     })
 
-    const text = response.content[0].text
-    const jsonMatch = text.match(/\{[\s\S]*\}/)
+    const textBlock = response.content.find(b => b.type === 'text')
+    if (!textBlock) return res.json({ success: true, extracted: {}, brief })
 
-    if (!jsonMatch) {
-      return res.json({ success: true, extracted: {}, brief })
-    }
-
-    const parsed = JSON.parse(jsonMatch[0], (key, value) => {
+    const reviver = (key, value) => {
       if (key === '__proto__' || key === 'constructor' || key === 'prototype') return undefined
       return value
-    })
+    }
+    const trimmed = textBlock.text.trim().replace(/^```(?:json)?\s*|\s*```$/g, '')
+    let parsed
+    try {
+      parsed = JSON.parse(trimmed, reviver)
+    } catch {
+      const match = trimmed.match(/\{[\s\S]*\}/)
+      if (!match) return res.json({ success: true, extracted: {}, brief })
+      parsed = JSON.parse(match[0], reviver)
+    }
     const extracted = parsed.extracted || {}
 
     // Validate extracted values

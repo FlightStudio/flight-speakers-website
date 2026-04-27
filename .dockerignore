@@ -10,3 +10,4 @@ public
 docker-compose.yml
 vite.config.js
 vercel.json
+server/uploads
