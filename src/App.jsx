@@ -10,8 +10,8 @@ import AdminApp from './admin/AdminApp'
 import SpeakerPortalPage from './pages/SpeakerPortalPage'
 import SpeakersPage from './pages/SpeakersPage'
 import BookPage from './pages/BookPage'
-import PressPage from './pages/PressPage'
-import PressArticlePage from './pages/PressArticlePage'
+import NewsPage from './pages/NewsPage'
+import NewsArticlePage from './pages/NewsArticlePage'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -44,9 +44,9 @@ function App() {
             <Route path="/speakers/:id" element={<SpeakerDetailPage />} />
             <Route path="/search" element={<SearchResultsPage />} />
             <Route path="/about" element={<AboutPage />} />
-            {/* DEV-ONLY: Press routes. Remove the conditional when ready to ship. */}
-            {import.meta.env.DEV && <Route path="/press" element={<PressPage />} />}
-            {import.meta.env.DEV && <Route path="/press/:slug" element={<PressArticlePage />} />}
+            {/* DEV-ONLY: News routes. Remove the conditional when ready to ship. */}
+            {import.meta.env.DEV && <Route path="/news" element={<NewsPage />} />}
+            {import.meta.env.DEV && <Route path="/news/:slug" element={<NewsArticlePage />} />}
           </Routes>
         </Layout>
       } />

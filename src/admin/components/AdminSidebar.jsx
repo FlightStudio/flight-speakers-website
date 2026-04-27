@@ -78,6 +78,18 @@ export default function AdminSidebar({ user, newCount = 0, onLogout }) {
         </NavLink>
 
         <NavLink
+          to="/admin/news"
+          className={({ isActive }) =>
+            `admin-sidebar__link ${isActive ? 'admin-sidebar__link--active' : ''}`
+          }
+        >
+          <svg className="admin-sidebar__icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M2 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 002 2H4a2 2 0 01-2-2V5zm3 1h6v2H5V6zm6 3H5v1h6V9zm-6 2h6v1H5v-1zm8-3.5V14a1 1 0 102 0V7.5a1 1 0 00-2 0z" clipRule="evenodd" />
+          </svg>
+          News
+        </NavLink>
+
+        <NavLink
           to="/admin/integrations"
           className={({ isActive }) =>
             `admin-sidebar__link ${isActive ? 'admin-sidebar__link--active' : ''}`

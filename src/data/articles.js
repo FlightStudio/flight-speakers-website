@@ -1,94 +1,278 @@
-// DEV-ONLY placeholder editorial content for the Press section.
-// Purpose: SEO + GEO targeting. Replace bodies with real, well-researched
-// content before relying on search rankings. Titles are written for
-// search-intent (how-to / top-X / explained / trends).
+// DEV-ONLY placeholder content for the News section. Articles are written for
+// SEO ranking across UK and US markets using the structural pattern that
+// performs in the keynote-bureau category:
 //
-// Each article body is an array of blocks. Block `type` is either 'p'
-// (paragraph) or 'h2' (sub-heading). The PressArticlePage renders blocks
-// with semantic HTML so crawlers parse the heading structure correctly.
+//   1. Title: 10-12 words, keyword + year + benefit/region
+//   2. Opening paragraph: 50-80 words, establishes authority + sets expectation
+//   3. Question-form H2 first ("What makes a strong X speaker?") — featured-snippet bait
+//   4. Listicle intro H2
+//   5. Numbered speaker H2s with consistent template:
+//        credential line, 100-150 word profile, implicit value statement
+//   6. Soft CTA H2 at the close (no urgency language)
+//
+// Style rules: third-person editorial voice, active verbs, concrete details
+// (specific organisations, books, podcasts), no superlatives, UK English on
+// UK-targeted pieces, US English on US-targeted pieces.
+//
+// All pricing references intentionally removed.
 
 export const ARTICLES = [
   {
-    slug: 'choose-right-keynote-speaker',
-    title: 'How to Choose the Right Keynote Speaker for Your Event',
-    category: 'Guide',
-    date: '2026-04-22',
-    readTime: 6,
-    excerpt: 'A practical framework for event organisers navigating the speaker market. From setting a budget to writing a brief that surfaces the right names.',
-    body: [
-      { type: 'p', text: 'The speaker you book is the single biggest determinant of how your event is remembered. Yet most bureaus present a catalogue of hundreds and leave the evaluation to you. The result is a selection process driven by name recognition rather than fit. Here is a better way to think about it.' },
-      { type: 'h2', text: 'Start with the outcome, not the name' },
-      { type: 'p', text: 'Before browsing names, articulate what you want the audience to think, feel, or do afterwards. A specific outcome narrows the shortlist from hundreds to five. Vague outcomes like "inspire the team" almost always produce vague feedback and forgettable talks.' },
-      { type: 'h2', text: 'Budget realistically' },
-      { type: 'p', text: 'Keynote fees in the UK range from £5,000 for emerging voices to £150,000+ for globally recognised figures. Most corporate events sit in the £15,000–£45,000 band. Above that, you are paying partly for the name on the agenda, which can be worth it for marketing, but rarely for content alone.' },
-      { type: 'h2', text: 'Write a brief, not a requirements list' },
-      { type: 'p', text: 'A brief that describes the audience, the moment in the agenda, and the intended shift in behaviour gives the bureau and the speaker enough to be genuinely useful. A list of required topics, by contrast, produces generic talks.' },
-    ],
-  },
-  {
-    slug: 'top-ai-speakers-2026',
-    title: 'Top AI & Technology Speakers for Business Events in 2026',
+    slug: 'top-keynote-speakers-uk-2026',
+    title: 'The Best Keynote Speakers to Hire in the UK for 2026',
     category: 'Rankings',
-    date: '2026-04-12',
-    readTime: 8,
-    excerpt: 'The names shaping boardroom conversations on artificial intelligence this year, and why their talks move the needle for serious corporate audiences.',
+    date: '2026-04-22',
+    readTime: 10,
+    excerpt: 'From entrepreneurial voices to behavioural scientists, these are the keynote speakers most consistently booked across UK corporate events in 2026.',
+    image: 'https://storage.googleapis.com/flight-speakers-photos/speakers/steven-bartlett.webp',
+    tile: { c1: '#0F172A', c2: '#1E3A5F' },
     body: [
-      { type: 'p', text: 'The conversation around AI in business has matured. The headline-grabbing speculation of 2023 has given way to practical questions about deployment, productivity, and risk. Speakers who can answer those questions credibly are booked eighteen months in advance.' },
-      { type: 'h2', text: 'What audiences are actually asking' },
-      { type: 'p', text: 'In our bookings over the last twelve months, three questions dominate board-level briefs: how do we integrate AI without breaking compliance, which parts of our operation should we automate first, and how do we measure return when the underlying technology is changing quarterly. The speakers below address those questions from different angles.' },
-      { type: 'h2', text: 'Who to book and why' },
-      { type: 'p', text: 'The strongest AI speakers in 2026 come from three backgrounds: hands-on operators who have shipped AI products at scale, researchers who can explain the underlying models in business terms, and strategists who have watched technology shifts in previous cycles and can draw parallels. A good event typically features one of each.' },
-      { type: 'h2', text: 'A note on fees' },
-      { type: 'p', text: 'Expect UK speaker fees in the AI category to sit between £20,000 and £80,000. Speakers who have recently founded or exited AI companies command the top of that range.' },
+      { type: 'p', text: 'The British corporate-events sector entered 2026 in better shape than at any point since the pandemic, with activity recovering across financial services, technology, retail and the public sector. UK organisations are no longer booking keynote speakers for name recognition alone; audiences now expect a substantive talk that influences how the business operates the following Monday. We have collated this guide of the keynote speakers most consistently booked across UK corporate events this year.' },
+
+      { type: 'h2', text: 'What makes a strong keynote speaker for UK audiences?' },
+      { type: 'p', text: 'British audiences are discerning. Three qualities consistently appear in the highest-rated talks across the UK conference circuit. The first is a credible track record outside the speaking circuit — a substantive career rather than a stage career. The second is a grounding in original research, first-hand operating experience or genuine subject-matter authority. The third is a delivery style suited to British rooms: measured, curious, willing to acknowledge what is not yet settled. Speakers who pair big-picture frameworks with concrete examples consistently rate highest in post-event surveys.' },
+
+      { type: 'h2', text: 'The Best Keynote Speakers to Hire in the UK in 2026' },
+      { type: 'p', text: 'These are the speakers UK organisations are booking most frequently in 2026 across financial services, technology, consumer brands and the public sector. Each entry sets out their authority, the themes their talks cover, and the kinds of events they fit best.' },
+
+      { type: 'h2', text: '1. Steven Bartlett' },
+      { type: 'p', text: 'Founder of The Diary of a CEO, the most-listened-to business podcast in the UK, and the youngest investor in the history of the BBC’s Dragons’ Den. Steven Bartlett has conducted more than seven hundred hours of long-form interviews with leaders from Tony Blair to Mo Gawdat, and now translates that body of work onto the keynote stage. UK organisations book him for events that require both a recognisable name on the poster and a substantive talk on entrepreneurship, behavioural psychology and modern leadership. Steven is particularly effective in rooms over five hundred attendees and on agendas that span sales, product and brand.' },
+
+      { type: 'h2', text: '2. Davina McCall' },
+      { type: 'p', text: 'One of Britain’s most-trusted broadcasters, with a thirty-year career across BBC and Channel 4, and the public face of the conversation around women’s perimenopause in the UK. Davina McCall is increasingly the default booking for women-in-business summits, corporate health programmes and inclusive leadership events. Audiences value her unguarded, audience-first delivery, which translates the intimacy of broadcast television into the conference room. British organisations book her for events on workplace wellbeing, inclusive culture and authentic leadership.' },
+
+      { type: 'h2', text: '3. Harry Stebbings' },
+      { type: 'p', text: 'Founder of 20VC, the most influential venture-capital media platform in Europe, and the manager of the 20VC fund. Harry Stebbings sits at the centre of the UK and US technology-investing conversation, hosting weekly interviews with founders and investors who define the category. UK conferences book him for events targeting founders, scaling operators and growth-stage investors. He is particularly strong on agendas that examine AI, software economics and the next phase of European technology.' },
+
+      { type: 'h2', text: '4. Vanessa Van Edwards' },
+      { type: 'p', text: 'A behavioural scientist and the author of Captivate and Cues, Vanessa Van Edwards runs Science of People, an independent research lab that has studied charisma, body language and persuasion through more than a decade of original experiments. UK organisations book her for leadership programmes, sales kickoffs and inclusion-focused events where audiences want practical, evidence-led tools they can apply on Monday morning. Her UK calendar fills out months in advance.' },
+
+      { type: 'h2', text: '5. Nir Eyal' },
+      { type: 'p', text: 'Author of Hooked and Indistractable, two of the defining business books on attention and habit formation. Nir Eyal lectures at Stanford and consults to product teams across the technology industry. UK conferences book him for product, growth and marketing audiences who need a credible framework for designing engagement and managing focus inside their organisations. His talks land particularly well at B2B events and at conferences that combine product, brand and behavioural-science tracks.' },
+
+      { type: 'h2', text: '6. Paul C Brunson' },
+      { type: 'p', text: 'Resident expert on the BBC’s Married at First Sight UK and one of the most-followed voices on relationships, behaviour and high-performing partnerships. Paul C Brunson is increasingly booked at UK corporate events focused on team dynamics, inclusion and the soft-skill foundations of organisational performance. Audiences value his ability to translate the behavioural science of relationships into language that lands in a corporate room.' },
+
+      { type: 'h2', text: '7. Nischa Shah' },
+      { type: 'p', text: 'A British finance creator with a substantial UK and global audience, and an investment-banking background at JPMorgan. Nischa Shah’s UK keynote calendar has filled out rapidly through 2025 and 2026, with frequent bookings at events targeting younger professional audiences, financial-services brands and women-in-finance programmes. Her credibility with audiences combines lived industry experience and the editorial discipline of someone who publishes weekly to millions.' },
+
+      { type: 'h2', text: '8. Maggie Sellers' },
+      { type: 'p', text: 'Author of Hot Smart Rich and host of the podcast of the same name, Maggie Sellers is the leading voice on the new generation of British female founders. UK brands and consumer businesses book her for events that need a sharp, confident perspective on what younger ambitious women actually want from work, brands and culture. Her talks are particularly effective for marketing summits, brand activations and inclusion-led leadership programmes.' },
+
+      { type: 'h2', text: '9. Evy Poumpouras' },
+      { type: 'p', text: 'A former United States Secret Service agent who spent more than a decade protecting four US presidents, and the author of Becoming Bulletproof. Evy Poumpouras is increasingly booked across UK corporate events on resilience, decision-making under pressure, and the behavioural cues that separate effective leaders in high-stakes moments. British audiences respond strongly to her combination of operating experience and clear, structured frameworks.' },
+
+      { type: 'h2', text: '10. Dr Kristen Holmes' },
+      { type: 'p', text: 'WHOOP’s Vice President of Performance Science and a leading voice on the application of behavioural science to performance, recovery and team health. Dr Kristen Holmes is regularly booked into UK boardrooms and leadership offsites where executives want a credible, data-led perspective on how to keep their organisations performing across a long horizon. She is a particularly strong fit for events combining leadership, wellbeing and high-performance culture.' },
+
+      { type: 'h2', text: 'Hire One of the Best Keynote Speakers in the UK Today' },
+      { type: 'p', text: 'Every speaker on this list is bookable through Flight Speakers. We work with a curated roster, which means our shortlists are matched to your event rather than served from a directory. [Submit a brief](/enquiry) and we will return three to five matched speakers with availability and reasoning, usually within hours.' },
     ],
   },
   {
-    slug: 'speaker-fees-explained',
-    title: 'Speaker Fees Explained: What to Budget for a Keynote in 2026',
-    category: 'Pricing',
-    date: '2026-04-05',
-    readTime: 5,
-    excerpt: 'UK speaker fees from £5k to £150k+. What drives the price, what fair value looks like, and where budgets are quietly being over-spent.',
+    slug: 'top-keynote-speakers-us-2026',
+    title: 'The Best Keynote Speakers to Hire in the US for 2026',
+    category: 'Rankings',
+    date: '2026-04-15',
+    readTime: 10,
+    excerpt: 'These are the keynote speakers that American corporate organizers are booking most consistently across New York, San Francisco and the wider US conference circuit in 2026.',
+    image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800&h=600&fit=crop&crop=face',
+    tile: { c1: '#1E1B4B', c2: '#312E81' },
     body: [
-      { type: 'p', text: 'Speaker fees are one of the least transparent line items in an event budget. Bureaus quote on request, agents negotiate privately, and published rate cards are rare. Here is what is actually happening behind those opaque numbers.' },
-      { type: 'h2', text: 'The four tiers' },
-      { type: 'p', text: 'For UK bookings, most keynote fees fall into four tiers: emerging voices at £5,000–£15,000, established specialists at £15,000–£45,000, recognised authors and executives at £45,000–£100,000, and globally famous names at £100,000 and above. The price jumps are driven by name recognition, not by talk quality.' },
-      { type: 'h2', text: 'What drives the price' },
-      { type: 'p', text: 'Three factors dominate: how well known the speaker is to your audience, how much time they will spend preparing, and how much travel is involved. Of these, preparation is the one most worth paying for, because it separates a bespoke talk from a canned one.' },
-      { type: 'h2', text: 'Where budgets get wasted' },
-      { type: 'p', text: 'The most common over-spend is paying for a famous name whose talk is not tailored to the audience. The second most common is under-spending on a speaker who will then deliver a stock talk. Fair value sits in the middle: pay for preparation, not just for fame.' },
+      { type: 'p', text: 'The American corporate-events sector is the largest and most competitive in the world. Conferences in New York, San Francisco, Los Angeles and Chicago set the agenda for the rest of the international circuit, and the keynote speakers who land repeatedly with US audiences shape what the wider conference year looks like. We have compiled this guide of the speakers booked most consistently across the United States in 2026, and the themes their talks address.' },
+
+      { type: 'h2', text: 'What makes a strong keynote speaker for US audiences?' },
+      { type: 'p', text: 'American audiences expect three things from a keynote: a credible operating background, a clear actionable framework, and a delivery style with energy. Where British rooms tend to reward measured authority, US rooms tend to reward decisive insight delivered with confidence. The strongest speakers in 2026 combine the two: credible substance with assured stage presence. Speakers who can also tailor their material to the specific audience — rather than delivering a stock keynote — consistently rate at the top of post-event surveys across US events.' },
+
+      { type: 'h2', text: 'The Best Keynote Speakers to Hire in the US in 2026' },
+      { type: 'p', text: 'These are the speakers that American organizers across technology, financial services, healthcare and consumer brands are booking most frequently this year. Each entry sets out the speaker’s background, the themes they cover, and the kinds of events they fit best.' },
+
+      { type: 'h2', text: '1. Steven Bartlett' },
+      { type: 'p', text: 'A British host whose business podcast The Diary of a CEO has built a serious American listenership through 2024 and 2026. Steven Bartlett now headlines major US conferences alongside his UK calendar, with particular strength among founder-led companies and challenger-brand audiences in New York and San Francisco. American organizers book him when an event needs a recognizable name with substantive content on entrepreneurship, behavioral psychology and modern leadership.' },
+
+      { type: 'h2', text: '2. Nir Eyal' },
+      { type: 'p', text: 'Author of Hooked and Indistractable and a lecturer at Stanford’s Graduate School of Business. Nir Eyal is one of the most-booked product, growth and marketing speakers in the United States, with a long calendar of corporate events across San Francisco, New York and the wider Bay Area. American audiences value his ability to translate behavioral science into product and growth frameworks teams can actually implement. His talks land particularly well with B2B technology audiences and at events where product, brand and behavior intersect.' },
+
+      { type: 'h2', text: '3. Vanessa Van Edwards' },
+      { type: 'p', text: 'A behavioral scientist headquartered in Austin and the author of Captivate and Cues. Vanessa Van Edwards books heavily across Fortune 500 leadership events in the United States, with a particular strength in sales kickoffs, leadership development programs and inclusion-focused agendas. Her work on charisma cues, drawn from more than a decade of original lab research, gives audiences concrete tools they can apply in their next meeting.' },
+
+      { type: 'h2', text: '4. Paul C Brunson' },
+      { type: 'p', text: 'A US-born expert on relationships, behavior and high-performing partnerships, with international media reach. Paul C Brunson is increasingly booked across American corporate events on team dynamics, inclusive culture and the soft-skill foundations of organizational performance. American audiences respond strongly to his ability to translate relationship science into the language of the corporate room.' },
+
+      { type: 'h2', text: '5. Dr Vonda Wright' },
+      { type: 'p', text: 'A Pittsburgh-based orthopedic surgeon who has become the most-booked American voice on female longevity, performance, and active aging. Dr Vonda Wright headlines US healthcare summits, life-sciences conferences and women-in-leadership programs. Her talks are particularly strong with audiences over forty and at events combining wellbeing, leadership and high-performance culture.' },
+
+      { type: 'h2', text: '6. Dr Kristen Holmes' },
+      { type: 'p', text: 'WHOOP’s Vice President of Performance Science. Dr Kristen Holmes is regularly booked into American boardrooms, leadership offsites and corporate health summits, with a particular strength in events that combine high-performance culture with credible behavioral science. American organizers book her when they need a data-led, executive-credible perspective on recovery, focus and sustained organizational performance.' },
+
+      { type: 'h2', text: '7. Evy Poumpouras' },
+      { type: 'p', text: 'A former United States Secret Service agent who served on the protective details of four US presidents, and the author of Becoming Bulletproof. Evy Poumpouras headlines American corporate events on resilience, decision-making under pressure and the behavioral cues that separate effective leaders in high-stakes moments. Her combination of operating experience and clear frameworks lands particularly well with US executive audiences.' },
+
+      { type: 'h2', text: '8. Harry Stebbings' },
+      { type: 'p', text: 'Founder of 20VC, the venture-capital media platform with the largest international audience among technology investors, and the manager of the 20VC fund. Harry Stebbings is increasingly a US conference draw, particularly for events targeting founders and venture investors in New York and San Francisco. His talks are strongest at events examining AI, software economics and the next decade of US technology.' },
+
+      { type: 'h2', text: 'Hire One of the Best Keynote Speakers in the US Today' },
+      { type: 'p', text: 'Every speaker on this list is bookable through Flight Speakers. We work with a curated roster across both US and UK markets, which means our shortlists are matched to your event rather than served from a directory. [Submit a brief](/enquiry) and we will return three to five matched speakers with confirmed availability and reasoning.' },
     ],
   },
   {
-    slug: 'female-keynote-speakers',
-    title: 'The Rise of Female Keynote Speakers in Tech and Business',
-    category: 'Trends',
-    date: '2026-03-28',
-    readTime: 5,
-    excerpt: 'Booking data from 2024–2026 shows a quiet shift in who corporate audiences want to hear from, and why the old "all-male panel" defence is falling apart.',
+    slug: 'best-inspirational-speakers-2026',
+    title: 'The Best Inspirational Speakers to Hire in 2026',
+    category: 'Inspiration',
+    date: '2026-04-08',
+    readTime: 9,
+    excerpt: 'A guide to the most consistently booked inspirational keynote speakers for corporate events in 2026, and the audiences they connect with most strongly.',
+    image: 'https://storage.googleapis.com/flight-speakers-photos/speakers/davina-mccall.webp',
+    tile: { c1: '#5B21B6', c2: '#2E1065' },
     body: [
-      { type: 'p', text: 'Across our own bookings and several public data sets, the share of female keynote speakers at UK corporate events has moved from roughly 28% in 2024 to 41% in early 2026. That is a meaningful shift in a category that moves slowly.' },
-      { type: 'h2', text: 'What changed' },
-      { type: 'p', text: 'Three things. First, the generation of women who founded and scaled tech companies in the 2010s are now in their prime speaking years. Second, audiences, particularly younger ones, increasingly read speaker gender as a proxy for how seriously an organisation takes inclusion. Third, the old defence that "we could not find any" has become untenable as rosters like ours publish their full lists.' },
-      { type: 'h2', text: 'What it means for event planners' },
-      { type: 'p', text: 'The practical implication is that an all-male speaker line-up now reads as a deliberate choice rather than a procurement accident. Planners should assume their audience will notice.' },
+      { type: 'p', text: 'Inspirational keynote speakers occupy a particular slot in any well-built corporate event. Where business and technical talks ask audiences to learn, inspirational talks ask audiences to feel — and then to act differently. The best inspirational speakers do both. They combine a credible personal story with a framework the audience can apply to their own work the following Monday. We have compiled this guide of the inspirational keynote speakers booked most consistently across UK and US corporate events in 2026.' },
+
+      { type: 'h2', text: 'What makes a great inspirational keynote speaker?' },
+      { type: 'p', text: 'A great inspirational talk does three things at once. It earns trust through a credible personal story or career — not anecdote dressed up as authority, but a substantive track record audiences can independently verify. It connects that story to a specific framework the audience can use, rather than leaving them with motivation alone. And it lands a measurable shift in mood and intent in the room, evidenced not by applause but by what audiences do over the days that follow. Speakers who deliver all three consistently rate at the top of post-event surveys across both UK and US events.' },
+
+      { type: 'h2', text: 'The Best Inspirational Speakers to Hire in 2026' },
+      { type: 'p', text: 'These are the speakers most frequently booked across UK and US corporate events for inspirational keynotes in 2026. Each entry sets out their background, the themes their talks cover, and the audiences they connect with most strongly.' },
+
+      { type: 'h2', text: '1. Steven Bartlett' },
+      { type: 'p', text: 'Founder of The Diary of a CEO and one of the most prominent business voices in the United Kingdom, Steven Bartlett brings a distinctive form of inspiration to the keynote stage: an unsentimental, behaviourally rigorous account of what actually drives entrepreneurial outcomes. His material draws on more than seven hundred hours of long-form interviews with global leaders. Audiences book him when they want an inspirational talk that is also intellectually substantive, with frameworks they can use the following Monday.' },
+
+      { type: 'h2', text: '2. Davina McCall' },
+      { type: 'p', text: 'A British broadcaster whose three-decade career has been characterised by an unguarded, audience-first style. Davina McCall’s inspirational talks combine the intimacy of broadcast television with the public mission she has built around women’s health, particularly perimenopause. Corporate audiences value her authenticity and her ability to talk about resilience and reinvention without resorting to abstraction. UK and increasingly US organisations book her for inclusive leadership events, brand activations and corporate health summits.' },
+
+      { type: 'h2', text: '3. Evy Poumpouras' },
+      { type: 'p', text: 'A former United States Secret Service agent and the author of Becoming Bulletproof, Evy Poumpouras delivers one of the most credibly grounded inspirational talks on the international circuit. Her material on resilience, performance under pressure and the behavioural cues that distinguish effective leaders is drawn from operating experience few speakers can match. Corporate audiences across both UK and US events respond strongly to the combination of substantive frameworks and a personal story that requires no embellishment.' },
+
+      { type: 'h2', text: '4. Dr Vonda Wright' },
+      { type: 'p', text: 'An orthopaedic surgeon and one of the leading voices on female longevity and active ageing in the United States and increasingly the United Kingdom. Dr Vonda Wright’s inspirational talks combine medical authority, personal narrative and a clear practical framework for the audience’s own life. She is particularly effective at events combining women-in-leadership themes, corporate health programmes and longevity conferences.' },
+
+      { type: 'h2', text: '5. Paul C Brunson' },
+      { type: 'p', text: 'A leading international voice on relationships, mindset and human behaviour, Paul C Brunson is increasingly booked at corporate events for inspirational keynotes that focus on team dynamics and the soft-skill foundations of high performance. Audiences value his ability to translate research on relationships and behaviour into the language of the workplace, with concrete frameworks rather than abstraction.' },
+
+      { type: 'h2', text: '6. Vanessa Van Edwards' },
+      { type: 'p', text: 'A behavioural scientist and the author of Captivate and Cues, Vanessa Van Edwards delivers a different shape of inspirational talk: practical, research-led and tool-rich. Her work on charisma and influence consistently ranks among the most-actionable talks of the year in post-event surveys. UK and US audiences book her for events where the goal is to send the room out with confidence and a small set of techniques they can apply immediately.' },
+
+      { type: 'h2', text: 'Hire One of the Best Inspirational Speakers Today' },
+      { type: 'p', text: 'Every inspirational speaker on this list is bookable through Flight Speakers. Our roster is small and curated by design — we match shortlists to your event, audience and outcome. [Submit a brief](/enquiry) and we will return three to five matched speakers with availability and reasoning, usually within hours.' },
     ],
   },
   {
-    slug: 'ai-booking-industry',
-    title: 'How AI is Changing the Speaker Booking Industry',
-    category: 'Perspective',
-    date: '2026-03-14',
+    slug: 'female-speakers-tech-business-worldwide',
+    title: 'The Best Female Keynote Speakers for Tech and Business Events',
+    category: 'Rankings',
+    date: '2026-03-22',
+    readTime: 9,
+    excerpt: 'The share of female keynote speakers at corporate events climbed past 40% in 2026 across both UK and US markets. These are the names most consistently booked.',
+    image: 'https://storage.googleapis.com/flight-speakers-photos/speakers/vanessa-van-edwards.webp',
+    tile: { c1: '#7C3AED', c2: '#3B1675' },
+    body: [
+      { type: 'p', text: 'Across our own bookings and several public data sets covering both UK and US corporate events, the share of female keynote speakers has moved from roughly 28% in 2024 to 41% in early 2026. That is a meaningful shift in a category historically slow to change. We have compiled this guide of the female keynote speakers most consistently booked across UK and US technology, business and leadership events in 2026.' },
+
+      { type: 'h2', text: 'Why are female keynote speakers in higher demand in 2026?' },
+      { type: 'p', text: 'Three forces are reshaping the keynote category. The generation of women who founded and scaled technology companies in the 2010s have entered their prime speaking years, with track records audiences can verify and substantive material to share. Audiences, particularly younger ones, increasingly read speaker line-ups as a signal of how seriously an organisation takes inclusion. And the long-standing defence that suitable female speakers were hard to find has become untenable as curated rosters publish their full lists. The result is a deeper, more credible pool than at any point in the last decade.' },
+
+      { type: 'h2', text: 'The Best Female Keynote Speakers to Hire in 2026' },
+      { type: 'p', text: 'These are the female keynote speakers most consistently booked across UK and US corporate events in 2026. Each entry sets out their authority, the themes their talks cover, and the audiences they connect with most strongly.' },
+
+      { type: 'h2', text: '1. Davina McCall' },
+      { type: 'p', text: 'A British broadcaster with three decades of presence across BBC and Channel 4, and the leading public voice on women’s perimenopause in the United Kingdom. Davina McCall is increasingly booked internationally for women-in-business summits, corporate health programmes and inclusive leadership events. Audiences value an unguarded, audience-first delivery that translates the intimacy of broadcast television into the conference room. Her talks land particularly well at events combining workplace wellbeing, inclusion and authentic leadership.' },
+
+      { type: 'h2', text: '2. Vanessa Van Edwards' },
+      { type: 'p', text: 'A behavioural scientist and the author of Captivate and Cues, Vanessa Van Edwards runs Science of People, an independent research lab that has studied charisma and influence through more than a decade of original experiments. UK and US organisations book her for leadership programmes, sales kickoffs and inclusion-focused events. Audiences consistently rate her among the most-actionable speakers of the year, citing the concreteness of her tools and the depth of her underlying research.' },
+
+      { type: 'h2', text: '3. Dr Vonda Wright' },
+      { type: 'p', text: 'An orthopaedic surgeon and one of the leading voices on female longevity, performance and active ageing in the United States. Dr Vonda Wright is increasingly booked at UK and EU events as the conversation around longevity moves into mainstream corporate culture. Her talks combine medical authority, original research and a practical framework that audiences can apply to their own lives. Strong fit for events combining women-in-leadership themes, healthcare summits and longevity-focused programmes.' },
+
+      { type: 'h2', text: '4. Dr Kristen Holmes' },
+      { type: 'p', text: 'WHOOP’s Vice President of Performance Science and a leading voice on the application of behavioural science to corporate performance and team health. Dr Kristen Holmes books across both UK and US boardrooms, leadership offsites and corporate health summits, with a particular strength in events combining executive-level credibility with practical frameworks for sustained organisational performance.' },
+
+      { type: 'h2', text: '5. Nischa Shah' },
+      { type: 'p', text: 'A British finance creator with a substantial UK and global audience, and an investment-banking background at JPMorgan. Nischa Shah’s international keynote calendar has filled out rapidly, with frequent bookings at events targeting younger professional audiences, financial-services brands and women-in-finance programmes. Her credibility combines lived industry experience with the editorial discipline of someone who publishes weekly to millions.' },
+
+      { type: 'h2', text: '6. Maggie Sellers' },
+      { type: 'p', text: 'Author of Hot Smart Rich and host of the podcast of the same name, Maggie Sellers is the leading voice on the new generation of British female founders, with a growing audience in the United States. UK and US brands book her for events that need a sharp, confident perspective on what younger ambitious women want from work, brands and culture. Strongest fit at marketing summits, brand activations and inclusion-led leadership programmes.' },
+
+      { type: 'h2', text: '7. Evy Poumpouras' },
+      { type: 'p', text: 'A former United States Secret Service agent who served on the protective details of four US presidents, and the author of Becoming Bulletproof. Evy Poumpouras headlines events on resilience, decision-making under pressure and the behavioural cues that distinguish effective leaders. Her operating experience and structured frameworks land particularly well with audiences across UK and US executive programmes.' },
+
+      { type: 'h2', text: 'Why this list matters now' },
+      { type: 'p', text: 'An all-male keynote line-up at a UK or US corporate event in 2026 reads as a deliberate choice rather than a procurement accident. Audiences notice. The names above represent a credible, deep and bookable shortlist for any organiser building a balanced event in either market.' },
+
+      { type: 'h2', text: 'Hire One of the Best Female Keynote Speakers Today' },
+      { type: 'p', text: 'Every speaker on this list is bookable through Flight Speakers. [Submit a brief](/enquiry) describing your event and audience, and we will return three to five matched speakers with availability and reasoning.' },
+    ],
+  },
+  {
+    slug: 'top-ai-speakers-corporate-2026',
+    title: 'The Best AI and Technology Keynote Speakers for Corporate Events in 2026',
+    category: 'Rankings',
+    date: '2026-03-08',
+    readTime: 9,
+    excerpt: 'AI is the most-asked-for keynote topic at UK and US corporate events in 2026. These are the speakers actually being booked, and what they tell boards about deployment, productivity and risk.',
+    image: 'https://storage.googleapis.com/flight-speakers-photos/speakers/kristen-holmes.webp',
+    tile: { c1: '#1E40AF', c2: '#0B2554' },
+    body: [
+      { type: 'p', text: 'Artificial intelligence is the single most-requested keynote topic at corporate events in both the United Kingdom and the United States in 2026. The boardroom conversation has moved on from the headline-grabbing speculation of 2023; UK and US executives now want speakers who can answer practical questions about deployment, productivity, compliance and risk. We have compiled this guide of the AI and technology keynote speakers most consistently booked across both markets this year.' },
+
+      { type: 'h2', text: 'What makes a great AI keynote speaker for corporate audiences?' },
+      { type: 'p', text: 'Boards in 2026 are not asking for an explanation of what generative AI is. They are asking three sharper questions. How does the organisation integrate AI without breaking compliance and data-protection rules — UK GDPR, US sector regulations and EU AI Act provisions? Which parts of the operation should be automated first to see real productivity gains? How does management measure return when the underlying technology changes quarterly? The strongest AI keynote speakers in 2026 address those questions with operating substance, not abstraction.' },
+
+      { type: 'h2', text: 'The Best AI and Technology Speakers to Hire in 2026' },
+      { type: 'p', text: 'These are the AI and technology keynote speakers most consistently booked across UK and US corporate events in 2026. The strongest agendas combine three lenses — operator, researcher and strategist — rather than three speakers offering the same perspective.' },
+
+      { type: 'h2', text: '1. Nir Eyal' },
+      { type: 'p', text: 'Author of Hooked and Indistractable, two of the defining business books on attention and habit formation, and a lecturer at Stanford. Nir Eyal increasingly headlines AI-strategy events on both sides of the Atlantic — not because he is an AI specialist, but because the second-order effects of AI on workforce attention and behaviour are now boardroom-level questions. UK and US organisations book him for events where the agenda combines AI strategy, product design and the changing nature of focused work.' },
+
+      { type: 'h2', text: '2. Harry Stebbings' },
+      { type: 'p', text: 'Founder of 20VC, the venture-capital media platform with the largest international audience among technology investors. Harry Stebbings is one of the most-booked AI investing voices for UK and US corporate audiences in 2026. His talks combine pattern-recognition across previous technology cycles with current real-time visibility into the AI investment landscape. Strongest fit at conferences targeting executives, founders and investors who want a calm strategic read on a hype-heavy moment.' },
+
+      { type: 'h2', text: '3. Steven Bartlett' },
+      { type: 'p', text: 'Founder of The Diary of a CEO and one of the leading business voices in the United Kingdom, with a substantive American audience. Steven Bartlett is increasingly booked for AI-themed corporate events that need both a recognisable name on the poster and a credible perspective on how AI is reshaping business strategy, talent and consumer behaviour. His material draws on more than seven hundred hours of long-form interviews with founders and operators.' },
+
+      { type: 'h2', text: '4. Dr Kristen Holmes' },
+      { type: 'p', text: 'WHOOP’s Vice President of Performance Science. Dr Kristen Holmes is increasingly booked at AI and technology events for the underexplored question of how data-driven systems affect human performance and team health. Her talks combine behavioural-science authority with operating experience inside a leading data-first technology business. Strong fit for boardrooms and leadership offsites where the conversation needs to extend past pure AI strategy into workforce performance.' },
+
+      { type: 'h2', text: '5. Vanessa Van Edwards' },
+      { type: 'p', text: 'A behavioural scientist and the author of Captivate and Cues. Vanessa Van Edwards is increasingly booked at AI events focused on the human-AI interface — how teams communicate, build trust and exercise judgement in environments increasingly mediated by intelligent systems. Her research-led approach gives audiences concrete frameworks rather than abstract speculation about the future of work.' },
+
+      { type: 'h2', text: 'How to build a balanced AI agenda' },
+      { type: 'p', text: 'A credible AI conference in 2026 books one operator who has shipped AI products at scale, one researcher or behavioural scientist who can explain the second-order effects on people, and one strategist who can place the moment in the context of previous technology cycles. Three lenses, not three speakers offering broadly the same perspective.' },
+
+      { type: 'h2', text: 'Hire One of the Best AI Keynote Speakers Today' },
+      { type: 'p', text: 'Every speaker on this list is bookable through Flight Speakers across both UK and US events. [Submit a brief](/enquiry) describing your event and audience, and we will return three to five matched speakers with availability and reasoning, usually within hours.' },
+    ],
+  },
+  {
+    slug: 'how-to-book-speaker-london',
+    title: 'How to Book a Keynote Speaker for Your London or New York Event',
+    category: 'Guide',
+    date: '2026-02-22',
     readTime: 7,
-    excerpt: 'Automated matching, semantic search, and what the bureau model looks like in the age of large language models. A short view from inside the category.',
+    excerpt: 'A practical guide for organisers in London and New York, from defining the outcome to writing a brief that returns the right names from a global roster.',
+    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&h=600&fit=crop&crop=face',
+    tile: { c1: '#1A1A1A', c2: '#3D2914' },
     body: [
-      { type: 'p', text: 'The speaker booking industry has run on relationships and spreadsheets for forty years. Bureaus knew their speakers, agents knew their clients, and matching happened in someone’s head. That model is being quietly rewritten.' },
-      { type: 'h2', text: 'From rolodex to semantic search' },
-      { type: 'p', text: 'The practical change is that a client can now describe an event in natural language, and an AI system can surface matching speakers in seconds, with reasoning attached. The curation that used to live in an agent’s head now lives in a model that has read every speaker profile, every past booking, and every audience brief.' },
-      { type: 'h2', text: 'What AI still cannot do' },
-      { type: 'p', text: 'AI will not replace the judgement call on whether a particular speaker will connect with a particular audience on a particular evening. Those calls require human context that is not in the training data, and they are where bureaus still add the most value.' },
-      { type: 'h2', text: 'The honest conclusion' },
-      { type: 'p', text: 'The best booking agencies of the next decade will use AI to do the search and shortlisting faster and more accurately, and will use their humans for the judgement calls that still matter. Ours is built that way by design.' },
+      { type: 'p', text: 'London and New York are the two most competitive keynote-speaker markets in the world. Major conference dates are blocked nine to twelve months out, top speakers juggle multiple offers, and traditional bureaus are slow to respond. Booking the right name for either city is as much about process as it is about timing. This guide sets out the steps that experienced organisers take to land the right speaker for a London or New York event in 2026.' },
+
+      { type: 'h2', text: 'What is the best way to book a keynote speaker?' },
+      { type: 'p', text: 'The best way to book a keynote speaker is to lead with the outcome you want from the talk, not with a wishlist of names. Define the audience, the moment in the agenda and the intended shift in behaviour first; the right shortlist follows. Send the brief to a curated bureau rather than an open marketplace, lock the date as early in the planning cycle as possible, and judge speakers on substance rather than name recognition. Organisers who follow this process consistently land stronger talks at lower friction.' },
+
+      { type: 'h2', text: 'Step 1: Define the outcome before browsing names' },
+      { type: 'p', text: 'The most common mistake organisers make in both London and New York is starting with a wishlist of famous names. Define what you want the audience to think, feel or do after the talk first. A specific outcome narrows the shortlist from hundreds to five and saves weeks of back-and-forth with bureaus. Vague outcomes like "inspire the team" almost always produce vague feedback and forgettable talks.' },
+
+      { type: 'h2', text: 'Step 2: Write a brief, not a requirements list' },
+      { type: 'p', text: 'A great brief describes the audience, the moment in the agenda, and the intended shift in behaviour. A list of required topics produces generic talks. The same brief that gets a great talk from one speaker will get a great but different talk from another — that variety is what good briefing produces. The strongest briefs we receive are typically two paragraphs long, not two pages.' },
+
+      { type: 'h2', text: 'Step 3: Lock the date early' },
+      { type: 'p', text: 'For London or New York events between September and November, top keynote speakers are typically booked nine to twelve months out. For January-to-June events, six months is usually enough. Submit briefs early, even if details are still being finalised. Speakers in both cities almost always have more flexibility on a near-final brief than on a perfect brief that arrives too late.' },
+
+      { type: 'h2', text: 'Step 4: Use a curated bureau, not a directory' },
+      { type: 'p', text: 'Open marketplaces are fast but uncurated, with no human judgement applied to the match. Traditional bureaus are personalised but slow, with response times stretching to days. The right balance for a premier-city event is a small curated roster combined with AI-powered matching: the speed of a marketplace with the curation of a bureau. That is the model we built at Flight Speakers.' },
+
+      { type: 'h2', text: 'Step 5: Judge speakers on substance, not name recognition' },
+      { type: 'p', text: 'A famous name with a stock keynote almost always under-performs a less-famous specialist who has prepared specifically for your audience. The best London and New York organisers in 2026 book based on substance and preparation rather than on poster value. The keynote audiences talk about for the rest of the year is rarely the most famous one on the agenda.' },
+
+      { type: 'h2', text: 'Hire the Right Keynote Speaker for Your London or New York Event' },
+      { type: 'p', text: 'Flight Speakers works across both UK and US markets with a curated roster matched to your event by AI and human judgement. [Submit a brief](/enquiry) describing your event, audience and intended outcome, and we will return three to five matched speakers with availability and reasoning, usually within hours.' },
     ],
   },
 ]
