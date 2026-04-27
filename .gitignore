@@ -8,6 +8,7 @@ server/uploads/*
 !server/uploads/.gitkeep
 .vite/
 .vercel/
+tmp/
 CLAUDE.md
 TECHNICAL.md
 next_phase_improvements.md
