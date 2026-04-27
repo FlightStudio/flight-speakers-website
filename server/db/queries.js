@@ -7,7 +7,8 @@ const SPEAKER_COLUMNS = `
   social_stats AS "socialStats",
   social_profiles AS "socialProfiles",
   fee_min AS "feeMin",
-  gender, ethnicity, nationality, location
+  gender, ethnicity, nationality, location,
+  books
 `
 
 export async function getAllSpeakers({ topic, audience, limit } = {}) {
