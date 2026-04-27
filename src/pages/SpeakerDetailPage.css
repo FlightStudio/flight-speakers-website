@@ -1342,12 +1342,11 @@
 
 .book__spine-text {
   writing-mode: vertical-rl;
-  transform: rotate(180deg);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.85);
   white-space: nowrap;
   padding: 24px 0;
 }
