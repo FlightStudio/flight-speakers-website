@@ -9,24 +9,6 @@ import './SpeakerDetailPage.css'
 const YOUTUBE_EMBED_RE = /\/embed\/([^?&#]+)/
 const DIRECT_VIDEO_RE = /\.(mp4|webm|mov)(\?|$)/i
 
-// DEV-ONLY: placeholder book data for the 3D shelf demo. Keyed by speaker id
-// (slug). Only speakers listed here get a "Books" section on their profile.
-// Safe to extend, safe to delete. Section is gated on import.meta.env.DEV.
-const SPEAKER_BOOKS = {
-  'steven-bartlett': [
-    { title: 'The Diary of a CEO', subtitle: 'The 33 Laws of Business & Life', c1: '#334663', c2: '#1B2A45' },
-    { title: 'Happy Sexy Millionaire', subtitle: null, c1: '#C7263C', c2: '#7A1326' },
-  ],
-  'nir-eyal': [
-    { title: 'Hooked', subtitle: 'How to Build Habit-Forming Products', c1: '#2E8BE8', c2: '#124A99' },
-    { title: 'Indistractable', subtitle: 'How to Control Your Attention', c1: '#EC5C36', c2: '#9A2713' },
-  ],
-  'vanessa-van-edwards': [
-    { title: 'Captivate', subtitle: 'The Science of Succeeding with People', c1: '#1FA392', c2: '#0F5A4F' },
-    { title: 'Cues', subtitle: 'Master the Secret Language of Communication', c1: '#ECA43A', c2: '#955F12' },
-  ],
-}
-
 function getVideoType(url) {
   if (!url) return { type: 'none' }
   const ytMatch = url.match(YOUTUBE_EMBED_RE)
@@ -536,10 +518,7 @@ function SpeakerDetailPage() {
                 </motion.div>
               </motion.div>
 
-              {/* DEV-ONLY: 3D book shelf for authors. Only renders for speakers
-                  with seeded book data. Remove the `import.meta.env.DEV` wrapper
-                  to ship, or delete the whole block. */}
-              {import.meta.env.DEV && SPEAKER_BOOKS[speaker.id] && (
+              {speaker.books?.length > 0 && (
                 <motion.div
                   className="book-shelf"
                   initial={{ opacity: 0, y: 24 }}
@@ -557,22 +536,24 @@ function SpeakerDetailPage() {
 
                   <div className="book-shelf__stage">
                     <div className="book-shelf__books">
-                      {SPEAKER_BOOKS[speaker.id].map((book, i) => (
+                      {speaker.books.map((book, i) => (
                         <div
                           key={i}
                           className="book"
-                          style={{ '--bc1': book.c1, '--bc2': book.c2 }}
                           aria-label={`${book.title} by ${speaker.name}`}
                         >
                           <div className="book__stage">
-                            <div className="book__front">
-                              <div className="book__title">{book.title}</div>
-                              {book.subtitle && (
-                                <div className="book__subtitle">{book.subtitle}</div>
-                              )}
-                              <div className="book__author">{speaker.name}</div>
-                            </div>
-                            <div className="book__spine" aria-hidden="true">
+                            <img
+                              className="book__front"
+                              src={book.coverUrl}
+                              alt=""
+                              loading="lazy"
+                            />
+                            <div
+                              className="book__spine"
+                              aria-hidden="true"
+                              style={{ '--cover': `url(${book.coverUrl})` }}
+                            >
                               <span className="book__spine-text">{book.title}</span>
                             </div>
                           </div>

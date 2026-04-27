@@ -1277,9 +1277,10 @@
 }
 
 .book {
-  --w: 180px;
-  --h: 260px;
-  --d: 30px;
+  --w: 130px;
+  --h: 190px;
+  --d: 22px;
+  --cover: none;
   width: var(--w);
   height: var(--h);
   position: relative;
@@ -1303,47 +1304,15 @@
   position: absolute;
   inset: 0;
   transform: translateZ(calc(var(--d) / 2));
-  background: linear-gradient(135deg, var(--bc1), var(--bc2));
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   border-radius: 1px 3px 3px 1px;
-  padding: 26px 22px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  color: #ffffff;
+  display: block;
   box-shadow:
     0 30px 40px -20px rgba(0, 0, 0, 0.55),
     0 12px 24px -12px rgba(0, 0, 0, 0.35),
     inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-}
-
-.book__title {
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.01em;
-  text-transform: uppercase;
-  position: relative;
-  z-index: 1;
-}
-
-.book__subtitle {
-  font-size: 11px;
-  line-height: 1.4;
-  opacity: 0.82;
-  margin-top: 8px;
-  font-weight: 400;
-  position: relative;
-  z-index: 1;
-}
-
-.book__author {
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  opacity: 0.78;
-  font-weight: 600;
-  position: relative;
-  z-index: 1;
 }
 
 .book__spine {
@@ -1352,11 +1321,12 @@
   top: 0;
   width: var(--d);
   height: 100%;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--bc1), black 10%),
-    color-mix(in srgb, var(--bc2), black 25%)
-  );
+  background-color: #1a1a1a;
+  background-image: var(--cover);
+  background-size: auto 100%;
+  background-position: left center;
+  background-repeat: no-repeat;
+  filter: brightness(0.35) saturate(0.7);
   transform: rotateY(-90deg) translateZ(calc(var(--d) / 2));
   transform-origin: top left;
   box-shadow:
@@ -1380,17 +1350,11 @@
   padding: 24px 0;
 }
 
-@supports not (color: color-mix(in srgb, red, blue)) {
-  .book__spine {
-    background: var(--bc2);
-  }
-}
-
 @media (max-width: 768px) {
   .book {
-    --w: 140px;
-    --h: 200px;
-    --d: 24px;
+    --w: 100px;
+    --h: 145px;
+    --d: 18px;
   }
 
   .book-shelf__books {
@@ -1400,14 +1364,6 @@
 
   .book-shelf__title {
     font-size: 11px;
-  }
-
-  .book__title {
-    font-size: 16px;
-  }
-
-  .book__subtitle {
-    font-size: 10px;
   }
 }
 
