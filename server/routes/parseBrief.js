@@ -1,21 +1,10 @@
 import express from 'express'
 import Anthropic from '@anthropic-ai/sdk'
+import { EVENT_TYPES, ENGAGEMENT_TYPES } from '../constants/enums.js'
 
 const router = express.Router()
 
 const anthropic = new Anthropic()
-
-const EVENT_TYPES = [
-  'Conference / Summit',
-  'Corporate Offsite',
-  'Leadership Event',
-  'Product Launch',
-  'Sales Kickoff',
-  'Awards / Gala',
-  'Internal Training',
-  'Virtual Event',
-  'Other',
-]
 
 const BUDGET_RANGES = [
   'Under $10,000',
@@ -96,7 +85,7 @@ router.post('/', async (req, res) => {
     if (extracted.budgetRange && !BUDGET_RANGES.includes(extracted.budgetRange)) {
       delete extracted.budgetRange
     }
-    if (extracted.engagementType && !['Paid', 'Pro Bono'].includes(extracted.engagementType)) {
+    if (extracted.engagementType && !ENGAGEMENT_TYPES.includes(extracted.engagementType)) {
       delete extracted.engagementType
     }
     // Validate customBudget is a numeric string

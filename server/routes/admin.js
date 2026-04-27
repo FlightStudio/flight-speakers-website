@@ -23,6 +23,12 @@ import { semanticSearch } from '../services/claude.js'
 import { notifyEnquiryResponse } from '../services/notifications.js'
 import { refreshAllSpeakerStats } from '../services/socialStats.js'
 import { getAccountInfo, getList, trackEvent, createOrUpdateProfile } from '../services/klaviyo.js'
+import {
+  validate,
+  speakerCreateSchema,
+  speakerPatchSchema,
+  enquiryUpdateSchema,
+} from '../schemas/index.js'
 
 const router = express.Router()
 
@@ -54,24 +60,6 @@ const VIDEO_EXT_BY_MIME = {
 // Speaker IDs are slugs (see db/queries.js createSpeaker). Reject anything else
 // before it reaches the GCS path to block traversal and object overwrite.
 const SPEAKER_ID_RE = /^[a-z0-9][a-z0-9-]{0,99}$/
-
-// Fields accepted on speaker create/update endpoints. camelCase to match
-// SpeakerForm state and queries.js createSpeaker/updateSpeaker (which map
-// camelCase -> snake_case DB columns internally).
-const SPEAKER_FIELDS = [
-  'name', 'headline', 'photo', 'bio',
-  'topics', 'audiences', 'keynotes',
-  'speakingFormat', 'videoUrl', 'socialProfiles', 'feeMin',
-  'gender', 'ethnicity', 'nationality', 'location',
-]
-
-function pickSpeakerFields(body) {
-  const out = {}
-  for (const key of SPEAKER_FIELDS) {
-    if (body[key] !== undefined) out[key] = body[key]
-  }
-  return out
-}
 
 function createUpload(fieldName, mimePattern, maxSize, errorMsg) {
   return multer({
@@ -226,13 +214,10 @@ router.get('/speakers/analytics', requireAdmin, async (req, res) => {
 
 // POST /api/admin/speakers — creates a draft for review
 router.post('/speakers', requireAdmin, async (req, res) => {
+  const data = validate(req, res, speakerCreateSchema)
+  if (!data) return
   try {
-    const { name, headline, photo, bio } = req.body
-    if (!name || !headline || !photo || !bio) {
-      return res.status(400).json({ success: false, message: 'Name, headline, photo, and bio are required' })
-    }
-    const filtered = pickSpeakerFields(req.body)
-    const draft = await createDraft({ type: 'new', data: filtered, submittedBy: req.admin.username })
+    const draft = await createDraft({ type: 'new', data, submittedBy: req.admin.username })
     res.status(201).json({ success: true, draft })
   } catch (err) {
     console.error('Speaker draft create error:', err)
@@ -242,16 +227,17 @@ router.post('/speakers', requireAdmin, async (req, res) => {
 
 // PATCH /api/admin/speakers/:id — creates an update draft for review
 router.patch('/speakers/:id', requireAdmin, async (req, res) => {
+  const data = validate(req, res, speakerPatchSchema)
+  if (!data) return
   try {
     const existing = await getSpeakerById(req.params.id)
     if (!existing) {
       return res.status(404).json({ success: false, message: 'Speaker not found' })
     }
-    const filtered = pickSpeakerFields(req.body)
     const draft = await createDraft({
       speakerId: req.params.id,
       type: 'update',
-      data: filtered,
+      data,
       submittedBy: req.admin.username,
     })
     res.json({ success: true, draft })
@@ -316,12 +302,13 @@ router.post('/invite/:speakerId', requireAdmin, async (req, res) => {
 
 // POST /api/admin/review/:id/approve
 router.post('/review/:id/approve', requireAdmin, async (req, res) => {
+  let editedData = null
+  if (req.body && Object.keys(req.body).length > 0) {
+    editedData = validate(req, res, speakerPatchSchema)
+    if (!editedData) return
+    if (Object.keys(editedData).length === 0) editedData = null
+  }
   try {
-    let editedData = null
-    if (req.body && Object.keys(req.body).length > 0) {
-      editedData = pickSpeakerFields(req.body)
-      if (Object.keys(editedData).length === 0) editedData = null
-    }
     const result = await approveDraft(parseInt(req.params.id, 10), editedData)
     res.json({ success: true, ...result })
   } catch (err) {
@@ -459,22 +446,17 @@ router.get('/enquiries/:id', requireAdmin, async (req, res) => {
 
 // PATCH /api/admin/enquiries/:id
 router.patch('/enquiries/:id', requireAdmin, async (req, res) => {
+  const data = validate(req, res, enquiryUpdateSchema)
+  if (!data) return
   try {
     const enquiry = await getEnquiryById(req.params.id)
     if (!enquiry) {
       return res.status(404).json({ success: false, message: 'Enquiry not found' })
     }
 
-    const { status, admin_notes, response_message, rejection_reason, email_subject } = req.body
+    const { status, admin_notes, response_message, rejection_reason, email_subject } = data
     const updates = {}
-
-    const VALID_STATUSES = ['new', 'reviewed', 'accepted', 'rejected', 'responded']
-    if (status) {
-      if (!VALID_STATUSES.includes(status)) {
-        return res.status(400).json({ success: false, message: 'Invalid status value' })
-      }
-      updates.status = status
-    }
+    if (status) updates.status = status
     if (admin_notes !== undefined) updates.admin_notes = admin_notes
     if (response_message !== undefined) updates.response_message = response_message
     if (rejection_reason !== undefined) updates.rejection_reason = rejection_reason
