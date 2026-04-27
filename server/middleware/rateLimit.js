@@ -34,7 +34,22 @@ if (process.env.REDIS_URL) {
   console.log('[rate-limit] No REDIS_URL set — using in-memory store (per-instance)')
 }
 
-export function createLimiter(options = {}) {
+// Legitimate search, social, and AI crawlers we want to keep indexing the site
+// (for SEO ranking + GEO/answer-engine ranking on the News content).
+// UA spoofing is possible but the only abuse it enables is "claim to be
+// Googlebot to bypass rate limits" — the tradeoff favours discoverability on
+// safe (GET) endpoints. Mutating endpoints (login, enquiry, portal) should
+// NOT skip — pass `skipBots: false` (default).
+//
+// SEO crawlers: Google, Bing, DuckDuckGo, Yahoo, Yandex, Baidu, Apple, social.
+// GEO crawlers: ChatGPT (GPTBot, ChatGPT-User, OAI-SearchBot), Anthropic
+// (ClaudeBot, Claude-Web, anthropic-ai), Perplexity (PerplexityBot),
+// Google Gemini (Google-Extended), Amazon (Amazonbot), Apple AI
+// (Applebot-Extended), TikTok (Bytespider), Common Crawl (CCBot),
+// You.com (YouBot), Cohere (cohere-ai), Meta AI (Meta-ExternalAgent).
+const KNOWN_CRAWLERS = /(Googlebot|Bingbot|DuckDuckBot|Slurp|YandexBot|Baiduspider|AppleBot|FacebookExternalHit|Twitterbot|LinkedInBot|Mediapartners-Google|AdsBot-Google|GPTBot|ChatGPT-User|OAI-SearchBot|ClaudeBot|Claude-Web|anthropic-ai|PerplexityBot|Google-Extended|Amazonbot|Applebot-Extended|Bytespider|CCBot|YouBot|cohere-ai|Meta-ExternalAgent)/i
+
+export function createLimiter({ skipBots = false, ...options } = {}) {
   const store = redisClient
     ? new RedisStore({
         sendCommand: (...args) => redisClient.call(...args),
@@ -44,6 +59,9 @@ export function createLimiter(options = {}) {
   return rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
+    skip: skipBots
+      ? (req) => KNOWN_CRAWLERS.test(req.headers['user-agent'] || '')
+      : undefined,
     ...options,
     store,
   })

@@ -58,6 +58,7 @@ const searchLimiter = createLimiter({
   windowMs: 60 * 1000,
   max: 30,
   prefix: 'rl:search:',
+  skipBots: true,
   message: { success: false, message: 'Too many requests, please try again later' },
 })
 

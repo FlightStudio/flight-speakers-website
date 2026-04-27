@@ -15,6 +15,7 @@ const viewLimiter = createLimiter({
   windowMs: 60 * 1000,
   max: 60,
   prefix: 'rl:view:',
+  skipBots: true,
   message: { success: false, message: 'Too many view events' },
 })
 
