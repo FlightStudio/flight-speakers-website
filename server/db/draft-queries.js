@@ -56,33 +56,50 @@ export async function getDraftById(id) {
 }
 
 export async function approveDraft(id, editedData) {
-  const draft = await getDraftById(id)
-  if (!draft) throw new Error('Draft not found')
-  if (draft.status !== 'pending') throw new Error('Draft already reviewed')
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
 
-  const data = editedData || draft.data
-
-  // If admin edited the data, persist it on the draft record
-  if (editedData) {
-    await pool.query(
-      `UPDATE speaker_drafts SET data = $1 WHERE id = $2`,
-      [JSON.stringify(editedData), id]
+    // Lock the draft row so concurrent approvals serialise. Re-check status
+    // under the lock to avoid double-approval.
+    const { rows } = await client.query(
+      `SELECT * FROM speaker_drafts WHERE id = $1 FOR UPDATE`,
+      [id]
     )
+    const draft = rows[0]
+    if (!draft) throw new Error('Draft not found')
+    if (draft.status !== 'pending') throw new Error('Draft already reviewed')
+
+    const draftData = typeof draft.data === 'string' ? JSON.parse(draft.data) : draft.data
+    const data = editedData || draftData
+
+    if (editedData) {
+      await client.query(
+        `UPDATE speaker_drafts SET data = $1 WHERE id = $2`,
+        [JSON.stringify(editedData), id]
+      )
+    }
+
+    let speaker
+    if (draft.type === 'new') {
+      speaker = await createSpeaker(data, client)
+    } else {
+      speaker = await updateSpeaker(draft.speaker_id, data, client)
+    }
+
+    await client.query(
+      `UPDATE speaker_drafts SET status = 'approved', reviewed_at = NOW() WHERE id = $1`,
+      [id]
+    )
+
+    await client.query('COMMIT')
+    return { draft: { ...draft, data, status: 'approved' }, speaker }
+  } catch (err) {
+    await client.query('ROLLBACK').catch(() => {})
+    throw err
+  } finally {
+    client.release()
   }
-
-  let speaker
-  if (draft.type === 'new') {
-    speaker = await createSpeaker(data)
-  } else {
-    speaker = await updateSpeaker(draft.speaker_id, data)
-  }
-
-  await pool.query(
-    `UPDATE speaker_drafts SET status = 'approved', reviewed_at = NOW() WHERE id = $1`,
-    [id]
-  )
-
-  return { draft: { ...draft, status: 'approved', data }, speaker }
 }
 
 export async function rejectDraft(id) {

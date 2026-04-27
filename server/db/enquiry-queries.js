@@ -216,6 +216,11 @@ export async function getEnquiryAnalytics(engagementType) {
         END AS parsed_budget
       FROM enquiries
       ${where}
+    ),
+    dominant AS (
+      SELECT currency FROM parsed
+      WHERE currency IS NOT NULL AND engagement_type = 'Paid'
+      GROUP BY currency ORDER BY count(*) DESC LIMIT 1
     )
     SELECT
       -- Revenue by currency (accepted paid)
@@ -228,16 +233,19 @@ export async function getEnquiryAnalytics(engagementType) {
       CASE WHEN count(*) > 0
         THEN round(count(*) FILTER (WHERE status = 'accepted')::numeric / count(*) * 100, 1)
         ELSE 0 END AS acceptance_rate,
-      -- Average budget (paid with budget)
-      round(avg(parsed_budget) FILTER (WHERE engagement_type = 'Paid' AND parsed_budget IS NOT NULL)) AS average_budget,
+      -- Average budget (paid with budget, scoped to dominant currency to avoid mixing GBP/USD/EUR)
+      round(avg(parsed_budget) FILTER (
+        WHERE engagement_type = 'Paid'
+          AND parsed_budget IS NOT NULL
+          AND currency = (SELECT currency FROM dominant)
+      )) AS average_budget,
       -- Pro bono counts
       count(*) FILTER (WHERE engagement_type = 'Pro Bono') AS pro_bono_count,
       count(*) FILTER (WHERE engagement_type = 'Pro Bono' AND pro_bono_flexible = true) AS pro_bono_flexible_count,
       -- Paid count
       count(*) FILTER (WHERE engagement_type = 'Paid') AS paid_count,
       -- Dominant currency
-      (SELECT currency FROM parsed WHERE currency IS NOT NULL AND engagement_type = 'Paid'
-       GROUP BY currency ORDER BY count(*) DESC LIMIT 1) AS dominant_currency
+      (SELECT currency FROM dominant) AS dominant_currency
     FROM parsed
     LEFT JOIN LATERAL (
       SELECT p2.currency, round(sum(p2.parsed_budget)) AS total

@@ -83,14 +83,14 @@ export async function updateSpeakerFees(id, feeMin) {
   return rows[0] || null
 }
 
-export async function createSpeaker(data) {
+export async function createSpeaker(data, executor = pool) {
   const slug = data.name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '')
   const id = `${slug}-${Date.now().toString(36)}`
 
-  const { rows } = await pool.query(
+  const { rows } = await executor.query(
     `INSERT INTO speakers (id, name, headline, photo, bio, topics, audiences, keynotes,
        speaking_format, video_url, social_profiles, fee_min,
        gender, ethnicity, nationality, location)
@@ -119,7 +119,7 @@ export async function createSpeaker(data) {
   return rows[0]
 }
 
-export async function updateSpeaker(id, data) {
+export async function updateSpeaker(id, data, executor = pool) {
   const fields = []
   const params = []
   let paramIndex = 1
@@ -158,7 +158,7 @@ export async function updateSpeaker(id, data) {
   fields.push('updated_at = NOW()')
   params.push(id)
 
-  const { rows } = await pool.query(
+  const { rows } = await executor.query(
     `UPDATE speakers SET ${fields.join(', ')} WHERE id = $${paramIndex} RETURNING ${SPEAKER_COLUMNS}`,
     params
   )

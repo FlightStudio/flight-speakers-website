@@ -3,7 +3,12 @@ import pool from './connection.js'
 
 async function seedAdmin() {
   const username = 'admin'
-  const password = process.env.ADMIN_DEFAULT_PASSWORD || 'admin'
+  const password = process.env.ADMIN_DEFAULT_PASSWORD
+
+  if (!password || password.length < 12) {
+    console.error('ADMIN_DEFAULT_PASSWORD must be set and at least 12 characters.')
+    process.exit(1)
+  }
 
   try {
     // Check if admin already exists
@@ -26,7 +31,6 @@ async function seedAdmin() {
     )
 
     console.log(`Admin user "${username}" created successfully.`)
-    console.log(`Password: ${password}`)
     process.exit(0)
   } catch (err) {
     console.error('Failed to seed admin user:', err.message)

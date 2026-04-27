@@ -1,4 +1,5 @@
 import express from 'express'
+import rateLimit from 'express-rate-limit'
 import {
   getAllSpeakers,
   getSpeakerById,
@@ -9,6 +10,14 @@ import {
 import pool from '../db/connection.js'
 
 const router = express.Router()
+
+const viewLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many view events' },
+})
 
 // Get all speakers (with optional filters)
 router.get('/', async (req, res, next) => {
@@ -78,7 +87,7 @@ router.get('/:id', async (req, res, next) => {
 })
 
 // Track speaker view (fire-and-forget from frontend)
-router.post('/:id/view', async (req, res) => {
+router.post('/:id/view', viewLimiter, async (req, res) => {
   try {
     await pool.query(
       'INSERT INTO speaker_views (speaker_id) VALUES ($1)',

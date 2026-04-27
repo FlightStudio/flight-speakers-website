@@ -1,7 +1,6 @@
 import express from 'express'
 import bcrypt from 'bcrypt'
 import multer from 'multer'
-import { extname } from 'path'
 import { Storage } from '@google-cloud/storage'
 import { signToken, requireAdmin } from '../middleware/auth.js'
 import {
@@ -27,35 +26,107 @@ import { getAccountInfo, getList, trackEvent, createOrUpdateProfile } from '../s
 
 const router = express.Router()
 
-// Photo upload config — stores in Google Cloud Storage
+// GCS upload config
 const GCS_BUCKET = process.env.GCS_BUCKET || 'flight-speakers-photos'
-const gcs = new Storage()
-const bucket = gcs.bucket(GCS_BUCKET)
+const bucket = new Storage().bucket(GCS_BUCKET)
 
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    if (/^image\/(jpeg|png|webp|gif)$/.test(file.mimetype)) cb(null, true)
-    else cb(new Error('Only image files are allowed'))
-  },
-})
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024     // 5 MB
+const MAX_VIDEO_SIZE = 100 * 1024 * 1024    // 100 MB
+const CACHE_ONE_YEAR = 'public, max-age=31536000'
 
-// POST /api/admin/speakers/:id/photo — upload to GCS & update speaker photo
-router.post('/speakers/:id/photo', requireAdmin, upload.single('photo'), async (req, res) => {
+const ALLOWED_IMAGES = /^image\/(jpeg|png|webp|gif)$/
+const ALLOWED_VIDEOS = /^video\/(mp4|webm|quicktime|mov)$/
+
+// Pin output extension to the validated MIME, never trust client filename.
+const IMAGE_EXT_BY_MIME = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'image/webp': '.webp',
+  'image/gif': '.gif',
+}
+const VIDEO_EXT_BY_MIME = {
+  'video/mp4': '.mp4',
+  'video/webm': '.webm',
+  'video/quicktime': '.mov',
+  'video/mov': '.mov',
+}
+
+// Speaker IDs are slugs (see db/queries.js createSpeaker). Reject anything else
+// before it reaches the GCS path to block traversal and object overwrite.
+const SPEAKER_ID_RE = /^[a-z0-9][a-z0-9-]{0,99}$/
+
+// Fields accepted on speaker create/update endpoints. camelCase to match
+// SpeakerForm state and queries.js createSpeaker/updateSpeaker (which map
+// camelCase -> snake_case DB columns internally).
+const SPEAKER_FIELDS = [
+  'name', 'headline', 'photo', 'bio',
+  'topics', 'audiences', 'keynotes',
+  'speakingFormat', 'videoUrl', 'socialProfiles', 'feeMin',
+  'gender', 'ethnicity', 'nationality', 'location',
+]
+
+function pickSpeakerFields(body) {
+  const out = {}
+  for (const key of SPEAKER_FIELDS) {
+    if (body[key] !== undefined) out[key] = body[key]
+  }
+  return out
+}
+
+function createUpload(fieldName, mimePattern, maxSize, errorMsg) {
+  return multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: maxSize },
+    fileFilter: (req, file, cb) => {
+      mimePattern.test(file.mimetype) ? cb(null, true) : cb(new Error(errorMsg))
+    },
+  }).single(fieldName)
+}
+
+const imageUpload = createUpload('photo', ALLOWED_IMAGES, MAX_IMAGE_SIZE, 'Only image files are allowed')
+const videoUpload = createUpload('video', ALLOWED_VIDEOS, MAX_VIDEO_SIZE, 'Only video files (MP4, WebM, MOV) are allowed')
+
+async function uploadToGCS(file, gcsPath) {
+  const blob = bucket.file(gcsPath)
+  await blob.save(file.buffer, {
+    contentType: file.mimetype,
+    metadata: { cacheControl: CACHE_ONE_YEAR },
+  })
+  return `https://storage.googleapis.com/${GCS_BUCKET}/${gcsPath}`
+}
+
+router.post('/speakers/:id/photo', requireAdmin, imageUpload, async (req, res) => {
+  if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' })
+  if (!SPEAKER_ID_RE.test(req.params.id)) {
+    return res.status(400).json({ success: false, message: 'Invalid speaker id' })
+  }
+  const ext = IMAGE_EXT_BY_MIME[req.file.mimetype]
+  if (!ext) return res.status(400).json({ success: false, message: 'Unsupported image type' })
   try {
-    if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' })
-    const filename = `speakers/${req.params.id}${extname(req.file.originalname)}`
-    const blob = bucket.file(filename)
-    await blob.save(req.file.buffer, {
-      contentType: req.file.mimetype,
-      metadata: { cacheControl: 'public, max-age=31536000' },
-    })
-    const photoUrl = `https://storage.googleapis.com/${GCS_BUCKET}/${filename}`
-    await updateSpeaker(req.params.id, { photo: photoUrl })
-    res.json({ success: true, photo: photoUrl })
+    const gcsPath = `speakers/${req.params.id}${ext}`
+    const url = await uploadToGCS(req.file, gcsPath)
+    await updateSpeaker(req.params.id, { photo: url })
+    res.json({ success: true, photo: url })
   } catch (err) {
     console.error('Photo upload error:', err)
+    res.status(500).json({ success: false, message: 'Upload failed' })
+  }
+})
+
+router.post('/speakers/:id/video', requireAdmin, videoUpload, async (req, res) => {
+  if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' })
+  if (!SPEAKER_ID_RE.test(req.params.id)) {
+    return res.status(400).json({ success: false, message: 'Invalid speaker id' })
+  }
+  const ext = VIDEO_EXT_BY_MIME[req.file.mimetype]
+  if (!ext) return res.status(400).json({ success: false, message: 'Unsupported video type' })
+  try {
+    const gcsPath = `speakers/videos/${req.params.id}${ext}`
+    const url = await uploadToGCS(req.file, gcsPath)
+    await updateSpeaker(req.params.id, { videoUrl: url })
+    res.json({ success: true, videoUrl: url })
+  } catch (err) {
+    console.error('Video upload error:', err)
     res.status(500).json({ success: false, message: 'Upload failed' })
   }
 })
@@ -160,11 +231,7 @@ router.post('/speakers', requireAdmin, async (req, res) => {
     if (!name || !headline || !photo || !bio) {
       return res.status(400).json({ success: false, message: 'Name, headline, photo, and bio are required' })
     }
-    const SPEAKER_FIELDS = ['name', 'headline', 'photo', 'bio', 'topics', 'audiences', 'keynotes', 'speaking_format', 'video_url', 'social_profiles', 'fee_min', 'gender', 'ethnicity', 'nationality', 'location']
-    const filtered = {}
-    for (const key of SPEAKER_FIELDS) {
-      if (req.body[key] !== undefined) filtered[key] = req.body[key]
-    }
+    const filtered = pickSpeakerFields(req.body)
     const draft = await createDraft({ type: 'new', data: filtered, submittedBy: req.admin.username })
     res.status(201).json({ success: true, draft })
   } catch (err) {
@@ -180,11 +247,7 @@ router.patch('/speakers/:id', requireAdmin, async (req, res) => {
     if (!existing) {
       return res.status(404).json({ success: false, message: 'Speaker not found' })
     }
-    const SPEAKER_FIELDS = ['name', 'headline', 'photo', 'bio', 'topics', 'audiences', 'keynotes', 'speaking_format', 'video_url', 'social_profiles', 'fee_min', 'gender', 'ethnicity', 'nationality', 'location']
-    const filtered = {}
-    for (const key of SPEAKER_FIELDS) {
-      if (req.body[key] !== undefined) filtered[key] = req.body[key]
-    }
+    const filtered = pickSpeakerFields(req.body)
     const draft = await createDraft({
       speakerId: req.params.id,
       type: 'update',
@@ -256,11 +319,7 @@ router.post('/review/:id/approve', requireAdmin, async (req, res) => {
   try {
     let editedData = null
     if (req.body && Object.keys(req.body).length > 0) {
-      const SPEAKER_FIELDS = ['name', 'headline', 'photo', 'bio', 'topics', 'audiences', 'keynotes', 'speaking_format', 'video_url', 'social_profiles', 'fee_min', 'gender', 'ethnicity', 'nationality', 'location']
-      editedData = {}
-      for (const key of SPEAKER_FIELDS) {
-        if (req.body[key] !== undefined) editedData[key] = req.body[key]
-      }
+      editedData = pickSpeakerFields(req.body)
       if (Object.keys(editedData).length === 0) editedData = null
     }
     const result = await approveDraft(parseInt(req.params.id, 10), editedData)
@@ -575,10 +634,13 @@ router.get('/templates/:reasonKey', requireAdmin, async (req, res) => {
 // PUT /api/admin/templates/:reasonKey — update template
 router.put('/templates/:reasonKey', requireAdmin, async (req, res) => {
   try {
-    const { label, subject, body } = req.body
+    const { label, subject, body } = req.body || {}
+    if (label === undefined && subject === undefined && body === undefined) {
+      return res.status(400).json({ success: false, message: 'No fields to update' })
+    }
     const updated = await updateTemplate(req.params.reasonKey, { label, subject, body })
     if (!updated) {
-      return res.status(404).json({ success: false, message: 'Template not found or no changes' })
+      return res.status(404).json({ success: false, message: 'Template not found' })
     }
     res.json({ success: true, template: updated })
   } catch (err) {

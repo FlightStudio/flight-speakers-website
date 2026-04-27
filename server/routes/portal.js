@@ -39,12 +39,13 @@ router.post('/:token', async (req, res) => {
     if (name.length > 200 || headline.length > 300 || bio.length > 5000) {
       return res.status(400).json({ success: false, message: 'One or more fields exceed maximum length' })
     }
-    if ((req.body.photo && req.body.photo.length > 1000) || (req.body.video_url && req.body.video_url.length > 500)) {
+    if ((req.body.photo && req.body.photo.length > 1000) || (req.body.videoUrl && req.body.videoUrl.length > 500)) {
       return res.status(400).json({ success: false, message: 'URL fields exceed maximum length' })
     }
 
-    // Whitelist allowed fields
-    const allowedFields = ['name', 'headline', 'bio', 'photo', 'topics', 'audiences', 'keynotes', 'speaking_format', 'video_url', 'social_profiles', 'gender', 'ethnicity', 'nationality', 'location']
+    // Whitelist allowed fields. camelCase to match SpeakerForm (portalMode) submission.
+    // No feeMin: speakers do not set their own fee via the portal.
+    const allowedFields = ['name', 'headline', 'bio', 'photo', 'topics', 'audiences', 'keynotes', 'speakingFormat', 'videoUrl', 'socialProfiles', 'gender', 'ethnicity', 'nationality', 'location']
     const filtered = {}
     for (const key of allowedFields) {
       if (req.body[key] !== undefined) filtered[key] = req.body[key]
