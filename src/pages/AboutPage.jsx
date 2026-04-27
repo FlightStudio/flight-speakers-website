@@ -1,6 +1,47 @@
 import { Link } from 'react-router-dom'
 import './AboutPage.css'
 
+// Local-demo-only competitor table. `import.meta.env.DEV` is true during `npm run dev`
+// and false in any production build, so this section never ships with `npm run build`.
+const COMPARE_ROWS = [
+  {
+    label: 'Roster size',
+    traditional: 'Hundreds of names, thinly known',
+    flight: '13, hand-picked and personally backed',
+    directory: 'Open marketplace, anyone can list',
+  },
+  {
+    label: 'Matching method',
+    traditional: 'Agent’s rolodex and best guess',
+    flight: 'AI-surfaced shortlist, human reviewed',
+    directory: 'Keyword / algorithm only',
+  },
+  {
+    label: 'Response time',
+    traditional: '24–48 hours for a quote',
+    flight: 'Seconds to match, human follow-up same day',
+    directory: 'Instant, but no follow-up',
+  },
+  {
+    label: 'Speaker vetting',
+    traditional: 'Some — depends on the agent',
+    flight: 'Every speaker vetted and personally booked',
+    directory: 'Self-declared only',
+  },
+  {
+    label: 'Pricing transparency',
+    traditional: 'Opaque commission, fee on request',
+    flight: 'Clear fee ranges, no hidden margin',
+    directory: 'Self-serve, no pricing guidance',
+  },
+  {
+    label: 'Brief understanding',
+    traditional: 'Human judgement, often surface-level',
+    flight: 'AI extracts the brief, humans sense-check',
+    directory: 'Keyword match only',
+  },
+]
+
 function AboutPage() {
   return (
     <div className="about-page">
@@ -18,6 +59,60 @@ function AboutPage() {
           </div>
         </div>
       </section>
+
+      {/* DEV-ONLY: Competitor table for stakeholder demo. Placed at the top
+          of the content (right after the hero) so it opens the argument.
+          Remove the `import.meta.env.DEV &&` wrapper to ship, or delete the
+          whole section. */}
+      {import.meta.env.DEV && (
+        <section className="section about-compare">
+          <div className="container">
+            <div className="section-header about-compare__header">
+              <span className="about-compare__badge">Demo preview</span>
+              <h2 className="section-title">How we compare</h2>
+              <p className="section-subtitle">
+                The speaker bureau category, rethought. Human curation meets AI speed — without the trade-offs of either extreme.
+              </p>
+            </div>
+
+            <div className="compare-table-wrap">
+              <table className="compare-table" aria-label="Comparison of speaker sourcing options">
+                <thead>
+                  <tr>
+                    <th scope="col" className="compare-table__corner" aria-hidden="true"></th>
+                    <th scope="col" className="compare-table__col compare-table__col--side">
+                      <span className="compare-table__col-name">Traditional Bureau</span>
+                      <span className="compare-table__col-sub">The old way</span>
+                    </th>
+                    <th scope="col" className="compare-table__col compare-table__col--center">
+                      <span className="compare-table__col-flag">Flight Speakers</span>
+                      <span className="compare-table__col-sub compare-table__col-sub--center">Curated + AI-powered</span>
+                    </th>
+                    <th scope="col" className="compare-table__col compare-table__col--side">
+                      <span className="compare-table__col-name">AI Directory</span>
+                      <span className="compare-table__col-sub">Self-serve marketplace</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {COMPARE_ROWS.map((row) => (
+                    <tr key={row.label}>
+                      <th scope="row" className="compare-table__rowlabel">{row.label}</th>
+                      <td className="compare-table__cell compare-table__cell--side">{row.traditional}</td>
+                      <td className="compare-table__cell compare-table__cell--center">{row.flight}</td>
+                      <td className="compare-table__cell compare-table__cell--side">{row.directory}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <p className="about-compare__disclaimer">
+              Placeholder copy for stakeholder review. Final positioning, competitors named or kept generic, and row content all still open.
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* Story Section */}
       <section className="section about-story">

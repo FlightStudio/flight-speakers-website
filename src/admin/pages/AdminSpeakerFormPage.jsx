@@ -150,6 +150,7 @@ export default function AdminSpeakerFormPage() {
           onSubmit={handleSubmit}
           saving={isSaving}
           submitLabel={isDeploy ? 'Deploy to Site' : undefined}
+          speakerId={id || initialData?.id}
         />
       </div>
     </motion.div>

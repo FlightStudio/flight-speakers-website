@@ -231,3 +231,164 @@
     justify-content: center;
   }
 }
+
+/* ---------------------------------------------------------------
+ * DEV-ONLY: Competitor comparison table ("How we compare").
+ * Section is rendered only when import.meta.env.DEV is true.
+ * Safe to delete this whole block if the feature is cut.
+ * --------------------------------------------------------------- */
+
+.about-compare {
+  padding: 64px 0 80px;
+  background: var(--color-off-white);
+}
+
+.about-compare__header {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 48px;
+}
+
+.about-compare__badge {
+  display: inline-block;
+  padding: 4px 10px;
+  margin-bottom: 16px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  background: var(--color-gold-light);
+  border-radius: 999px;
+}
+
+.compare-table-wrap {
+  overflow-x: auto;
+  border-radius: 16px;
+  border: 1px solid var(--color-gray-200);
+  background: var(--color-white);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.compare-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.compare-table thead th {
+  padding: 28px 22px 24px;
+  text-align: left;
+  font-weight: 600;
+  background: var(--color-gray-100);
+  border-bottom: 1px solid var(--color-gray-200);
+  vertical-align: top;
+}
+
+.compare-table__corner {
+  width: 180px;
+  background: var(--color-gray-100) !important;
+}
+
+.compare-table__col-name,
+.compare-table__col-flag {
+  display: block;
+  font-size: 16px;
+  line-height: 1.2;
+  color: var(--color-charcoal);
+}
+
+.compare-table__col-flag {
+  color: var(--color-gold);
+  letter-spacing: -0.01em;
+}
+
+.compare-table__col-sub {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-gray-500);
+}
+
+.compare-table__col-sub--center {
+  color: var(--color-gold);
+  opacity: 0.8;
+}
+
+/* Centre column emphasis on the header row */
+.compare-table thead .compare-table__col--center {
+  background: var(--color-white);
+  border-top: 3px solid var(--color-gold);
+  box-shadow: inset 0 -1px 0 var(--color-gold-light);
+}
+
+.compare-table tbody th,
+.compare-table tbody td {
+  padding: 18px 22px;
+  font-size: 15px;
+  line-height: 1.55;
+  border-bottom: 1px solid var(--color-gray-100);
+  vertical-align: top;
+  color: var(--color-gray-700);
+}
+
+.compare-table__rowlabel {
+  font-weight: 600;
+  color: var(--color-charcoal);
+  background: var(--color-gray-100);
+  text-align: left;
+}
+
+.compare-table__cell--side {
+  color: var(--color-gray-500);
+}
+
+.compare-table__cell--center {
+  background: var(--color-white);
+  color: var(--color-charcoal);
+  font-weight: 500;
+  box-shadow: inset 1px 0 0 var(--color-gold-light),
+              inset -1px 0 0 var(--color-gold-light);
+}
+
+.compare-table tbody tr:last-child th,
+.compare-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.compare-table tbody tr:last-child .compare-table__cell--center {
+  box-shadow: inset 1px 0 0 var(--color-gold-light),
+              inset -1px 0 0 var(--color-gold-light),
+              inset 0 -3px 0 var(--color-gold);
+}
+
+.about-compare__disclaimer {
+  margin: 20px auto 0;
+  font-size: 13px;
+  color: var(--color-gray-400);
+  font-style: italic;
+  text-align: center;
+  max-width: 560px;
+}
+
+@media (max-width: 768px) {
+  .about-compare {
+    padding: 48px 0 56px;
+  }
+
+  .compare-table-wrap {
+    /* allow the table to scroll sideways on narrow screens */
+    border-radius: 12px;
+  }
+
+  .compare-table thead th,
+  .compare-table tbody th,
+  .compare-table tbody td {
+    padding: 16px 14px;
+    font-size: 14px;
+  }
+}

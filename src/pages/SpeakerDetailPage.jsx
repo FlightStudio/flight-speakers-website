@@ -6,15 +6,42 @@ import { prefetchSpeaker, prefetchParseBrief } from '../utils/prefetch'
 import { EASE } from '../constants/animation'
 import './SpeakerDetailPage.css'
 
-function getYouTubeId(url) {
-  const match = url?.match(/\/embed\/([^?&#]+)/)
-  return match ? match[1] : null
+const YOUTUBE_EMBED_RE = /\/embed\/([^?&#]+)/
+const DIRECT_VIDEO_RE = /\.(mp4|webm|mov)(\?|$)/i
+
+// DEV-ONLY: placeholder book data for the 3D shelf demo. Keyed by speaker id
+// (slug). Only speakers listed here get a "Books" section on their profile.
+// Safe to extend, safe to delete. Section is gated on import.meta.env.DEV.
+const SPEAKER_BOOKS = {
+  'steven-bartlett': [
+    { title: 'The Diary of a CEO', subtitle: 'The 33 Laws of Business & Life', c1: '#334663', c2: '#1B2A45' },
+    { title: 'Happy Sexy Millionaire', subtitle: null, c1: '#C7263C', c2: '#7A1326' },
+  ],
+  'nir-eyal': [
+    { title: 'Hooked', subtitle: 'How to Build Habit-Forming Products', c1: '#2E8BE8', c2: '#124A99' },
+    { title: 'Indistractable', subtitle: 'How to Control Your Attention', c1: '#EC5C36', c2: '#9A2713' },
+  ],
+  'vanessa-van-edwards': [
+    { title: 'Captivate', subtitle: 'The Science of Succeeding with People', c1: '#1FA392', c2: '#0F5A4F' },
+    { title: 'Cues', subtitle: 'Master the Secret Language of Communication', c1: '#ECA43A', c2: '#955F12' },
+  ],
 }
 
-function VideoHero({ speaker, videoId, socialEntries, totalFollowing, brief, handleEnquireClick, handleEnquireHover, briefReasoning, briefScore, id, isSelected, setIsSelected, handleSelectAndBack }) {
-  const [isMuted, setIsMuted] = useState(true)
+function getVideoType(url) {
+  if (!url) return { type: 'none' }
+  const ytMatch = url.match(YOUTUBE_EMBED_RE)
+  if (ytMatch) return { type: 'youtube', id: ytMatch[1] }
+  if (DIRECT_VIDEO_RE.test(url)) return { type: 'direct', src: url }
+  return { type: 'none' }
+}
 
-  const iframeSrc = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${isMuted ? 1 : 0}&loop=1&playlist=${videoId}&controls=0&modestbranding=1&rel=0`
+function VideoHero({ speaker, video, socialEntries, totalFollowing, brief, onEnquire, onEnquireHover, id, isSelected, setIsSelected, handleSelectAndBack }) {
+  const [isMuted, setIsMuted] = useState(true)
+  const videoRef = useRef(null)
+
+  const iframeSrc = video.type === 'youtube'
+    ? `https://www.youtube.com/embed/${video.id}?autoplay=1&mute=${isMuted ? 1 : 0}&loop=1&playlist=${video.id}&controls=0&modestbranding=1&rel=0`
+    : null
 
   return (
     <section className="speaker-video-hero-section">
@@ -48,8 +75,7 @@ function VideoHero({ speaker, videoId, socialEntries, totalFollowing, brief, han
                   try {
                     const stored = sessionStorage.getItem('selectedSpeakerIds')
                     const ids = stored ? JSON.parse(stored) : []
-                    const numId = parseInt(id)
-                    sessionStorage.setItem('selectedSpeakerIds', JSON.stringify(ids.filter(i => i !== numId)))
+                    sessionStorage.setItem('selectedSpeakerIds', JSON.stringify(ids.filter(i => i !== id)))
                   } catch {}
                   setIsSelected(false)
                 } else {
@@ -76,14 +102,11 @@ function VideoHero({ speaker, videoId, socialEntries, totalFollowing, brief, han
           )}
         </motion.div>
 
-        <iframe
-          className="speaker-video-hero__iframe"
-          src={iframeSrc}
-          title={`${speaker.name} Speaker Reel`}
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
+        {video.type === 'direct' ? (
+          <video ref={videoRef} className="speaker-video-hero__iframe" src={video.src} autoPlay loop muted={isMuted} playsInline />
+        ) : (
+          <iframe className="speaker-video-hero__iframe" src={iframeSrc} title={`${speaker.name} Speaker Reel`} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+        )}
         <div className="speaker-video-hero__scrim" />
         <div className="speaker-video-hero__overlay">
           <div className="speaker-video-hero__info">
@@ -125,8 +148,8 @@ function VideoHero({ speaker, videoId, socialEntries, totalFollowing, brief, han
           </div>
           <div className="speaker-video-hero__actions">
             <motion.button
-              onClick={handleEnquireClick}
-              onMouseEnter={handleEnquireHover}
+              onClick={onEnquire}
+              onMouseEnter={onEnquireHover}
               className="speaker-video-hero__enquire-btn"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -138,7 +161,13 @@ function VideoHero({ speaker, videoId, socialEntries, totalFollowing, brief, han
             </motion.button>
             <button
               className="speaker-video-hero__sound-btn"
-              onClick={() => setIsMuted(m => !m)}
+              onClick={() => {
+                setIsMuted(m => {
+                  const next = !m
+                  if (videoRef.current) videoRef.current.muted = next
+                  return next
+                })
+              }}
               title={isMuted ? 'Unmute' : 'Mute'}
             >
               {isMuted ? (
@@ -217,7 +246,7 @@ function SpeakerDetailPage() {
   const [isSelected, setIsSelected] = useState(() => {
     try {
       const stored = sessionStorage.getItem('selectedSpeakerIds')
-      return stored ? JSON.parse(stored).includes(parseInt(id)) : false
+      return stored ? JSON.parse(stored).includes(id) : false
     } catch { return false }
   })
 
@@ -225,8 +254,7 @@ function SpeakerDetailPage() {
     try {
       const stored = sessionStorage.getItem('selectedSpeakerIds')
       const ids = stored ? JSON.parse(stored) : []
-      const numId = parseInt(id)
-      if (!ids.includes(numId)) ids.push(numId)
+      if (!ids.includes(id)) ids.push(id)
       sessionStorage.setItem('selectedSpeakerIds', JSON.stringify(ids))
     } catch {}
     navigate(`/search?q=${encodeURIComponent(brief)}`)
@@ -329,12 +357,13 @@ function SpeakerDetailPage() {
 
   const totalFollowing = socialEntries.reduce((sum, e) => sum + e.count, 0)
 
-  const videoId = getYouTubeId(speaker.videoUrl)
+  const video = getVideoType(speaker.videoUrl)
+  const hasVideo = video.type !== 'none'
 
   return (
     <div className="speaker-detail-page">
       {/* Back nav — only for photo hero; video hero has its own overlay nav */}
-      {!videoId && (
+      {!hasVideo && (
         <motion.div
           className="speaker-nav"
           initial={{ opacity: 0 }}
@@ -360,8 +389,7 @@ function SpeakerDetailPage() {
                       try {
                         const stored = sessionStorage.getItem('selectedSpeakerIds')
                         const ids = stored ? JSON.parse(stored) : []
-                        const numId = parseInt(id)
-                        sessionStorage.setItem('selectedSpeakerIds', JSON.stringify(ids.filter(i => i !== numId)))
+                        sessionStorage.setItem('selectedSpeakerIds', JSON.stringify(ids.filter(i => i !== id)))
                       } catch {}
                       setIsSelected(false)
                     } else {
@@ -392,17 +420,15 @@ function SpeakerDetailPage() {
       )}
 
       {/* ========== ROW 1: Hero ========== */}
-      {videoId ? (
+      {hasVideo ? (
         <VideoHero
           speaker={speaker}
-          videoId={videoId}
+          video={video}
           socialEntries={socialEntries}
           totalFollowing={totalFollowing}
           brief={brief}
-          handleEnquireClick={handleEnquireClick}
-          handleEnquireHover={handleEnquireHover}
-          briefReasoning={briefReasoning}
-          briefScore={briefScore}
+          onEnquire={handleEnquireClick}
+          onEnquireHover={handleEnquireHover}
           id={id}
           isSelected={isSelected}
           setIsSelected={setIsSelected}
@@ -492,25 +518,73 @@ function SpeakerDetailPage() {
       <section className="speaker-body" ref={bodyRef}>
         <div className="container">
           <div className="speaker-body__grid">
-            {/* Left — Bio (sticky, scales down on scroll) */}
-            <motion.div
-              className="speaker-body__left"
-              style={{ scale: bioScale, opacity: bioOpacity }}
-            >
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, ease: EASE }}
-              >
-                <h2 className="speaker-body__bio-title">About {speaker.name}</h2>
-                <div className="speaker-body__bio">
-                  {speaker.bio.split('\n\n').map((paragraph, index) => (
-                    <p key={index}>{paragraph}</p>
-                  ))}
-                </div>
+            {/* Left — Bio (scroll-fade) + Book shelf (unaffected by fade) */}
+            <div className="speaker-body__left">
+              <motion.div style={{ scale: bioScale, opacity: bioOpacity }}>
+                <motion.div
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, ease: EASE }}
+                >
+                  <h2 className="speaker-body__bio-title">About {speaker.name}</h2>
+                  <div className="speaker-body__bio">
+                    {speaker.bio.split('\n\n').map((paragraph, index) => (
+                      <p key={index}>{paragraph}</p>
+                    ))}
+                  </div>
+                </motion.div>
               </motion.div>
-            </motion.div>
+
+              {/* DEV-ONLY: 3D book shelf for authors. Only renders for speakers
+                  with seeded book data. Remove the `import.meta.env.DEV` wrapper
+                  to ship, or delete the whole block. */}
+              {import.meta.env.DEV && SPEAKER_BOOKS[speaker.id] && (
+                <motion.div
+                  className="book-shelf"
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-80px' }}
+                  transition={{ duration: 0.6, ease: EASE }}
+                >
+                  <h3 className="book-shelf__title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                    Books by {speaker.name}
+                  </h3>
+
+                  <div className="book-shelf__stage">
+                    <div className="book-shelf__books">
+                      {SPEAKER_BOOKS[speaker.id].map((book, i) => (
+                        <div
+                          key={i}
+                          className="book"
+                          style={{ '--bc1': book.c1, '--bc2': book.c2 }}
+                          aria-label={`${book.title} by ${speaker.name}`}
+                        >
+                          <div className="book__stage">
+                            <div className="book__front">
+                              <div className="book__title">{book.title}</div>
+                              {book.subtitle && (
+                                <div className="book__subtitle">{book.subtitle}</div>
+                              )}
+                              <div className="book__author">{speaker.name}</div>
+                            </div>
+                            <div className="book__spine" aria-hidden="true">
+                              <span className="book__spine-text">{book.title}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="book-shelf__board" aria-hidden="true" />
+                    <div className="book-shelf__board-shadow" aria-hidden="true" />
+                  </div>
+                </motion.div>
+              )}
+            </div>
 
             {/* Right — Dynamic content */}
             <div className="speaker-body__right">

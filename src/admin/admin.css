@@ -3545,23 +3545,75 @@
   background: #fff;
 }
 
-.spkr-form__photo-row {
+/* Shared dropzone (photo & video upload) */
+.spkr-form__dropzone {
   display: flex;
-  gap: 0.75rem;
   align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 2px dashed var(--color-border, #e0e0de);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
 }
 
-.spkr-form__photo-row .spkr-form__input {
-  flex: 1;
+.spkr-form__dropzone:hover {
+  border-color: var(--color-charcoal, #333);
+  background: rgba(0,0,0,0.02);
 }
 
-.spkr-form__photo-preview {
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
-  object-fit: cover;
-  background: #f0f0ee;
+.spkr-form__dropzone--drag {
+  border-color: #6366f1;
+  background: rgba(99,102,241,0.05);
+}
+
+.spkr-form__dropzone-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  background: var(--color-bg-muted, #f5f5f3);
+  color: var(--color-text-muted, #999);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+}
+
+.spkr-form__dropzone-text {
+  font-size: 0.875rem;
+  color: var(--color-text-muted, #999);
+}
+
+.spkr-form__dropzone-img-preview {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.spkr-form__dropzone-vid-preview {
+  width: 120px;
+  height: 68px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #000;
+}
+
+.spkr-form__upload-progress {
+  margin-top: 0.5rem;
+  height: 4px;
+  background: var(--color-border, #e0e0de);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.spkr-form__upload-progress-bar {
+  height: 100%;
+  background: #6366f1;
+  border-radius: 2px;
+  transition: width 0.2s;
 }
 
 .spkr-form__tags {

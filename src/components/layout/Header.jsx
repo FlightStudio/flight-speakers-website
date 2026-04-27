@@ -42,6 +42,9 @@ function Header() {
   const navItems = [
     { path: '/speakers', label: 'Speakers' },
     { path: '/about', label: 'About' },
+    // DEV-ONLY: Press tab for SEO / editorial articles. Flip `import.meta.env.DEV`
+    // to `true` (or remove the conditional) when the press content is approved to ship.
+    ...(import.meta.env.DEV ? [{ path: '/press', label: 'Press' }] : []),
   ]
 
   return (

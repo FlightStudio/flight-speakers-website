@@ -1,22 +1,18 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 
 const GENDER_OPTIONS = ['', 'Male', 'Female', 'Non-binary', 'Prefer not to say']
+const SOCIAL_PLATFORMS = ['instagram', 'x', 'linkedin', 'youtube', 'tiktok']
 
 function TagInput({ label, value, onChange }) {
   const [input, setInput] = useState('')
 
   function handleKeyDown(e) {
-    if (e.key === 'Enter' && input.trim()) {
-      e.preventDefault()
-      if (!value.includes(input.trim())) {
-        onChange([...value, input.trim()])
-      }
-      setInput('')
+    if (e.key !== 'Enter' || !input.trim()) return
+    e.preventDefault()
+    if (!value.includes(input.trim())) {
+      onChange([...value, input.trim()])
     }
-  }
-
-  function handleRemove(tag) {
-    onChange(value.filter(t => t !== tag))
+    setInput('')
   }
 
   return (
@@ -26,11 +22,7 @@ function TagInput({ label, value, onChange }) {
         {value.map(tag => (
           <span key={tag} className="spkr-form__tag">
             {tag}
-            <button
-              type="button"
-              className="spkr-form__tag-remove"
-              onClick={() => handleRemove(tag)}
-            >
+            <button type="button" className="spkr-form__tag-remove" onClick={() => onChange(value.filter(t => t !== tag))}>
               &times;
             </button>
           </span>
@@ -41,13 +33,99 @@ function TagInput({ label, value, onChange }) {
         value={input}
         onChange={e => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder={`Type and press Enter to add`}
+        placeholder="Type and press Enter to add"
       />
     </div>
   )
 }
 
-export default function SpeakerForm({ initialData, onSubmit, saving, portalMode = false, submitLabel }) {
+function DropZone({ label, accept, preview, emptyIcon, uploadingText, idleText, dragOverClass, onUpload, progress }) {
+  const inputRef = useRef(null)
+  const [dragOver, setDragOver] = useState(false)
+
+  return (
+    <div className="spkr-form__field spkr-form__field--full">
+      <label className="spkr-form__label">{label}</label>
+      <div
+        className={`spkr-form__dropzone${dragOver ? ` ${dragOverClass}` : ''}`}
+        onClick={() => inputRef.current?.click()}
+        onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={(e) => { e.preventDefault(); setDragOver(false); onUpload(e.dataTransfer.files[0]) }}
+      >
+        {preview || (
+          <div className="spkr-form__dropzone-empty">{emptyIcon}</div>
+        )}
+        <div className="spkr-form__dropzone-text">
+          {uploadingText || idleText}
+        </div>
+        <input
+          ref={inputRef}
+          type="file"
+          accept={accept}
+          style={{ display: 'none' }}
+          onChange={(e) => onUpload(e.target.files[0])}
+        />
+      </div>
+      {progress > 0 && (
+        <div className="spkr-form__upload-progress">
+          <div className="spkr-form__upload-progress-bar" style={{ width: `${progress}%` }} />
+        </div>
+      )}
+    </div>
+  )
+}
+
+const UPLOAD_ICON = (
+  <svg width="24" height="24" viewBox="0 0 16 16" fill="none">
+    <path d="M8 1v10M4 5l4-4 4 4M2 14h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+)
+
+const PLAY_ICON = (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <polygon points="5,3 19,12 5,21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+  </svg>
+)
+
+function useFileUpload(speakerId, endpoint, fieldName, formFieldKey, setFormField) {
+  const [uploading, setUploading] = useState(false)
+  const [progress, setProgress] = useState(0)
+
+  const upload = useCallback(async (file) => {
+    if (!file || !speakerId) return
+    setUploading(true)
+    setProgress(0)
+    try {
+      const body = new FormData()
+      body.append(fieldName, file)
+      const xhr = new XMLHttpRequest()
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) setProgress(Math.round((e.loaded / e.total) * 100))
+      })
+      const result = await new Promise((resolve, reject) => {
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) resolve(JSON.parse(xhr.responseText))
+          else reject(new Error('Upload failed'))
+        }
+        xhr.onerror = () => reject(new Error('Upload failed'))
+        xhr.open('POST', `/api/admin/speakers/${speakerId}/${endpoint}`)
+        xhr.withCredentials = true
+        xhr.send(body)
+      })
+      if (result.success) setFormField(formFieldKey, result[formFieldKey] || result.photo || result.videoUrl)
+    } catch (err) {
+      console.error(`${endpoint} upload failed:`, err)
+    } finally {
+      setUploading(false)
+      setProgress(0)
+    }
+  }, [speakerId, endpoint, fieldName, formFieldKey, setFormField])
+
+  return { upload, uploading, progress }
+}
+
+export default function SpeakerForm({ initialData, onSubmit, saving, portalMode = false, submitLabel, speakerId }) {
   const [form, setForm] = useState(() => {
     const defaults = {
       name: '',
@@ -67,11 +145,7 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
       socialProfiles: { instagram: '', x: '', linkedin: '', youtube: '', tiktok: '' },
     }
     if (!initialData) return defaults
-    return {
-      ...defaults,
-      ...initialData,
-      feeMin: initialData.feeMin ?? '',
-    }
+    return { ...defaults, ...initialData, feeMin: initialData.feeMin ?? '' }
   })
 
   const [showSocial, setShowSocial] = useState(false)
@@ -87,177 +161,112 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
     }))
   }, [])
 
+  const photo = useFileUpload(speakerId, 'photo', 'photo', 'photo', set)
+  const video = useFileUpload(speakerId, 'video', 'video', 'videoUrl', set)
+
   function handleSubmit(e) {
     e.preventDefault()
-    const data = {
+    onSubmit({
       ...form,
       feeMin: form.feeMin === '' ? null : parseInt(form.feeMin, 10),
       gender: form.gender || null,
       ethnicity: form.ethnicity || null,
       nationality: form.nationality || null,
       location: form.location || null,
-    }
-    onSubmit(data)
+    })
   }
 
   return (
     <form className="spkr-form" onSubmit={handleSubmit}>
       <div className="spkr-form__grid">
-        {/* Name */}
         <div className="spkr-form__field">
           <label className="spkr-form__label">Name *</label>
-          <input
-            className="spkr-form__input"
-            value={form.name}
-            onChange={e => set('name', e.target.value)}
-            required
-          />
+          <input className="spkr-form__input" value={form.name} onChange={e => set('name', e.target.value)} required />
         </div>
 
-        {/* Headline */}
         <div className="spkr-form__field">
           <label className="spkr-form__label">Headline *</label>
-          <input
-            className="spkr-form__input"
-            value={form.headline}
-            onChange={e => set('headline', e.target.value)}
-            required
-          />
+          <input className="spkr-form__input" value={form.headline} onChange={e => set('headline', e.target.value)} required />
         </div>
 
-        {/* Photo URL */}
-        <div className="spkr-form__field">
-          <label className="spkr-form__label">Photo URL *</label>
-          <div className="spkr-form__photo-row">
-            <input
-              className="spkr-form__input"
-              value={form.photo}
-              onChange={e => set('photo', e.target.value)}
-              placeholder="https://..."
-              required={!portalMode}
-            />
-            {form.photo && (
-              <img src={form.photo} alt="Preview" className="spkr-form__photo-preview" />
-            )}
-          </div>
-        </div>
+        <DropZone
+          label={`Photo${portalMode ? '' : ' *'}`}
+          accept="image/*"
+          preview={form.photo && <img src={form.photo} alt="Preview" className="spkr-form__dropzone-img-preview" />}
+          emptyIcon={UPLOAD_ICON}
+          uploadingText={photo.uploading ? 'Uploading...' : null}
+          idleText="Click or drag to upload photo"
+          dragOverClass="spkr-form__dropzone--drag"
+          onUpload={photo.upload}
+          progress={photo.uploading ? photo.progress : 0}
+        />
 
-        {/* Bio */}
         <div className="spkr-form__field spkr-form__field--full">
           <label className="spkr-form__label">Bio *</label>
-          <textarea
-            className="spkr-form__textarea"
-            value={form.bio}
-            onChange={e => set('bio', e.target.value)}
-            rows={6}
-            required
-          />
+          <textarea className="spkr-form__textarea" value={form.bio} onChange={e => set('bio', e.target.value)} rows={6} required />
         </div>
 
-        {/* Tags */}
         <TagInput label="Topics" value={form.topics} onChange={v => set('topics', v)} />
         <TagInput label="Audiences" value={form.audiences} onChange={v => set('audiences', v)} />
         <TagInput label="Keynotes" value={form.keynotes} onChange={v => set('keynotes', v)} />
 
-        {/* Speaking Format */}
         <div className="spkr-form__field">
           <label className="spkr-form__label">Speaking Format</label>
-          <input
-            className="spkr-form__input"
-            value={form.speakingFormat || ''}
-            onChange={e => set('speakingFormat', e.target.value)}
-            placeholder="e.g., 45min keynote + Q&A"
-          />
+          <input className="spkr-form__input" value={form.speakingFormat || ''} onChange={e => set('speakingFormat', e.target.value)} placeholder="e.g., 45min keynote + Q&A" />
         </div>
 
-        {/* Video URL */}
-        <div className="spkr-form__field">
-          <label className="spkr-form__label">Video URL</label>
-          <input
-            className="spkr-form__input"
-            value={form.videoUrl || ''}
-            onChange={e => set('videoUrl', e.target.value)}
-            placeholder="https://youtube.com/embed/..."
-          />
-        </div>
+        <DropZone
+          label="Sizzle Reel"
+          accept="video/*"
+          preview={form.videoUrl && <video src={form.videoUrl} className="spkr-form__dropzone-vid-preview" muted playsInline />}
+          emptyIcon={PLAY_ICON}
+          uploadingText={video.uploading ? `Uploading... ${video.progress}%` : null}
+          idleText={form.videoUrl ? 'Click or drag to replace video' : 'Click or drag to upload sizzle reel (MP4, WebM, MOV)'}
+          dragOverClass="spkr-form__dropzone--drag"
+          onUpload={video.upload}
+          progress={video.uploading ? video.progress : 0}
+        />
 
-        {/* Fee — admin only */}
         {!portalMode && (
           <div className="spkr-form__field">
             <label className="spkr-form__label">Fee Min ($)</label>
-            <input
-              type="number"
-              className="spkr-form__input"
-              value={form.feeMin}
-              onChange={e => set('feeMin', e.target.value)}
-              placeholder="-"
-            />
+            <input type="number" className="spkr-form__input" value={form.feeMin} onChange={e => set('feeMin', e.target.value)} placeholder="-" />
           </div>
         )}
 
-        {/* Demographics */}
         <div className="spkr-form__field">
           <label className="spkr-form__label">Gender</label>
-          <select
-            className="spkr-form__select"
-            value={form.gender || ''}
-            onChange={e => set('gender', e.target.value)}
-          >
-            {GENDER_OPTIONS.map(g => (
-              <option key={g} value={g}>{g || 'Select'}</option>
-            ))}
+          <select className="spkr-form__select" value={form.gender || ''} onChange={e => set('gender', e.target.value)}>
+            {GENDER_OPTIONS.map(g => <option key={g} value={g}>{g || 'Select'}</option>)}
           </select>
         </div>
 
         <div className="spkr-form__field">
           <label className="spkr-form__label">Ethnicity</label>
-          <input
-            className="spkr-form__input"
-            value={form.ethnicity || ''}
-            onChange={e => set('ethnicity', e.target.value)}
-          />
+          <input className="spkr-form__input" value={form.ethnicity || ''} onChange={e => set('ethnicity', e.target.value)} />
         </div>
 
         <div className="spkr-form__field">
           <label className="spkr-form__label">Nationality</label>
-          <input
-            className="spkr-form__input"
-            value={form.nationality || ''}
-            onChange={e => set('nationality', e.target.value)}
-          />
+          <input className="spkr-form__input" value={form.nationality || ''} onChange={e => set('nationality', e.target.value)} />
         </div>
 
         <div className="spkr-form__field">
           <label className="spkr-form__label">Location</label>
-          <input
-            className="spkr-form__input"
-            value={form.location || ''}
-            onChange={e => set('location', e.target.value)}
-            placeholder="e.g., London, UK"
-          />
+          <input className="spkr-form__input" value={form.location || ''} onChange={e => set('location', e.target.value)} placeholder="e.g., London, UK" />
         </div>
       </div>
 
-      {/* Social Profiles */}
       <div className="spkr-form__section">
-        <button
-          type="button"
-          className="spkr-form__section-toggle"
-          onClick={() => setShowSocial(!showSocial)}
-        >
+        <button type="button" className="spkr-form__section-toggle" onClick={() => setShowSocial(!showSocial)}>
           Social Profiles {showSocial ? '−' : '+'}
         </button>
         {showSocial && (
           <div className="spkr-form__social-grid">
-            {['instagram', 'x', 'linkedin', 'youtube', 'tiktok'].map(platform => (
+            {SOCIAL_PLATFORMS.map(platform => (
               <div key={platform} className="spkr-form__field">
                 <label className="spkr-form__label">{platform}</label>
-                <input
-                  className="spkr-form__input"
-                  value={form.socialProfiles?.[platform] || ''}
-                  onChange={e => setSocial(platform, e.target.value)}
-                  placeholder={`@username`}
-                />
+                <input className="spkr-form__input" value={form.socialProfiles?.[platform] || ''} onChange={e => setSocial(platform, e.target.value)} placeholder="@username" />
               </div>
             ))}
           </div>
@@ -265,11 +274,7 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
       </div>
 
       <div className="spkr-form__actions">
-        <button
-          type="submit"
-          className="spkr-form__submit"
-          disabled={saving}
-        >
+        <button type="submit" className="spkr-form__submit" disabled={saving}>
           {saving ? 'Submitting...' : submitLabel || (portalMode ? 'Submit for Review' : (initialData ? 'Submit Update' : 'Submit New Speaker'))}
         </button>
       </div>
