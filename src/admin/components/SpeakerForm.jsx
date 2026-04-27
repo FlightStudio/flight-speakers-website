@@ -93,7 +93,17 @@ function useFileUpload(speakerId, endpoint, fieldName, formFieldKey, setFormFiel
   const [progress, setProgress] = useState(0)
 
   const upload = useCallback(async (file) => {
-    if (!file || !speakerId) return
+    if (!file) return
+    // For an existing speaker, write directly to their slot. For new speakers
+    // (no speakerId yet), use the staged-upload endpoint that returns a URL
+    // without a DB write — the URL is persisted later via the draft approval.
+    // Video upload still requires an existing speaker for now.
+    const url = speakerId
+      ? `/api/admin/speakers/${speakerId}/${endpoint}`
+      : endpoint === 'photo'
+        ? `/api/admin/uploads/photo`
+        : null
+    if (!url) return
     setUploading(true)
     setProgress(0)
     try {
@@ -109,7 +119,7 @@ function useFileUpload(speakerId, endpoint, fieldName, formFieldKey, setFormFiel
           else reject(new Error('Upload failed'))
         }
         xhr.onerror = () => reject(new Error('Upload failed'))
-        xhr.open('POST', `/api/admin/speakers/${speakerId}/${endpoint}`)
+        xhr.open('POST', url)
         xhr.withCredentials = true
         xhr.send(body)
       })

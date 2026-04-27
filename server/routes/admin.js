@@ -1,5 +1,6 @@
 import express from 'express'
 import bcrypt from 'bcrypt'
+import crypto from 'crypto'
 import multer from 'multer'
 import { Storage } from '@google-cloud/storage'
 import { signToken, requireAdmin } from '../middleware/auth.js'
@@ -97,6 +98,26 @@ router.post('/speakers/:id/photo', requireAdmin, imageUpload, async (req, res) =
     res.json({ success: true, photo: url })
   } catch (err) {
     console.error('Photo upload error:', err)
+    res.status(500).json({ success: false, message: 'Upload failed' })
+  }
+})
+
+// POST /api/admin/uploads/photo — staged upload for new-speaker flow.
+// Returns a GCS URL the client can include in the speaker draft submission.
+// No DB write; the URL persists once an `approveDraft` runs and saves it on
+// the speaker record. Orphan staged photos accumulate in GCS — a future
+// cleanup job should sweep speakers/staged/ older than 7 days.
+router.post('/uploads/photo', requireAdmin, imageUpload, async (req, res) => {
+  if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' })
+  const ext = IMAGE_EXT_BY_MIME[req.file.mimetype]
+  if (!ext) return res.status(400).json({ success: false, message: 'Unsupported image type' })
+  try {
+    const id = crypto.randomBytes(8).toString('hex')
+    const gcsPath = `speakers/staged/${id}${ext}`
+    const url = await uploadToGCS(req.file, gcsPath)
+    res.json({ success: true, photo: url })
+  } catch (err) {
+    console.error('Staged photo upload error:', err)
     res.status(500).json({ success: false, message: 'Upload failed' })
   }
 })
@@ -233,6 +254,13 @@ router.patch('/speakers/:id', requireAdmin, async (req, res) => {
     const existing = await getSpeakerById(req.params.id)
     if (!existing) {
       return res.status(404).json({ success: false, message: 'Speaker not found' })
+    }
+    // Critical #5 fix: drop photo from the patch if unchanged. Photo updates
+    // happen via the dedicated upload endpoint, which writes directly. Without
+    // this, an admin editing with a stale photo URL in form state could revert
+    // a more-recent upload made by another admin (or another tab).
+    if (data.photo !== undefined && data.photo === existing.photo) {
+      delete data.photo
     }
     const draft = await createDraft({
       speakerId: req.params.id,

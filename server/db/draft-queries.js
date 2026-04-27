@@ -1,5 +1,6 @@
 import pool from './connection.js'
-import { createSpeaker, updateSpeaker, getSpeakerById } from './queries.js'
+import { createSpeaker, updateSpeaker, getSpeakerById, updateSpeakerEmbedding } from './queries.js'
+import { generateEmbeddings, buildSpeakerText } from '../services/embeddings.js'
 
 export async function createDraft({ speakerId, type, data, submittedBy = 'admin' }) {
   const { rows } = await pool.query(
@@ -93,6 +94,20 @@ export async function approveDraft(id, editedData) {
     )
 
     await client.query('COMMIT')
+
+    // Regenerate the speaker's vector embedding outside the transaction.
+    // Voyage failures don't roll back the approval — vector search has full-
+    // text fallback. Eventual consistency is acceptable here.
+    if (process.env.VOYAGE_API_KEY) {
+      try {
+        const text = buildSpeakerText(speaker)
+        const [vec] = await generateEmbeddings([text])
+        await updateSpeakerEmbedding(speaker.id, vec)
+      } catch (err) {
+        console.warn(`[approveDraft] embedding regen failed for ${speaker.id}:`, err.message)
+      }
+    }
+
     return { draft: { ...draft, data, status: 'approved' }, speaker }
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {})
