@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt'
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import { signToken, requireAdmin, revokeJti } from '../../middleware/auth.js'
-import { getAdminUser } from '../../db/enquiry-queries.js'
+import { getAdminUser } from '../../db/admin-queries.js'
 
 const router = express.Router()
 

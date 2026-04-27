@@ -1,10 +1,7 @@
 import express from 'express'
 import { requireAdmin } from '../../middleware/auth.js'
-import {
-  getEnquiryStats,
-  getEnquiryAnalytics,
-  getDashboardAnalytics,
-} from '../../db/enquiry-queries.js'
+import { getEnquiryStats, getEnquiryAnalytics } from '../../db/enquiry-queries.js'
+import { getDashboardAnalytics } from '../../db/analytics-queries.js'
 
 const router = express.Router()
 

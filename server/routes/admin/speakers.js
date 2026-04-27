@@ -3,11 +3,8 @@ import crypto from 'crypto'
 import { requireAdmin } from '../../middleware/auth.js'
 import { getSpeakerById, updateSpeaker } from '../../db/queries.js'
 import { createDraft } from '../../db/draft-queries.js'
-import {
-  getSpeakerAnalytics,
-  getSpeakerDetailAnalytics,
-  deleteSpeaker,
-} from '../../db/enquiry-queries.js'
+import { getSpeakerAnalytics, getSpeakerDetailAnalytics } from '../../db/analytics-queries.js'
+import { deleteSpeaker } from '../../db/admin-queries.js'
 import { validate, speakerCreateSchema, speakerPatchSchema } from '../../schemas/index.js'
 import {
   imageUpload,
