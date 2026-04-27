@@ -6,7 +6,7 @@
 
 import pool from './connection.js'
 
-export async function runMigrations() {
+async function applyMigrations() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS revoked_jwts (
       jti TEXT PRIMARY KEY,
@@ -17,4 +17,21 @@ export async function runMigrations() {
 
   // Sweep expired entries on every startup. Cheap because of the index.
   await pool.query(`DELETE FROM revoked_jwts WHERE expires_at < NOW()`)
+}
+
+// Retry with backoff. Cloud SQL on Cloud Run can take >5s to accept the
+// first connection from a new revision; without retries, startup migrations
+// fail and admin auth breaks until manual intervention.
+export async function runMigrations({ attempts = 5, baseDelayMs = 2000 } = {}) {
+  for (let i = 0; i < attempts; i++) {
+    try {
+      await applyMigrations()
+      return
+    } catch (err) {
+      if (i === attempts - 1) throw err
+      const delay = baseDelayMs * Math.pow(2, i)
+      console.warn(`[migrations] attempt ${i + 1} failed (${err.message}); retrying in ${delay}ms`)
+      await new Promise(r => setTimeout(r, delay))
+    }
+  }
 }

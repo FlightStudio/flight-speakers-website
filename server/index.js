@@ -17,6 +17,11 @@ import { startDailyRefresh } from './services/socialStats.js'
 const app = express()
 const PORT = process.env.PORT || 3001
 
+// Trust the first proxy hop — Cloud Run terminates TLS at the load balancer
+// and forwards the real client IP via X-Forwarded-For. Required for
+// express-rate-limit to key by client IP rather than the LB IP.
+app.set('trust proxy', 1)
+
 // Middleware
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim()).filter(Boolean)

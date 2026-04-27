@@ -49,11 +49,14 @@ if (process.env.REDIS_URL) {
 // You.com (YouBot), Cohere (cohere-ai), Meta AI (Meta-ExternalAgent).
 const KNOWN_CRAWLERS = /(Googlebot|Bingbot|DuckDuckBot|Slurp|YandexBot|Baiduspider|AppleBot|FacebookExternalHit|Twitterbot|LinkedInBot|Mediapartners-Google|AdsBot-Google|GPTBot|ChatGPT-User|OAI-SearchBot|ClaudeBot|Claude-Web|anthropic-ai|PerplexityBot|Google-Extended|Amazonbot|Applebot-Extended|Bytespider|CCBot|YouBot|cohere-ai|Meta-ExternalAgent)/i
 
-export function createLimiter({ skipBots = false, ...options } = {}) {
+// Strip `prefix` from options before passing to rateLimit — express-rate-limit
+// v8 validates options strictly and treats unknown keys as errors. The prefix
+// is only meaningful for the Redis store, not the limiter itself.
+export function createLimiter({ skipBots = false, prefix, ...options } = {}) {
   const store = redisClient
     ? new RedisStore({
         sendCommand: (...args) => redisClient.call(...args),
-        prefix: options.prefix || 'rl:',
+        prefix: prefix || 'rl:',
       })
     : undefined
   return rateLimit({
