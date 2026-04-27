@@ -44,9 +44,8 @@ function App() {
             <Route path="/speakers/:id" element={<SpeakerDetailPage />} />
             <Route path="/search" element={<SearchResultsPage />} />
             <Route path="/about" element={<AboutPage />} />
-            {/* DEV-ONLY: News routes. Remove the conditional when ready to ship. */}
-            {import.meta.env.DEV && <Route path="/news" element={<NewsPage />} />}
-            {import.meta.env.DEV && <Route path="/news/:slug" element={<NewsArticlePage />} />}
+            <Route path="/news" element={<NewsPage />} />
+            <Route path="/news/:slug" element={<NewsArticlePage />} />
           </Routes>
         </Layout>
       } />
