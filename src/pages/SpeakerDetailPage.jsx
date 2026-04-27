@@ -553,7 +553,7 @@ function SpeakerDetailPage() {
                               className="book__spine"
                               aria-hidden="true"
                             >
-                              <span className="book__spine-text">{book.title}</span>
+                              <span className="book__spine-text">{book.spineTitle || book.title}</span>
                             </div>
                           </div>
                         </div>

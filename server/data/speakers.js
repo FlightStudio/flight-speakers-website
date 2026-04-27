@@ -216,7 +216,7 @@ With a background as an entrepreneur and former athlete, Paul speaks naturally t
       tiktok: 'paulcbrunson',
     },
     books: [
-      { title: "It's Complicated But It Doesn't Have To Be", coverUrl: 'https://storage.googleapis.com/flight-speakers-photos/books/paul-c-brunson/its-complicated.jpg' },
+      { title: "It's Complicated But It Doesn't Have To Be", spineTitle: "It's Complicated", coverUrl: 'https://storage.googleapis.com/flight-speakers-photos/books/paul-c-brunson/its-complicated.jpg' },
     ],
   },
   {
@@ -275,7 +275,7 @@ Her talks are science-led, energetic, and highly practical, reframing ageing as 
     books: [
       { title: 'Fitness After 40', coverUrl: 'https://storage.googleapis.com/flight-speakers-photos/books/vonda-wright/fitness-after-40.jpg' },
       { title: 'Younger in 8 Weeks', coverUrl: 'https://storage.googleapis.com/flight-speakers-photos/books/vonda-wright/younger-in-8-weeks.jpg' },
-      { title: "Dr Vonda Wright's Guide to Thrive", coverUrl: 'https://storage.googleapis.com/flight-speakers-photos/books/vonda-wright/guide-to-thrive.jpg' },
+      { title: "Dr Vonda Wright's Guide to Thrive", spineTitle: "Guide to Thrive", coverUrl: 'https://storage.googleapis.com/flight-speakers-photos/books/vonda-wright/guide-to-thrive.jpg' },
     ],
   },
   {
