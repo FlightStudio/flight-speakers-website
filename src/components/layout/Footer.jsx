@@ -40,8 +40,7 @@ function Footer() {
             <div className="footer-section">
               <h4 className="footer-heading">Connect</h4>
               <ul>
-                {/* DEV-ONLY: News link for SEO articles. Remove the conditional when ready to ship. */}
-                {import.meta.env.DEV && <li><Link to="/news">News</Link></li>}
+                <li><Link to="/news">News</Link></li>
                 <li><a href="https://www.linkedin.com/company/flight-story-official" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
                 <li><a href="https://instagram.com/flightstory" target="_blank" rel="noopener noreferrer">Instagram</a></li>
               </ul>
