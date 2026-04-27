@@ -29,6 +29,10 @@ Steven speaks openly about leadership, pressure, mental health, trust, and ambit
       youtube: 'TheDiaryOfACEO',
       tiktok: 'stevenbartlett',
     },
+    books: [
+      { title: 'The Diary of a CEO', coverUrl: 'https://storage.googleapis.com/flight-speakers-photos/books/steven-bartlett/the-diary-of-a-ceo.jpg' },
+      { title: 'Happy Sexy Millionaire', coverUrl: 'https://storage.googleapis.com/flight-speakers-photos/books/steven-bartlett/happy-sexy-millionaire.jpg' },
+    ],
   },
   {
     id: 'jordan-schwarzenberger',
@@ -106,6 +110,10 @@ Vanessa focuses on the subtle signals that shape credibility, confidence, and co
       youtube: 'ScienceofPeople',
       tiktok: 'vanessavanedwards',
     },
+    books: [
+      { title: 'Captivate', coverUrl: 'https://storage.googleapis.com/flight-speakers-photos/books/vanessa-van-edwards/captivate.jpg' },
+      { title: 'Cues', coverUrl: 'https://storage.googleapis.com/flight-speakers-photos/books/vanessa-van-edwards/cues.jpg' },
+    ],
   },
   {
     id: 'nischa-shah',
@@ -207,6 +215,9 @@ With a background as an entrepreneur and former athlete, Paul speaks naturally t
       youtube: 'PaulCBrunson',
       tiktok: 'paulcbrunson',
     },
+    books: [
+      { title: "It's Complicated But It Doesn't Have To Be", coverUrl: 'https://storage.googleapis.com/flight-speakers-photos/books/paul-c-brunson/its-complicated.jpg' },
+    ],
   },
   {
     id: 'nir-eyal',
@@ -232,6 +243,10 @@ Nir's talks are thoughtful, balanced, and quietly confronting. He challenges the
       linkedin: 'nireyal',
       youtube: 'NirEyal',
     },
+    books: [
+      { title: 'Hooked', coverUrl: 'https://storage.googleapis.com/flight-speakers-photos/books/nir-eyal/hooked.jpg' },
+      { title: 'Indistractable', coverUrl: 'https://storage.googleapis.com/flight-speakers-photos/books/nir-eyal/indistractable.jpg' },
+    ],
   },
   {
     id: 'vonda-wright',
@@ -257,6 +272,11 @@ Her talks are science-led, energetic, and highly practical, reframing ageing as 
       linkedin: 'vondawright',
       youtube: 'DrVondaWright',
     },
+    books: [
+      { title: 'Fitness After 40', coverUrl: 'https://storage.googleapis.com/flight-speakers-photos/books/vonda-wright/fitness-after-40.jpg' },
+      { title: 'Younger in 8 Weeks', coverUrl: 'https://storage.googleapis.com/flight-speakers-photos/books/vonda-wright/younger-in-8-weeks.jpg' },
+      { title: "Dr Vonda Wright's Guide to Thrive", coverUrl: 'https://storage.googleapis.com/flight-speakers-photos/books/vonda-wright/guide-to-thrive.jpg' },
+    ],
   },
   {
     id: 'evy-poumpouras',
@@ -283,6 +303,9 @@ Her talks are gripping, grounded, and deeply practical, translating extreme expe
       youtube: 'EvyPoumpouras',
       tiktok: 'evypoumpouras',
     },
+    books: [
+      { title: 'Becoming Bulletproof', coverUrl: 'https://storage.googleapis.com/flight-speakers-photos/books/evy-poumpouras/becoming-bulletproof.jpg' },
+    ],
   },
   {
     id: 'paul-scanlon',
