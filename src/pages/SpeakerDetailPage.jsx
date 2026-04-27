@@ -552,7 +552,6 @@ function SpeakerDetailPage() {
                             <div
                               className="book__spine"
                               aria-hidden="true"
-                              style={{ '--cover': `url(${book.coverUrl})` }}
                             >
                               <span className="book__spine-text">{book.title}</span>
                             </div>
