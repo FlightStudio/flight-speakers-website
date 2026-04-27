@@ -122,16 +122,16 @@ Premium speaker booking agency. React frontend, Express backend, PostgreSQL + pg
 - `server/routes/search.js` — `GET /api/search?q=&limit=&budget=` (semantic search, tracks recommendations), `GET /api/search/suggest?q=` (autocomplete from topics + names)
 - `server/routes/enquiry.js` — `POST /api/enquiry` (validates, persists, Klaviyo fire-and-forget: profile + list subscription + event tracking)
 - `server/routes/parseBrief.js` — `POST /api/parse-brief` (Haiku extracts: eventType, eventDate, eventLocation, audienceSize, engagementType, budgetRange, customBudget, budgetCurrency). Validates against allowed values. Regex fallback for budget extraction
-- `server/routes/admin.js` — All admin endpoints behind `requireAdmin`:
-  - Auth: `POST /login`, `POST /logout`, `GET /me`
-  - Stats: `GET /stats`, `GET /enquiry-analytics`, `GET /dashboard`, `GET /speakers/analytics`
-  - Speakers: `POST /speakers` (creates draft), `PATCH /speakers/:id` (creates update draft), `GET /speakers/:id` (+ analytics), `DELETE /speakers/:id`, `POST /speakers/:id/photo` (upload to GCS)
-  - Enquiries: `GET /enquiries` (paginated, sortable), `GET /enquiries/:id` (auto-marks as reviewed, fetches semantic matches), `PATCH /enquiries/:id` (status update, triggers notifications)
-  - Review: `GET /review`, `GET /review/counts`, `POST /review/:id/approve`, `POST /review/:id/reject`
-  - Invites: `POST /invite/new`, `POST /invite/:speakerId` (magic links for speaker portal)
-  - Templates: `GET /templates`, `GET /templates/:reasonKey`, `PUT /templates/:reasonKey`
-  - Integrations: `GET /integrations/monday`, `GET /integrations/klaviyo`, `POST /integrations/klaviyo/test`
-  - Social: `POST /social-stats/refresh`
+- `server/routes/admin/` — All admin endpoints behind `requireAdmin`. CSRF gate + sub-router composition lives in `index.js`; mutating endpoints require `X-CSRF-Token` header matching the `csrf_token` cookie.
+  - `auth.js` — `POST /login`, `POST /logout`, `GET /me`
+  - `analytics.js` — `GET /stats`, `GET /enquiry-analytics`, `GET /dashboard`
+  - `speakers.js` — `GET /speakers/analytics` (must precede `/:id`), `POST /speakers` (draft), `PATCH /speakers/:id` (draft), `GET /speakers/:id` (+ analytics), `DELETE /speakers/:id`, `POST /speakers/:id/photo`, `POST /speakers/:id/video`, `POST /uploads/photo` (staged)
+  - `enquiries.js` — `GET /enquiries`, `GET /enquiries/:id` (auto-marks as reviewed + semantic matches), `PATCH /enquiries/:id`
+  - `review.js` — `GET /review`, `GET /review/counts`, `POST /review/:id/approve`, `POST /review/:id/reject`, `POST /invite/new`, `POST /invite/:speakerId`
+  - `templates.js` — `GET /templates`, `GET /templates/:reasonKey`, `PUT /templates/:reasonKey`
+  - `integrations.js` — `GET /integrations/monday`, `GET /integrations/klaviyo`, `POST /integrations/klaviyo/test`
+  - `socialStats.js` — `POST /social-stats/refresh`
+  - `_uploads.js` — multer + GCS helpers shared by `speakers.js`
 - `server/routes/portal.js` — `GET /api/portal/:token` (validate token, return speaker data for prefill), `POST /api/portal/:token` (submit profile as draft, mark token used)
 
 #### Services
