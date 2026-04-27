@@ -1,6 +1,10 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAdminAuth } from './hooks/useAdminAuth'
+import { installAdminFetch } from './utils/installAdminFetch'
 import AdminLayout from './AdminLayout'
+
+// Inject CSRF + credentials into every /api/admin fetch. Idempotent.
+installAdminFetch()
 import AdminLoginPage from './pages/AdminLoginPage'
 import AdminDashboardPage from './pages/AdminDashboardPage'
 import AdminEnquiryDetailPage from './pages/AdminEnquiryDetailPage'

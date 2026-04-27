@@ -56,6 +56,20 @@ export async function requireAdmin(req, res, next) {
   next()
 }
 
+// Double-submit CSRF token check. The csrf_token cookie is set on login
+// (not httpOnly so the frontend can read it). The frontend echoes the value
+// back via the X-CSRF-Token header on every mutating admin request. A
+// cross-site forgery attempt would have the cookie (carried automatically)
+// but couldn't read it to set the header — so the check fails.
+export function requireCsrf(req, res, next) {
+  const header = req.headers['x-csrf-token']
+  const cookie = req.cookies?.csrf_token
+  if (!header || !cookie || header !== cookie) {
+    return res.status(403).json({ success: false, message: 'Invalid CSRF token' })
+  }
+  next()
+}
+
 // Mark a JWT's jti as revoked. Used by the logout handler. Best-effort:
 // if the DB write fails, we still clear the cookie client-side — but the
 // token would remain server-valid until expiry. Worth logging.

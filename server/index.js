@@ -3,7 +3,7 @@ import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import helmet from 'helmet'
-import rateLimit from 'express-rate-limit'
+import { createLimiter } from './middleware/rateLimit.js'
 import speakersRouter from './routes/speakers.js'
 import enquiryRouter from './routes/enquiry.js'
 import searchRouter from './routes/search.js'
@@ -53,28 +53,32 @@ app.use((req, res, next) => {
   next()
 })
 
-// Rate limiters
-const searchLimiter = rateLimit({
+// Rate limiters — Redis-backed when REDIS_URL is set, memory otherwise.
+const searchLimiter = createLimiter({
   windowMs: 60 * 1000,
   max: 30,
+  prefix: 'rl:search:',
   message: { success: false, message: 'Too many requests, please try again later' },
 })
 
-const enquiryLimiter = rateLimit({
+const enquiryLimiter = createLimiter({
   windowMs: 15 * 60 * 1000,
   max: 5,
+  prefix: 'rl:enquiry:',
   message: { success: false, message: 'Too many enquiries submitted, please try again later' },
 })
 
-const loginLimiter = rateLimit({
+const loginLimiter = createLimiter({
   windowMs: 15 * 60 * 1000,
   max: 10,
+  prefix: 'rl:login:',
   message: { success: false, message: 'Too many login attempts, please try again later' },
 })
 
-const portalLimiter = rateLimit({
+const portalLimiter = createLimiter({
   windowMs: 60 * 1000,
   max: 10,
+  prefix: 'rl:portal:',
   message: { success: false, message: 'Too many requests, please try again later' },
 })
 

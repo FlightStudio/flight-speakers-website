@@ -1,5 +1,5 @@
 import express from 'express'
-import rateLimit from 'express-rate-limit'
+import { createLimiter } from '../middleware/rateLimit.js'
 import {
   getAllSpeakers,
   getSpeakerById,
@@ -11,11 +11,10 @@ import pool from '../db/connection.js'
 
 const router = express.Router()
 
-const viewLimiter = rateLimit({
+const viewLimiter = createLimiter({
   windowMs: 60 * 1000,
   max: 60,
-  standardHeaders: true,
-  legacyHeaders: false,
+  prefix: 'rl:view:',
   message: { success: false, message: 'Too many view events' },
 })
 

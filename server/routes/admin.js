@@ -4,7 +4,7 @@ import crypto from 'crypto'
 import multer from 'multer'
 import { Storage } from '@google-cloud/storage'
 import jwt from 'jsonwebtoken'
-import { signToken, requireAdmin, revokeJti } from '../middleware/auth.js'
+import { signToken, requireAdmin, requireCsrf, revokeJti } from '../middleware/auth.js'
 import {
   getEnquiries,
   getEnquiryById,
@@ -33,6 +33,14 @@ import {
 } from '../schemas/index.js'
 
 const router = express.Router()
+
+// CSRF gate for mutating admin requests. Login bypasses (no cookie yet).
+// GET/HEAD/OPTIONS bypass (no state change).
+router.use((req, res, next) => {
+  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next()
+  if (req.path === '/login') return next()
+  return requireCsrf(req, res, next)
+})
 
 // GCS upload config
 const GCS_BUCKET = process.env.GCS_BUCKET || 'flight-speakers-photos'
@@ -169,6 +177,15 @@ router.post('/login', async (req, res) => {
       secure: process.env.NODE_ENV === 'production',
     })
 
+    // CSRF token: NOT httpOnly so the frontend can read it and echo via header.
+    const csrfToken = crypto.randomBytes(32).toString('hex')
+    res.cookie('csrf_token', csrfToken, {
+      httpOnly: false,
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === 'production',
+    })
+
     res.json({ success: true, user: { username: user.username } })
   } catch (err) {
     console.error('Login error:', err)
@@ -193,6 +210,7 @@ router.post('/logout', async (req, res) => {
     }
   }
   res.clearCookie('admin_token')
+  res.clearCookie('csrf_token')
   res.json({ success: true })
 })
 
