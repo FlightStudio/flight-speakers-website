@@ -27,7 +27,11 @@ function App() {
       {/* Admin dashboard — separate shell, no public layout */}
       <Route path="/admin/*" element={<AdminApp />} />
 
-      {/* Speaker portal — public magic-link form, no layout shell */}
+      {/* Speaker portal — public magic-link form, no layout shell.
+          New invites pass the token via URL hash (#xxx) so it never reaches
+          the server in logs/Referer. The legacy /:token path is kept so
+          previously-issued links still work until they expire. */}
+      <Route path="/speaker-portal" element={<SpeakerPortalPage />} />
       <Route path="/speaker-portal/:token" element={<SpeakerPortalPage />} />
 
       {/* Enquiry pages — full-screen Typeform-style, no layout shell */}

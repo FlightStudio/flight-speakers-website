@@ -3,7 +3,8 @@ import bcrypt from 'bcrypt'
 import crypto from 'crypto'
 import multer from 'multer'
 import { Storage } from '@google-cloud/storage'
-import { signToken, requireAdmin } from '../middleware/auth.js'
+import jwt from 'jsonwebtoken'
+import { signToken, requireAdmin, revokeJti } from '../middleware/auth.js'
 import {
   getEnquiries,
   getEnquiryById,
@@ -176,7 +177,21 @@ router.post('/login', async (req, res) => {
 })
 
 // POST /api/admin/logout
-router.post('/logout', (req, res) => {
+router.post('/logout', async (req, res) => {
+  // Revoke the JWT server-side so a stolen copy can't be reused for the
+  // remainder of the 24h window. Decode without verifying signature: the
+  // token is in our cookie, we already trust it; we just need the jti and exp.
+  const token = req.cookies?.admin_token
+  if (token) {
+    try {
+      const decoded = jwt.decode(token)
+      if (decoded?.jti && decoded?.exp) {
+        await revokeJti(decoded.jti, new Date(decoded.exp * 1000))
+      }
+    } catch (err) {
+      console.warn('[logout] failed to decode token for revocation:', err.message)
+    }
+  }
   res.clearCookie('admin_token')
   res.json({ success: true })
 })
@@ -303,7 +318,8 @@ router.post('/invite/new', requireAdmin, async (req, res) => {
   try {
     const token = await createToken({ type: 'new', expiresInDays: 7 })
     const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`
-    const link = `${baseUrl}/speaker-portal/${token.token}`
+    // URL fragment (after #) — never sent to the server, never logged.
+    const link = `${baseUrl}/speaker-portal#${token.token}`
     res.json({ success: true, link, token: token.token, expiresAt: token.expires_at })
   } catch (err) {
     console.error('Invite new error:', err)
@@ -320,7 +336,8 @@ router.post('/invite/:speakerId', requireAdmin, async (req, res) => {
     }
     const token = await createToken({ speakerId: req.params.speakerId, type: 'update', expiresInDays: 7 })
     const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`
-    const link = `${baseUrl}/speaker-portal/${token.token}`
+    // URL fragment (after #) — never sent to the server, never logged.
+    const link = `${baseUrl}/speaker-portal#${token.token}`
     res.json({ success: true, link, token: token.token, expiresAt: token.expires_at, speakerName: speaker.name })
   } catch (err) {
     console.error('Invite update error:', err)
@@ -511,14 +528,14 @@ router.get('/integrations/monday', requireAdmin, async (req, res) => {
 
   try {
     const boardId = process.env.MONDAY_BOARD_ID || '1153323847'
-    const query = `{ boards(ids: [${boardId}]) { id name groups { id title } } }`
+    const query = `query ($boardIds: [ID!]) { boards(ids: $boardIds) { id name groups { id title } } }`
     const response = await fetch('https://api.monday.com/v2', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: process.env.MONDAY_API_TOKEN,
       },
-      body: JSON.stringify({ query }),
+      body: JSON.stringify({ query, variables: { boardIds: [String(boardId)] } }),
     })
     const data = await response.json()
 

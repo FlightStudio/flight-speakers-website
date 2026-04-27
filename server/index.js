@@ -11,6 +11,7 @@ import parseBriefRouter from './routes/parseBrief.js'
 import adminRouter from './routes/admin.js'
 import portalRouter from './routes/portal.js'
 import pool from './db/connection.js'
+import { runMigrations } from './db/migrate.js'
 import { startDailyRefresh } from './services/socialStats.js'
 
 const app = express()
@@ -22,7 +23,21 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   : ['http://localhost:3000']
 
 app.use(helmet({
-  contentSecurityPolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "blob:", "https://storage.googleapis.com", "https://images.unsplash.com"],
+      fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
+      connectSrc: ["'self'"],
+      frameSrc: ["https://www.youtube.com", "https://www.youtube-nocookie.com"],
+      frameAncestors: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+      objectSrc: ["'none'"],
+    },
+  },
   crossOriginEmbedderPolicy: false,
 }))
 app.use(cors({
@@ -222,9 +237,15 @@ app.use('/api/{*path}', (req, res) => {
   })
 })
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`)
   console.log(`API available at http://localhost:${PORT}/api`)
+  try {
+    await runMigrations()
+    console.log('Migrations applied')
+  } catch (err) {
+    console.error('Migration failed:', err.message)
+  }
   startDailyRefresh()
 })
 

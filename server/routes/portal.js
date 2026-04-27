@@ -1,14 +1,21 @@
 import express from 'express'
-import { validateToken, markTokenUsed } from '../db/token-queries.js'
+import { validateToken, validateAndConsumeToken } from '../db/token-queries.js'
 import { createDraft } from '../db/draft-queries.js'
 import { validate, portalDraftSchema } from '../schemas/index.js'
 
 const router = express.Router()
 
-// GET /api/portal/:token — validate token and return speaker data
-router.get('/:token', async (req, res) => {
+// Tokens move via request body now (not URL path) so they don't leak into
+// server access logs or the Referer header.
+
+// POST /api/portal/validate — validate token and return speaker data
+router.post('/validate', async (req, res) => {
+  const token = req.body?.token
+  if (!token || typeof token !== 'string') {
+    return res.status(400).json({ success: false, message: 'Token required' })
+  }
   try {
-    const result = await validateToken(req.params.token)
+    const result = await validateToken(token)
     if (!result.valid) {
       return res.status(400).json({ success: false, message: result.error })
     }
@@ -24,12 +31,19 @@ router.get('/:token', async (req, res) => {
   }
 })
 
-// POST /api/portal/:token — submit profile data as draft
-router.post('/:token', async (req, res) => {
-  const data = validate(req, res, portalDraftSchema)
+// POST /api/portal/submit — submit profile data as draft.
+// Token validated + consumed atomically in one transaction.
+router.post('/submit', async (req, res) => {
+  const token = req.body?.token
+  if (!token || typeof token !== 'string') {
+    return res.status(400).json({ success: false, message: 'Token required' })
+  }
+  // Strip token from body before schema validation (it's not part of the schema).
+  const { token: _, ...rest } = req.body
+  const data = validate({ body: rest }, res, portalDraftSchema)
   if (!data) return
   try {
-    const result = await validateToken(req.params.token)
+    const result = await validateAndConsumeToken(token)
     if (!result.valid) {
       return res.status(400).json({ success: false, message: result.error })
     }
@@ -40,8 +54,6 @@ router.post('/:token', async (req, res) => {
       data,
       submittedBy: 'portal',
     })
-
-    await markTokenUsed(req.params.token)
 
     res.json({ success: true, draft })
   } catch (err) {

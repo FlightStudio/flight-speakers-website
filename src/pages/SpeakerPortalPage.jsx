@@ -5,8 +5,18 @@ import SpeakerForm from '../admin/components/SpeakerForm'
 import { EASE } from '../constants/animation'
 import './SpeakerPortalPage.css'
 
+// Token preference order: URL hash (new format) → path param (legacy invites).
+// Fragment-based tokens never reach the server in URLs (no Referer leak,
+// no access-log leak); the frontend reads them client-side and POSTs via body.
+function readToken(legacyParam) {
+  if (typeof window === 'undefined') return legacyParam || ''
+  const hash = window.location.hash.replace(/^#/, '')
+  return hash || legacyParam || ''
+}
+
 export default function SpeakerPortalPage() {
-  const { token } = useParams()
+  const { token: legacyToken } = useParams()
+  const [token] = useState(() => readToken(legacyToken))
   const [status, setStatus] = useState('loading') // loading | valid | invalid | submitted
   const [type, setType] = useState(null)
   const [speaker, setSpeaker] = useState(null)
@@ -14,9 +24,18 @@ export default function SpeakerPortalPage() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
+    if (!token) {
+      setError('Missing or invalid link.')
+      setStatus('invalid')
+      return
+    }
     async function validate() {
       try {
-        const res = await fetch(`/api/portal/${token}`)
+        const res = await fetch('/api/portal/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token }),
+        })
         const data = await res.json()
         if (data.success) {
           setType(data.type)
@@ -38,10 +57,10 @@ export default function SpeakerPortalPage() {
     setSaving(true)
     setError('')
     try {
-      const res = await fetch(`/api/portal/${token}`, {
+      const res = await fetch('/api/portal/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ token, ...formData }),
       })
       const data = await res.json()
       if (data.success) {
