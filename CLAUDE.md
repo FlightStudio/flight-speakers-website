@@ -134,6 +134,9 @@ Premium speaker booking agency. React frontend, Express backend, PostgreSQL + pg
   - `_uploads.js` — multer + GCS helpers shared by `speakers.js`
 - `server/routes/portal.js` — `GET /api/portal/:token` (validate token, return speaker data for prefill), `POST /api/portal/:token` (submit profile as draft, mark token used)
 
+#### Clients (`server/clients/`)
+- `anthropic.js` — Lazy singleton SDK client. Consumers call `getAnthropic()` instead of `new Anthropic()`. Test seam: `setAnthropicForTests(mock)`.
+
 #### Services
 - `server/services/claude.js` — `semanticSearch(query, limit, budget)`: tries vector retrieve → Claude rerank first, falls back to all-speakers → Claude, then full-text search. 5-min in-memory cache (100 entries). Uses Sonnet for ranking with structured JSON response (matchScore 0-100)
 - `server/services/embeddings.js` — Voyage AI integration: `buildSpeakerText()`, `generateEmbeddings()` (document), `generateQueryEmbedding()` (query). Model: `voyage-3`

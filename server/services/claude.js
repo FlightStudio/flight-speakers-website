@@ -1,8 +1,6 @@
-import Anthropic from '@anthropic-ai/sdk'
 import { getSpeakerProfilesForSearch, fullTextSearch, getAllSpeakers, vectorSearch, getEmbeddingCount } from '../db/queries.js'
 import { generateQueryEmbedding } from './embeddings.js'
-
-const anthropic = new Anthropic()
+import { getAnthropic } from '../clients/anthropic.js'
 
 const SYSTEM_PROMPT = `You are a speaker recommendation engine for Flight Speakers, a premium speaker booking agency.
 
@@ -92,7 +90,7 @@ ${speakerSummaries}
 
 Return the top ${limit} most relevant speakers as JSON.`
 
-  const response = await anthropic.messages.create({
+  const response = await getAnthropic().messages.create({
     model: 'claude-sonnet-4-5-20250929',
     max_tokens: 800,
     temperature: 0.2,

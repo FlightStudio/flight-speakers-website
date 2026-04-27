@@ -1,10 +1,8 @@
 import express from 'express'
-import Anthropic from '@anthropic-ai/sdk'
 import { EVENT_TYPES, ENGAGEMENT_TYPES } from '../constants/enums.js'
+import { getAnthropic } from '../clients/anthropic.js'
 
 const router = express.Router()
-
-const anthropic = new Anthropic()
 
 const BUDGET_RANGES = [
   'Under $10,000',
@@ -52,7 +50,7 @@ router.post('/', async (req, res) => {
       return res.json({ success: true, extracted: {}, brief })
     }
 
-    const response = await anthropic.messages.create({
+    const response = await getAnthropic().messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 300,
       temperature: 0,
