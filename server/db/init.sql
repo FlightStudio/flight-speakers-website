@@ -59,6 +59,7 @@ CREATE INDEX IF NOT EXISTS idx_enquiries_created_at ON enquiries (created_at DES
 ALTER TABLE speakers ADD COLUMN IF NOT EXISTS social_profiles JSONB DEFAULT '{}';
 ALTER TABLE speakers ADD COLUMN IF NOT EXISTS social_stats JSONB DEFAULT '{}';
 ALTER TABLE speakers ADD COLUMN IF NOT EXISTS social_stats_updated_at TIMESTAMPTZ;
+ALTER TABLE speakers ADD COLUMN IF NOT EXISTS books JSONB NOT NULL DEFAULT '[]'::jsonb;
 
 -- Speaker view tracking
 CREATE TABLE IF NOT EXISTS speaker_views (

@@ -17,6 +17,10 @@ async function applyMigrations() {
 
   // Sweep expired entries on every startup. Cheap because of the index.
   await pool.query(`DELETE FROM revoked_jwts WHERE expires_at < NOW()`)
+
+  await pool.query(`
+    ALTER TABLE speakers ADD COLUMN IF NOT EXISTS books JSONB NOT NULL DEFAULT '[]'::jsonb;
+  `)
 }
 
 // Retry with backoff. Cloud SQL on Cloud Run can take >5s to accept the
