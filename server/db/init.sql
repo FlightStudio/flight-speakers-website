@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS speakers (
     speaking_format TEXT,
     video_url TEXT,
     embedding vector(1024),
+    boost_notes TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

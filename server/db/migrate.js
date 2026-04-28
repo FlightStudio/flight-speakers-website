@@ -21,6 +21,10 @@ async function applyMigrations() {
   await pool.query(`
     ALTER TABLE speakers ADD COLUMN IF NOT EXISTS books JSONB NOT NULL DEFAULT '[]'::jsonb;
   `)
+
+  await pool.query(`
+    ALTER TABLE speakers ADD COLUMN IF NOT EXISTS boost_notes TEXT;
+  `)
 }
 
 // Retry with backoff. Cloud SQL on Cloud Run can take >5s to accept the
