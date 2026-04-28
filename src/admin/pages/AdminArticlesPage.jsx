@@ -4,29 +4,15 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { EASE } from '../../constants/animation'
 
 const STATUS_TABS = [
-  { key: 'all', label: 'All' },
-  { key: 'draft', label: 'Drafts' },
+  { key: 'all',       label: 'All' },
+  { key: 'draft',     label: 'Drafts' },
   { key: 'published', label: 'Published' },
-  { key: 'rejected', label: 'Rejected' },
+  { key: 'rejected',  label: 'Rejected' },
 ]
 
-const STATUS_COLORS = {
-  draft: { bg: 'rgba(245,158,11,0.1)', color: '#f59e0b' },
-  published: { bg: 'rgba(34,197,94,0.1)', color: '#22c55e' },
-  rejected: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444' },
-}
-
-function StatusBadge({ status }) {
-  const style = STATUS_COLORS[status] || {}
-  return (
-    <span style={{
-      display: 'inline-block', padding: '2px 10px', borderRadius: 100,
-      fontSize: 12, fontWeight: 600, letterSpacing: '0.02em',
-      background: style.bg, color: style.color, textTransform: 'capitalize',
-    }}>
-      {status}
-    </span>
-  )
+function formatDate(iso) {
+  if (!iso) return '—'
+  return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 export default function AdminArticlesPage() {
@@ -39,6 +25,7 @@ export default function AdminArticlesPage() {
   const [error, setError] = useState(null)
   const [generating, setGenerating] = useState(false)
   const [generateMsg, setGenerateMsg] = useState(null)
+  const [showGuide, setShowGuide] = useState(false)
 
   const fetchArticles = useCallback(async (status) => {
     setLoading(true)
@@ -62,9 +49,7 @@ export default function AdminArticlesPage() {
     }
   }, [])
 
-  useEffect(() => {
-    fetchArticles(activeTab)
-  }, [activeTab, fetchArticles])
+  useEffect(() => { fetchArticles(activeTab) }, [activeTab, fetchArticles])
 
   const handleGenerate = async () => {
     setGenerating(true)
@@ -73,13 +58,13 @@ export default function AdminArticlesPage() {
       const res = await fetch('/api/admin/articles/generate', { method: 'POST' })
       const data = await res.json()
       if (data.success) {
-        setGenerateMsg(`Draft created: "${data.article.title}"`)
+        setGenerateMsg({ kind: 'ok', text: `Draft created: "${data.article.title}"` })
         fetchArticles(activeTab)
       } else {
-        setGenerateMsg(`Error: ${data.message}`)
+        setGenerateMsg({ kind: 'err', text: data.message || 'Generation failed' })
       }
     } catch {
-      setGenerateMsg('Network error')
+      setGenerateMsg({ kind: 'err', text: 'Network error' })
     } finally {
       setGenerating(false)
     }
@@ -87,108 +72,176 @@ export default function AdminArticlesPage() {
 
   return (
     <motion.div
-      className="admin-page"
+      className="admin-page articles-page"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: EASE }}
     >
-      <div className="admin-page__header">
+      <div className="articles-page__header">
         <div>
           <h1 className="admin-page__title">Articles</h1>
-          <p className="admin-page__subtitle">AI-generated and seed articles for the News section</p>
+          <p className="admin-page__subtitle">
+            AI-generated speaker roundups for the public News section. Auto-generates Mon &amp; Thu at 09:00 UTC.
+          </p>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+        <div className="articles-page__header-actions">
           <button
+            type="button"
+            className="articles-page__guide-btn"
+            onClick={() => setShowGuide(s => !s)}
+            aria-expanded={showGuide}
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.4"/>
+              <path d="M8 4.5v.01M8 7v3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+            </svg>
+            Editorial standards
+          </button>
+          <button
+            type="button"
+            className="articles-page__generate-btn"
             onClick={handleGenerate}
             disabled={generating}
-            className="btn btn-primary"
-            style={{ minWidth: 140 }}
           >
-            {generating ? 'Generating...' : 'Generate Now'}
+            {generating ? 'Generating…' : 'Generate Now'}
           </button>
-          {generateMsg && (
-            <span style={{ fontSize: 12, color: generateMsg.startsWith('Error') ? '#ef4444' : '#22c55e' }}>
-              {generateMsg}
-            </span>
-          )}
         </div>
       </div>
 
-      {/* Status tabs */}
-      <div className="enq-type-tabs">
-        {STATUS_TABS.map(tab => (
-          <button
-            key={tab.key}
-            className={`enq-type-tabs__tab ${activeTab === tab.key ? 'enq-type-tabs__tab--active' : ''}`}
-            onClick={() => setActiveTab(tab.key)}
+      {generateMsg && (
+        <div className={`articles-page__msg articles-page__msg--${generateMsg.kind}`}>
+          {generateMsg.text}
+        </div>
+      )}
+
+      <AnimatePresence initial={false}>
+        {showGuide && (
+          <motion.div
+            key="guide"
+            className="articles-page__guide"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25, ease: EASE }}
           >
-            {tab.label}
-            {tab.key !== 'all' && counts[tab.key] > 0 && (
-              <span className="admin-sidebar__badge" style={{ marginLeft: 6 }}>{counts[tab.key]}</span>
-            )}
-          </button>
-        ))}
+            <div className="articles-page__guide-inner">
+              <div className="articles-page__guide-section">
+                <h3>Writing template</h3>
+                <ol>
+                  <li><strong>Title</strong> — 10-12 words, includes year + region/audience + intent verb (<em>e.g. "to hire"</em>).</li>
+                  <li><strong>Opening paragraph</strong> — 50-80 words. Establish authority + market context. No clichés.</li>
+                  <li><strong>Question H2</strong> — phrased as a question for featured-snippet capture.</li>
+                  <li><strong>Numbered speaker H2s</strong> — credentials line + 100-150 word profile + implicit value statement.</li>
+                  <li><strong>Soft CTA H2</strong> at close. Direct, not urgent. No exclamation marks.</li>
+                </ol>
+              </div>
+
+              <div className="articles-page__guide-grid">
+                <div className="articles-page__guide-section">
+                  <h3>Do</h3>
+                  <ul>
+                    <li>Active voice, third-person editorial tone</li>
+                    <li>Concrete authority signals (BBC, Stanford, FTSE 100)</li>
+                    <li>Numerical credibility ("700+ hours of interviews")</li>
+                    <li>UK English on UK pieces, US English on US pieces</li>
+                    <li>Internal links to <code>/enquiry</code>, <code>/speakers</code></li>
+                  </ul>
+                </div>
+                <div className="articles-page__guide-section">
+                  <h3>Avoid</h3>
+                  <ul>
+                    <li>Pricing, fees, costs, budget figures</li>
+                    <li>Superlatives — "amazing", "incredible"</li>
+                    <li>Marketing speak — "thought leader", "deep dive"</li>
+                    <li>Em dashes — use hyphens or commas</li>
+                    <li>Calls to urgency — "limited spots"</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="articles-page__guide-section">
+                <h3>Pre-publish checklist</h3>
+                <ul className="articles-page__guide-checklist">
+                  <li>Title 10-12 words, year + region present</li>
+                  <li>Opening paragraph 50-80 words, no clichés</li>
+                  <li>First H2 in question form</li>
+                  <li>Speaker entries numbered 1, 2, 3 …</li>
+                  <li>No pricing, fees or budget figures</li>
+                  <li>Internal links appear at least twice</li>
+                  <li>Reading time 5-9 mins (~1,000-1,800 words)</li>
+                </ul>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="articles-page__tabs" role="tablist" aria-label="Filter by status">
+        {STATUS_TABS.map(tab => {
+          const isActive = activeTab === tab.key
+          const count = tab.key === 'all' ? total : counts[tab.key]
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              className={`articles-page__tab${isActive ? ' articles-page__tab--active' : ''}`}
+              onClick={() => setActiveTab(tab.key)}
+            >
+              <span>{tab.label}</span>
+              {count != null && <span className="articles-page__tab-count">{count}</span>}
+            </button>
+          )
+        })}
       </div>
 
       {loading ? (
-        <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>Loading...</div>
+        <div className="articles-page__empty">Loading…</div>
       ) : error ? (
-        <div style={{ padding: '3rem', textAlign: 'center', color: '#ef4444' }}>{error}</div>
+        <div className="articles-page__empty articles-page__empty--err">{error}</div>
       ) : articles.length === 0 ? (
-        <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>No articles yet.</div>
-      ) : (
-        <div className="dash-table-wrap">
-          <table className="dash-table">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Category</th>
-                <th>Status</th>
-                <th>Generated</th>
-                <th>Published</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {articles.map(article => (
-                <tr key={article.id} style={{ cursor: 'pointer' }} onClick={() => navigate(`/admin/articles/${article.id}/edit`)}>
-                  <td style={{ fontWeight: 500, maxWidth: 360 }}>
-                    <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {article.title}
-                    </div>
-                    <div style={{ fontSize: 11, color: 'var(--color-text-muted)', marginTop: 2 }}>
-                      /news/{article.slug}
-                    </div>
-                  </td>
-                  <td style={{ whiteSpace: 'nowrap' }}>{article.category}</td>
-                  <td><StatusBadge status={article.status} /></td>
-                  <td style={{ color: 'var(--color-text-muted)', fontSize: 12, whiteSpace: 'nowrap' }}>
-                    {article.generatedAt
-                      ? new Date(article.generatedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-                      : '-'}
-                  </td>
-                  <td style={{ color: 'var(--color-text-muted)', fontSize: 12, whiteSpace: 'nowrap' }}>
-                    {article.publishedAt
-                      ? new Date(article.publishedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-                      : '-'}
-                  </td>
-                  <td>
-                    <button
-                      className="btn btn-secondary"
-                      style={{ fontSize: 12, padding: '4px 12px' }}
-                      onClick={e => { e.stopPropagation(); navigate(`/admin/articles/${article.id}/edit`) }}
-                    >
-                      Edit
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div style={{ padding: '0.75rem 1rem', fontSize: 12, color: 'var(--color-text-muted)' }}>
-            {total} total {total === 1 ? 'article' : 'articles'}
-          </div>
+        <div className="articles-page__empty">
+          {activeTab === 'draft' ? 'No draft articles. Click "Generate Now" to create one.' : 'No articles in this view.'}
         </div>
+      ) : (
+        <ul className="articles-list">
+          {articles.map(article => (
+            <li
+              key={article.id}
+              className="articles-row"
+              onClick={() => navigate(`/admin/articles/${article.id}/edit`)}
+              tabIndex={0}
+              role="button"
+              onKeyDown={e => { if (e.key === 'Enter') navigate(`/admin/articles/${article.id}/edit`) }}
+            >
+              <div className="articles-row__main">
+                <div className="articles-row__title">{article.title}</div>
+                <div className="articles-row__meta">
+                  <span className="articles-row__category">{article.category}</span>
+                  <span className="articles-row__sep" aria-hidden="true">·</span>
+                  <span className="articles-row__slug">/news/{article.slug}</span>
+                </div>
+              </div>
+              <div className="articles-row__dates">
+                <div>
+                  <span className="articles-row__dlabel">Generated</span>
+                  <span className="articles-row__dvalue">{formatDate(article.generatedAt)}</span>
+                </div>
+                <div>
+                  <span className="articles-row__dlabel">Published</span>
+                  <span className="articles-row__dvalue">{formatDate(article.publishedAt)}</span>
+                </div>
+              </div>
+              <div className={`articles-row__status articles-row__status--${article.status}`}>
+                {article.status}
+              </div>
+              <svg className="articles-row__chevron" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </li>
+          ))}
+        </ul>
       )}
     </motion.div>
   )

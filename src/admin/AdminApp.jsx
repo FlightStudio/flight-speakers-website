@@ -14,7 +14,6 @@ import AdminSpeakersPage from './pages/AdminSpeakersPage'
 import AdminSpeakerDetailPage from './pages/AdminSpeakerDetailPage'
 import AdminSpeakerFormPage from './pages/AdminSpeakerFormPage'
 import AdminReviewPage from './pages/AdminReviewPage'
-import AdminNewsGuidePage from './pages/AdminNewsGuidePage'
 import AdminWaitlistPage from './pages/AdminWaitlistPage'
 import AdminArticlesPage from './pages/AdminArticlesPage'
 import AdminArticleEditPage from './pages/AdminArticleEditPage'
@@ -47,7 +46,6 @@ export default function AdminApp() {
         <Route path="speakers/:id/edit" element={<AdminSpeakerFormPage />} />
         <Route path="speakers/:id" element={<AdminSpeakerDetailPage />} />
         <Route path="review" element={<AdminReviewPage />} />
-        <Route path="news" element={<AdminNewsGuidePage />} />
         <Route path="waitlist" element={<AdminWaitlistPage />} />
         <Route path="articles" element={<AdminArticlesPage />} />
         <Route path="articles/:id/edit" element={<AdminArticleEditPage />} />
