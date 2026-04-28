@@ -12,6 +12,7 @@ import reviewRouter from './review.js'
 import templatesRouter from './templates.js'
 import integrationsRouter from './integrations.js'
 import socialStatsRouter from './socialStats.js'
+import waitlistAdminRouter from './waitlist.js'
 
 const router = express.Router()
 
@@ -33,5 +34,6 @@ router.use('/', reviewRouter)
 router.use('/', templatesRouter)
 router.use('/', integrationsRouter)
 router.use('/', socialStatsRouter)
+router.use('/', waitlistAdminRouter)
 
 export default router

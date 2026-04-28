@@ -26,3 +26,4 @@ export function validate(req, res, schema) {
 
 export { speakerCreateSchema, speakerPatchSchema, portalDraftSchema } from './speaker.js'
 export { enquirySchema, enquiryUpdateSchema } from './enquiry.js'
+export { waitlistSchema, waitlistUpdateSchema } from './waitlist.js'

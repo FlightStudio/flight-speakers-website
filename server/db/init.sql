@@ -163,3 +163,33 @@ INSERT INTO response_templates (id, reason_key, label, subject, body) VALUES
   ('tmpl_exclusivity', 'exclusivity', 'Exclusivity', 'Regarding your enquiry',
    E'Hi {{name}},\n\nThank you for your interest in booking {{speaker_name}} for your event on {{event_date}}.\n\nDue to existing exclusivity arrangements, {{speaker_name}} is unable to participate in this engagement at this time.\n\nWe would be happy to suggest alternative speakers if that would be helpful.\n\nKind regards,\nFlight Speakers')
 ON CONFLICT (reason_key) DO NOTHING;
+
+-- Speaker waitlist (prospective speakers applying to join the roster)
+CREATE TABLE IF NOT EXISTS speaker_waitlist (
+  id TEXT PRIMARY KEY,
+  full_name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT,
+  based_in TEXT NOT NULL,
+  title_company TEXT NOT NULL,
+  speaks_about TEXT NOT NULL,
+  topics TEXT[] NOT NULL DEFAULT '{}',
+  speaking_experience TEXT NOT NULL,
+  fee_currency TEXT NOT NULL,
+  fee_bracket TEXT NOT NULL,
+  website TEXT,
+  linkedin TEXT,
+  showreel TEXT,
+  instagram TEXT,
+  notable_engagements TEXT,
+  representation_status TEXT NOT NULL,
+  why_flightspeakers TEXT,
+  status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'reviewed', 'invited', 'declined')),
+  admin_notes TEXT,
+  reviewed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_speaker_waitlist_status ON speaker_waitlist(status);
+CREATE INDEX IF NOT EXISTS idx_speaker_waitlist_created ON speaker_waitlist(created_at DESC);

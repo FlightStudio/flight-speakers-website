@@ -44,6 +44,37 @@ async function applyMigrations() {
   await pool.query(`
     ALTER TABLE speakers ALTER COLUMN hero_media_type SET DEFAULT 'image';
   `)
+
+  // Speaker waitlist table
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS speaker_waitlist (
+      id TEXT PRIMARY KEY,
+      full_name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT,
+      based_in TEXT NOT NULL,
+      title_company TEXT NOT NULL,
+      speaks_about TEXT NOT NULL,
+      topics TEXT[] NOT NULL DEFAULT '{}',
+      speaking_experience TEXT NOT NULL,
+      fee_currency TEXT NOT NULL,
+      fee_bracket TEXT NOT NULL,
+      website TEXT,
+      linkedin TEXT,
+      showreel TEXT,
+      instagram TEXT,
+      notable_engagements TEXT,
+      representation_status TEXT NOT NULL,
+      why_flightspeakers TEXT,
+      status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'reviewed', 'invited', 'declined')),
+      admin_notes TEXT,
+      reviewed_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_speaker_waitlist_status ON speaker_waitlist(status);
+    CREATE INDEX IF NOT EXISTS idx_speaker_waitlist_created ON speaker_waitlist(created_at DESC);
+  `)
 }
 
 // Retry with backoff. Cloud SQL on Cloud Run can take >5s to accept the
