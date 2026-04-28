@@ -1,5 +1,6 @@
 import Header from './Header'
 import Footer from './Footer'
+import AccessibilityMenu from './AccessibilityMenu'
 import './Layout.css'
 
 function Layout({ children }) {
@@ -10,6 +11,7 @@ function Layout({ children }) {
         {children}
       </main>
       <Footer />
+      <AccessibilityMenu />
     </div>
   )
 }

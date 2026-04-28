@@ -91,10 +91,23 @@
   gap: 32px;
 }
 
-.footer-legal a {
+.footer-legal a,
+.footer-legal__btn {
   font-size: 13px;
   color: rgba(255, 255, 255, 0.4);
   transition: color 0.2s ease;
+}
+
+.footer-legal__btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.footer-legal__btn:hover {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .footer-legal a:hover {

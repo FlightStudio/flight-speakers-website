@@ -53,6 +53,13 @@ function Footer() {
           <div className="footer-legal">
             <a href="#">Privacy Policy</a>
             <a href="#">Terms of Service</a>
+            <button
+              type="button"
+              className="footer-legal__btn"
+              onClick={() => window.dispatchEvent(new CustomEvent('open-a11y-menu'))}
+            >
+              Accessibility
+            </button>
           </div>
         </div>
       </div>

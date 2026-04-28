@@ -37,6 +37,13 @@ function AccessibilityMenu() {
 
   useEffect(() => { applyPrefs(prefs) }, [prefs])
 
+  // Allow other UI (e.g. the footer link) to open this panel.
+  useEffect(() => {
+    function onOpen() { setOpen(true) }
+    window.addEventListener('open-a11y-menu', onOpen)
+    return () => window.removeEventListener('open-a11y-menu', onOpen)
+  }, [])
+
   useEffect(() => {
     if (!open) return
     function onClickOutside(e) {
@@ -90,9 +97,9 @@ function AccessibilityMenu() {
             role="dialog"
             aria-label="Accessibility options"
             className="a11y-menu__panel"
-            initial={{ opacity: 0, y: -8, scale: 0.97 }}
+            initial={{ opacity: 0, y: 8, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.97 }}
+            exit={{ opacity: 0, y: 8, scale: 0.97 }}
             transition={{ duration: 0.2, ease: EASE }}
           >
             <div className="a11y-menu__heading">Accessibility</div>

@@ -1,5 +1,9 @@
+/* Fixed FAB bottom-right; subtle until hovered */
 .a11y-menu {
-  position: relative;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 90;
   display: inline-flex;
 }
 
@@ -8,43 +12,75 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border: none;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--color-border);
   border-radius: 50%;
-  background: transparent;
-  color: var(--color-text-secondary);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-primary);
   cursor: pointer;
-  transition: background var(--duration-fast), color var(--duration-fast);
+  box-shadow: var(--shadow-md);
+  transition: transform var(--duration-fast) var(--ease-out-expo),
+              box-shadow var(--duration-fast),
+              background var(--duration-fast),
+              opacity var(--duration-fast);
+  opacity: 0.85;
 }
 
 .a11y-menu__trigger:hover {
-  background: var(--color-bg-tertiary);
-  color: var(--color-text-primary);
+  opacity: 1;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  background: var(--color-bg-elevated);
+}
+
+.a11y-menu__trigger:focus-visible {
+  outline: 2px solid var(--color-text-primary);
+  outline-offset: 3px;
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .a11y-menu {
+    bottom: 16px;
+    right: 16px;
+  }
+  .a11y-menu__trigger {
+    width: 44px;
+    height: 44px;
+  }
 }
 
 .a11y-menu__dot {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 7px;
-  height: 7px;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--color-accent);
-  border: 1.5px solid var(--color-bg-primary);
+  border: 1.5px solid var(--color-bg-elevated);
 }
 
 .a11y-menu__panel {
   position: absolute;
-  top: calc(100% + 8px);
+  bottom: calc(100% + 12px);
   right: 0;
   z-index: 60;
-  min-width: 280px;
+  min-width: 300px;
   padding: 14px;
   background: var(--color-bg-elevated);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xl);
+  transform-origin: bottom right;
+}
+
+@media (max-width: 480px) {
+  .a11y-menu__panel {
+    min-width: min(300px, calc(100vw - 32px));
+    right: 0;
+  }
 }
 
 .a11y-menu__heading {
