@@ -12,3 +12,8 @@ tmp/
 CLAUDE.md
 TECHNICAL.md
 next_phase_improvements.md
+
+# Local working assets (not for source control)
+Screenshot*.png
+design-assets/
+speakerprofilepics/
