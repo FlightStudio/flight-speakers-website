@@ -1612,6 +1612,97 @@
   border-top-color: rgba(255, 255, 255, 0.06);
 }
 
+/* ============================================
+   Selected speaker cards — review step
+   ============================================ */
+
+.mstep-review__selected {
+  margin-top: var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+}
+
+.mstep-review__selected-header {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.mstep-review__selected-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mstep-review__selected-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-secondary);
+}
+
+.mstep-review__selected-photo {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.mstep-review__selected-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.mstep-review__selected-name {
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.mstep-review__selected-headline {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mstep-review__selected-topics {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: 0.15rem;
+}
+
+.mstep-review__selected-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.mstep-review__selected-remove:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .mstep-prefill__skeleton {

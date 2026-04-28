@@ -372,6 +372,8 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '', preSelectedSp
             setReturnToReview(true)
             goToStep(stepIdx)
           }}
+          primarySpeaker={speaker}
+          preSelectedSpeakers={preSelectedSpeakers}
           recommendedSpeakers={recommendedSpeakers}
           recommendedScores={recommendedScores}
           onToggleSpeaker={toggleSpeaker}

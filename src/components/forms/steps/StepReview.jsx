@@ -25,10 +25,32 @@ const FIELDS = [
   }},
 ]
 
-function StepReview({ formData, handleChange, goToStep, recommendedSpeakers = [], recommendedScores = {}, onToggleSpeaker, recsLoading = false }) {
+function StepReview({ formData, handleChange, goToStep, primarySpeaker = null, preSelectedSpeakers = [], recommendedSpeakers = [], recommendedScores = {}, onToggleSpeaker, recsLoading = false }) {
   const selectedIds = formData.additionalSpeakerIds || []
   // budgetRange isn't a direct step field — map it to the engagementType step
   const getStepIndex = (key) => FIELD_STEP_MAP[key] ?? FIELD_STEP_MAP['engagementType']
+
+  // Build visible speakers: primary first, then pre-selected (only if still in additionalSpeakerIds),
+  // then AI recommendations the user toggled on. Deduplicate by id.
+  const additionalIds = formData.additionalSpeakerIds || []
+  const seen = new Set()
+  const visibleSpeakers = []
+  if (primarySpeaker) {
+    visibleSpeakers.push(primarySpeaker)
+    seen.add(primarySpeaker.id)
+  }
+  for (const s of preSelectedSpeakers) {
+    if (!seen.has(s.id) && additionalIds.includes(s.id)) {
+      visibleSpeakers.push(s)
+      seen.add(s.id)
+    }
+  }
+  for (const s of recommendedSpeakers) {
+    if (additionalIds.includes(s.id) && !seen.has(s.id)) {
+      visibleSpeakers.push(s)
+      seen.add(s.id)
+    }
+  }
   return (
     <div className="mstep-review mstep-review--compact">
       <motion.div
@@ -79,6 +101,50 @@ function StepReview({ formData, handleChange, goToStep, recommendedSpeakers = []
           </button>
         )}
       </motion.div>
+
+      {visibleSpeakers.length > 0 && (
+        <motion.div
+          className="mstep-review__selected"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05, duration: 0.4, ease: EASE }}
+        >
+          <div className="mstep-review__selected-header">
+            Speakers in your enquiry ({visibleSpeakers.length})
+          </div>
+          <ul className="mstep-review__selected-list">
+            {visibleSpeakers.map((s) => {
+              const isPrimary = primarySpeaker && s.id === primarySpeaker.id
+              return (
+                <li key={s.id} className="mstep-review__selected-card">
+                  <img src={s.photo} alt={s.name} className="mstep-review__selected-photo" />
+                  <div className="mstep-review__selected-info">
+                    <span className="mstep-review__selected-name">{s.name}</span>
+                    <span className="mstep-review__selected-headline">{s.headline}</span>
+                    {s.topics?.length > 0 && (
+                      <span className="mstep-review__selected-topics">
+                        {s.topics.slice(0, 3).join(' / ')}
+                      </span>
+                    )}
+                  </div>
+                  {!isPrimary && onToggleSpeaker && (
+                    <button
+                      type="button"
+                      className="mstep-review__selected-remove"
+                      onClick={() => onToggleSpeaker(s.id)}
+                      aria-label={`Remove ${s.name}`}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <path d="M3 3L11 11M3 11L11 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
+                    </button>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        </motion.div>
+      )}
 
       {recommendedSpeakers.length === 0 && !formData.brief && !recsLoading && (
         <motion.div
