@@ -25,6 +25,25 @@ async function applyMigrations() {
   await pool.query(`
     ALTER TABLE speakers ADD COLUMN IF NOT EXISTS boost_notes TEXT;
   `)
+
+  // Add hero_media_type. Backfill: speakers that already have a videoUrl are
+  // most likely showing the video on their hero today (legacy auto behaviour),
+  // so flip them to 'video' on first run. Idempotent via the IS NULL guard.
+  await pool.query(`
+    ALTER TABLE speakers ADD COLUMN IF NOT EXISTS hero_media_type TEXT
+      CHECK (hero_media_type IN ('image','video'));
+  `)
+  await pool.query(`
+    UPDATE speakers
+    SET hero_media_type = CASE WHEN video_url IS NOT NULL THEN 'video' ELSE 'image' END
+    WHERE hero_media_type IS NULL;
+  `)
+  await pool.query(`
+    ALTER TABLE speakers ALTER COLUMN hero_media_type SET NOT NULL;
+  `)
+  await pool.query(`
+    ALTER TABLE speakers ALTER COLUMN hero_media_type SET DEFAULT 'image';
+  `)
 }
 
 // Retry with backoff. Cloud SQL on Cloud Run can take >5s to accept the

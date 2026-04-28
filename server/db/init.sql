@@ -56,6 +56,9 @@ CREATE INDEX IF NOT EXISTS idx_enquiries_status ON enquiries (status);
 CREATE INDEX IF NOT EXISTS idx_enquiries_speaker_id ON enquiries (speaker_id);
 CREATE INDEX IF NOT EXISTS idx_enquiries_created_at ON enquiries (created_at DESC);
 
+-- Hero media type
+ALTER TABLE speakers ADD COLUMN IF NOT EXISTS hero_media_type TEXT NOT NULL DEFAULT 'image' CHECK (hero_media_type IN ('image','video'));
+
 -- Social media columns on speakers
 ALTER TABLE speakers ADD COLUMN IF NOT EXISTS social_profiles JSONB DEFAULT '{}';
 ALTER TABLE speakers ADD COLUMN IF NOT EXISTS social_stats JSONB DEFAULT '{}';
