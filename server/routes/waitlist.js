@@ -11,7 +11,7 @@ router.post('/', async (req, res) => {
 
   try {
     const entry = await createWaitlistEntry(data)
-    console.log('NEW WAITLIST ENTRY:', entry.id, data.email)
+    console.log('Waitlist entry created:', entry.id)
 
     res.status(201).json({
       success: true,

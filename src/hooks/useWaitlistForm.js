@@ -70,12 +70,12 @@ export function getWaitlistBudgetBrackets(currencyCode = 'GBP') {
 
 // 6 steps: About You / Your Work (main) / Your Work (fee) / Profile & Links / Representation / Review+Consent
 export const WAITLIST_STEPS = [
-  { id: 'about',          label: '01', title: 'ABOUT YOU' },
-  { id: 'work-main',      label: '02', title: 'YOUR WORK' },
-  { id: 'work-fee',       label: '02', title: 'YOUR WORK' },
-  { id: 'profile',        label: '03', title: 'PROFILE & LINKS' },
-  { id: 'representation', label: '04', title: 'REPRESENTATION' },
-  { id: 'review',         label: '05', title: 'REVIEW' },
+  { id: 'about',          label: '01',  title: 'ABOUT YOU' },
+  { id: 'work-main',      label: '02a', title: 'YOUR WORK' },
+  { id: 'work-fee',       label: '02b', title: 'YOUR WORK / FEE' },
+  { id: 'profile',        label: '03',  title: 'PROFILE & LINKS' },
+  { id: 'representation', label: '04',  title: 'REPRESENTATION' },
+  { id: 'review',         label: '05',  title: 'REVIEW' },
 ]
 
 export const WAITLIST_TOTAL_STEPS = WAITLIST_STEPS.length
@@ -273,6 +273,7 @@ export function useWaitlistForm() {
     currentStep,
     direction,
     errors,
+    setErrors,
     status,
     isSubmitting,
     handleChange,

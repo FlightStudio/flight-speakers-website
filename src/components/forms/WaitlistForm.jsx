@@ -133,6 +133,7 @@ function WaitlistForm() {
     currentStep,
     direction,
     errors,
+    setErrors,
     status,
     isSubmitting,
     handleChange,
@@ -265,18 +266,22 @@ function WaitlistForm() {
           />
 
           <div className="mstep-field">
-            <label className="mstep-field__label">Topic areas</label>
-            <div className="wstep-topics">
-              {TOPIC_OPTIONS.map(topic => (
-                <button
-                  key={topic}
-                  type="button"
-                  className={`wstep-topic-btn${formData.topics.includes(topic) ? ' wstep-topic-btn--active' : ''}`}
-                  onClick={() => toggleTopic(topic)}
-                >
-                  {topic}
-                </button>
-              ))}
+            <span id="topics-label" className="mstep-field__label">Topic areas</span>
+            <div className="wstep-topics" role="group" aria-labelledby="topics-label">
+              {TOPIC_OPTIONS.map(topic => {
+                const selected = formData.topics.includes(topic)
+                return (
+                  <button
+                    key={topic}
+                    type="button"
+                    className={`wstep-topic-btn${selected ? ' wstep-topic-btn--active' : ''}`}
+                    onClick={() => toggleTopic(topic)}
+                    aria-pressed={selected}
+                  >
+                    {topic}
+                  </button>
+                )
+              })}
             </div>
             {errors.topics && (
               <motion.p
@@ -334,7 +339,11 @@ function WaitlistForm() {
                     onClick={() => {
                       setFormData(prev => ({ ...prev, feeBracket: bracket }))
                       if (errors.feeBracket) {
-                        // clear error
+                        setErrors(prev => {
+                          const next = { ...prev }
+                          delete next.feeBracket
+                          return next
+                        })
                       }
                     }}
                   >
@@ -419,22 +428,27 @@ function WaitlistForm() {
       return (
         <div className="mstep-step__fields">
           <div className="mstep-field">
-            <label className="mstep-field__label">Current representation status</label>
-            <div className="wstep-rep-cards">
-              {REPRESENTATION_OPTIONS.map(opt => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  className={`wstep-rep-card${formData.representationStatus === opt.value ? ' wstep-rep-card--active' : ''}`}
-                  onClick={() => handleChange({ target: { name: 'representationStatus', value: opt.value } })}
-                >
-                  <div className="wstep-rep-card__radio" aria-hidden="true" />
-                  <div className="wstep-rep-card__text">
-                    <span className="wstep-rep-card__title">{opt.title}</span>
-                    <span className="wstep-rep-card__helper">{opt.helper}</span>
-                  </div>
-                </button>
-              ))}
+            <span id="rep-status-label" className="mstep-field__label">Current representation status</span>
+            <div className="wstep-rep-cards" role="radiogroup" aria-labelledby="rep-status-label">
+              {REPRESENTATION_OPTIONS.map(opt => {
+                const checked = formData.representationStatus === opt.value
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    role="radio"
+                    aria-checked={checked}
+                    className={`wstep-rep-card${checked ? ' wstep-rep-card--active' : ''}`}
+                    onClick={() => handleChange({ target: { name: 'representationStatus', value: opt.value } })}
+                  >
+                    <div className="wstep-rep-card__radio" aria-hidden="true" />
+                    <div className="wstep-rep-card__text">
+                      <span className="wstep-rep-card__title">{opt.title}</span>
+                      <span className="wstep-rep-card__helper">{opt.helper}</span>
+                    </div>
+                  </button>
+                )
+              })}
             </div>
             {errors.representationStatus && (
               <motion.p

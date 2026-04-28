@@ -39,8 +39,16 @@ function AccessibilityMenu({ showTrigger = true }) {
     return localStorage.getItem(DISMISS_KEY) === 'true'
   })
   const wrapRef = useRef(null)
+  const panelRef = useRef(null)
 
   useEffect(() => { applyPrefs(prefs) }, [prefs])
+
+  // Move focus into the panel when it opens — standard dialog pattern.
+  useEffect(() => {
+    if (!open || !panelRef.current) return
+    const firstButton = panelRef.current.querySelector('button')
+    firstButton?.focus()
+  }, [open])
 
   // Allow other UI (e.g. the footer link) to open this panel — and
   // un-dismiss the FAB so the user can see the trigger again.
@@ -132,8 +140,10 @@ function AccessibilityMenu({ showTrigger = true }) {
         {open && (
           <motion.div
             role="dialog"
+            aria-modal="true"
             aria-label="Accessibility options"
             className="a11y-menu__panel"
+            ref={panelRef}
             initial={{ opacity: 0, y: 8, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.97 }}
