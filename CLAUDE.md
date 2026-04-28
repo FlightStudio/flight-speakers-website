@@ -278,6 +278,8 @@ Premium speaker booking agency. React frontend, Express backend, PostgreSQL + pg
 - `APP_URL` — Frontend URL (for magic link generation)
 - `PORT` — Express port (default 3001)
 - `GCS_BUCKET` — Google Cloud Storage bucket for speaker photos (default: `flight-speakers-photos`)
+- `UNSPLASH_ACCESS_KEY` — Unsplash API key for article cover images (free tier: 50 req/hour). Generator falls back to speaker photo if unset.
+- `ENABLE_ARTICLE_CRON` — Set to `true` to run the article scheduler in non-production environments (default: off in development)
 
 ## NPM Scripts
 - `npm run dev` — Vite dev server (port 3000)
