@@ -105,6 +105,7 @@ function SearchResultsPage() {
       return stored ? new Set(JSON.parse(stored)) : new Set()
     } catch { return new Set() }
   })
+  const [showRefineHint, setShowRefineHint] = useState(true)
 
   const updateSelectedIds = useCallback((updater) => {
     setSelectedSpeakerIds(prev => {
@@ -306,6 +307,25 @@ function SearchResultsPage() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.6, ease: EASE }}
               >
+                {showRefineHint && results.speakers.length > 0 && (
+                  <motion.button
+                    type="button"
+                    className="search-results__refine-hint"
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: EASE }}
+                    onClick={() => {
+                      window.scrollTo({ top: 0, behavior: 'smooth' })
+                      searchBarRef.current?.focus()
+                      setShowRefineHint(false)
+                    }}
+                  >
+                    <span>Not quite right? Add more detail to your brief</span>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                      <path d="M2.5 7H11.5M11.5 7L7 2.5M11.5 7L7 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </motion.button>
+                )}
                 <div className="search-results__header">
                   <div className="search-results__info">
                     <h2>

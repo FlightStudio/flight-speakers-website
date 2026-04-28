@@ -356,6 +356,27 @@
   transform: translateX(3px);
 }
 
+/* Refine hint nudge */
+.search-results__refine-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  padding: 0.55rem 1rem;
+  margin-bottom: var(--space-6);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: background var(--duration-fast), color var(--duration-fast);
+}
+
+.search-results__refine-hint:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
 /* ================================
    Responsive
    ================================ */
