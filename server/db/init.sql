@@ -127,6 +127,7 @@ CREATE TABLE IF NOT EXISTS speaker_tokens (
     type TEXT NOT NULL CHECK (type IN ('new', 'update')),
     expires_at TIMESTAMPTZ NOT NULL,
     used_at TIMESTAMPTZ,
+    prefill_data JSONB,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_speaker_tokens_token ON speaker_tokens(token);
@@ -187,6 +188,8 @@ CREATE TABLE IF NOT EXISTS speaker_waitlist (
   status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'reviewed', 'invited', 'declined')),
   admin_notes TEXT,
   reviewed_at TIMESTAMPTZ,
+  invited_at TIMESTAMPTZ,
+  invited_token TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

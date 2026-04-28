@@ -132,6 +132,17 @@ async function applyMigrations() {
     CREATE INDEX IF NOT EXISTS idx_speaker_waitlist_status ON speaker_waitlist(status);
     CREATE INDEX IF NOT EXISTS idx_speaker_waitlist_created ON speaker_waitlist(created_at DESC);
   `)
+
+  // Waitlist invite tracking columns
+  await pool.query(`
+    ALTER TABLE speaker_waitlist ADD COLUMN IF NOT EXISTS invited_at TIMESTAMPTZ;
+    ALTER TABLE speaker_waitlist ADD COLUMN IF NOT EXISTS invited_token TEXT;
+  `)
+
+  // Prefill data on new-type tokens (for waitlist invite flow)
+  await pool.query(`
+    ALTER TABLE speaker_tokens ADD COLUMN IF NOT EXISTS prefill_data JSONB;
+  `)
 }
 
 // Retry with backoff. Cloud SQL on Cloud Run can take >5s to accept the
