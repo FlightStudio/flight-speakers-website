@@ -4,6 +4,7 @@ import { EASE } from '../../constants/animation'
 import './AccessibilityMenu.css'
 
 const STORAGE_KEY = 'a11y-prefs'
+const DISMISS_KEY = 'a11y-fab-dismissed'
 
 const TOGGLES = [
   { key: 'largeText', label: 'Larger text', hint: 'Increase base font size by ~12%' },
@@ -33,13 +34,22 @@ function applyPrefs(prefs) {
 function AccessibilityMenu() {
   const [open, setOpen] = useState(false)
   const [prefs, setPrefs] = useState(() => readPrefs())
+  const [dismissed, setDismissed] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return localStorage.getItem(DISMISS_KEY) === 'true'
+  })
   const wrapRef = useRef(null)
 
   useEffect(() => { applyPrefs(prefs) }, [prefs])
 
-  // Allow other UI (e.g. the footer link) to open this panel.
+  // Allow other UI (e.g. the footer link) to open this panel — and
+  // un-dismiss the FAB so the user can see the trigger again.
   useEffect(() => {
-    function onOpen() { setOpen(true) }
+    function onOpen() {
+      setDismissed(false)
+      try { localStorage.removeItem(DISMISS_KEY) } catch {}
+      setOpen(true)
+    }
     window.addEventListener('open-a11y-menu', onOpen)
     return () => window.removeEventListener('open-a11y-menu', onOpen)
   }, [])
@@ -69,7 +79,16 @@ function AccessibilityMenu() {
     try { localStorage.removeItem(STORAGE_KEY) } catch {}
   }
 
+  function dismissFab(e) {
+    e.stopPropagation()
+    setDismissed(true)
+    setOpen(false)
+    try { localStorage.setItem(DISMISS_KEY, 'true') } catch {}
+  }
+
   const activeCount = Object.values(prefs).filter(Boolean).length
+
+  if (dismissed) return null
 
   return (
     <div className="a11y-menu" ref={wrapRef}>
@@ -89,6 +108,18 @@ function AccessibilityMenu() {
           <path d="M12 11.2V14M12 14L9.5 18M12 14L14.5 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
         </svg>
         {activeCount > 0 && <span className="a11y-menu__dot" aria-hidden="true" />}
+      </button>
+
+      <button
+        type="button"
+        className="a11y-menu__close"
+        onClick={dismissFab}
+        aria-label="Hide accessibility button (still available via the footer)"
+        title="Hide (use the footer link to bring it back)"
+      >
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+          <path d="M2 2L8 8M2 8L8 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
       </button>
 
       <AnimatePresence>
