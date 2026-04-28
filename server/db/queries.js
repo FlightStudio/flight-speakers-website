@@ -9,7 +9,8 @@ const SPEAKER_COLUMNS = `
   fee_min AS "feeMin",
   gender, ethnicity, nationality, location,
   books,
-  boost_notes AS "boostNotes"
+  boost_notes AS "boostNotes",
+  hero_media_type AS "heroMediaType"
 `
 
 export async function getAllSpeakers({ topic, audience, limit } = {}) {
@@ -96,8 +97,8 @@ export async function createSpeaker(data, executor = pool) {
   const { rows } = await executor.query(
     `INSERT INTO speakers (id, name, headline, photo, bio, topics, audiences, keynotes,
        speaking_format, video_url, social_profiles, fee_min,
-       gender, ethnicity, nationality, location, boost_notes)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+       gender, ethnicity, nationality, location, boost_notes, hero_media_type)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
      RETURNING ${SPEAKER_COLUMNS}`,
     [
       id,
@@ -117,6 +118,7 @@ export async function createSpeaker(data, executor = pool) {
       data.nationality || null,
       data.location || null,
       data.boostNotes || null,
+      data.heroMediaType || 'image',
     ]
   )
 
@@ -144,6 +146,7 @@ export async function updateSpeaker(id, data, executor = pool) {
     nationality: 'nationality',
     location: 'location',
     boostNotes: 'boost_notes',
+    heroMediaType: 'hero_media_type',
   }
 
   for (const [jsKey, dbCol] of Object.entries(fieldMap)) {
