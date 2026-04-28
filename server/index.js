@@ -14,6 +14,8 @@ import waitlistRouter from './routes/waitlist.js'
 import pool from './db/connection.js'
 import { runMigrations } from './db/migrate.js'
 import { startDailyRefresh } from './services/socialStats.js'
+import { startArticleScheduler } from './services/articleScheduler.js'
+import articlesRouter from './routes/articles.js'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -98,6 +100,7 @@ app.use('/api/admin/login', loginLimiter)
 app.use('/api/admin', adminRouter)
 app.use('/api/portal', portalLimiter, portalRouter)
 app.use('/api/waitlist', enquiryLimiter, waitlistRouter)
+app.use('/api/articles', articlesRouter)
 
 // API dashboard
 app.get('/api', async (req, res) => {
@@ -259,6 +262,7 @@ app.listen(PORT, async () => {
     console.error('Migration failed:', err.message)
   }
   startDailyRefresh()
+  startArticleScheduler()
 })
 
 export default app
