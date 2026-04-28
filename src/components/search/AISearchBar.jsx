@@ -1,12 +1,20 @@
-import { useState, useRef, useImperativeHandle, forwardRef } from 'react'
+import { useState, useRef, useImperativeHandle, useEffect, forwardRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { EASE } from '../../constants/animation'
 import './AISearchBar.css'
 
 const AISearchBar = forwardRef(function AISearchBar({ variant = 'default', initialQuery = '', onSearch, hideSubmit = false, showEditHint = false }, ref) {
   const [query, setQuery] = useState(initialQuery)
   const inputRef = useRef(null)
   const [isFocused, setIsFocused] = useState(false)
+  // Refine-search popover: shows briefly after results load to nudge users toward editing.
+  const [showRefinePopover, setShowRefinePopover] = useState(false)
+  useEffect(() => {
+    if (!showEditHint) return
+    const t = setTimeout(() => setShowRefinePopover(true), 600)
+    return () => clearTimeout(t)
+  }, [showEditHint])
 
   useImperativeHandle(ref, () => ({
     setQuery,
@@ -63,13 +71,36 @@ const AISearchBar = forwardRef(function AISearchBar({ variant = 'default', initi
             <button
               type="button"
               className="ai-search__edit"
-              onClick={() => inputRef.current?.focus()}
+              onClick={() => {
+                inputRef.current?.focus()
+                setShowRefinePopover(false)
+              }}
+              aria-label="Edit your brief"
             >
               <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
                 <path d="M11.5 1.5L14.5 4.5M1 15L1.5 11.5L12 1L15 4L4.5 14.5L1 15Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
           )}
+          <AnimatePresence>
+            {showEditHint && showRefinePopover && (
+              <motion.button
+                type="button"
+                className="ai-search__refine-pop"
+                initial={{ opacity: 0, y: 6, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 6, scale: 0.96 }}
+                transition={{ duration: 0.3, ease: EASE }}
+                onClick={() => {
+                  inputRef.current?.focus()
+                  setShowRefinePopover(false)
+                }}
+              >
+                <span>Not quite right? Add more detail</span>
+                <span className="ai-search__refine-pop-arrow" aria-hidden="true" />
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
       </form>
     </div>
