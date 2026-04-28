@@ -51,6 +51,14 @@ function setCache(key, value) {
   cache.set(key, { value, timestamp: Date.now() })
 }
 
+function sortIdsByScoreDesc(ids, scores) {
+  return [...ids].sort((a, b) => {
+    const sa = typeof scores[a] === 'number' ? scores[a] : -Infinity
+    const sb = typeof scores[b] === 'number' ? scores[b] : -Infinity
+    return sb - sa
+  })
+}
+
 function buildSpeakerSummaries(speakers) {
   return speakers.map((s, i) => {
     const parts = [
@@ -167,9 +175,11 @@ async function vectorRetrieveThenRerank(query, limit, budget) {
     return null
   }
 
-  // Build full speaker objects from candidates, preserving Claude's ranking
+  const sortedIds = sortIdsByScoreDesc(matchedIds, scores)
+
+  // Build full speaker objects from candidates, sorted by matchScore desc
   const candidateMap = new Map(candidates.map(s => [s.id, s]))
-  const speakers = matchedIds
+  const speakers = sortedIds
     .map(id => {
       const s = candidateMap.get(id)
       if (!s) return null
@@ -243,7 +253,9 @@ export async function semanticSearch(query, limit = 8, budget) {
     return fullTextFallback(query, limit)
   }
 
-  // Fetch full speaker objects for matched IDs, preserving Claude's ranking order
+  matchedIds = sortIdsByScoreDesc(matchedIds, scores)
+
+  // Fetch full speaker objects for matched IDs, sorted by matchScore desc
   const allSpeakers = await getAllSpeakers()
   const speakerMap = new Map(allSpeakers.map(s => [s.id, s]))
   const speakers = matchedIds
