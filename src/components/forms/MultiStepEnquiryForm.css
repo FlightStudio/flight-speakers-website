@@ -918,71 +918,44 @@
 
 .mstep-success__actions {
   display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.mstep-success__action-btn {
-  display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 1px solid var(--color-border);
-  background: var(--color-white);
-  color: var(--color-charcoal);
-  cursor: pointer;
-  transition: all 0.2s ease;
+  gap: 0.75rem;
+  margin-top: var(--space-8);
 }
 
-.mstep-success__action-btn:hover {
-  border-color: var(--color-gray-300);
-  background: var(--color-gray-50);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.mstep-success__share-wrap {
-  position: relative;
-}
-
-.mstep-success__share-menu {
-  position: absolute;
-  bottom: calc(100% + 10px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--color-white);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: 6px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  min-width: 180px;
-}
-
-.mstep-success__share-option {
-  display: flex;
+.mstep-success__action {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 10px 14px;
-  font-size: 13px;
+  gap: 0.5rem;
+  padding: 0.7rem 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
   font-weight: 500;
-  color: var(--color-charcoal);
-  background: none;
-  border: none;
-  border-radius: 8px;
+  text-decoration: none;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background var(--duration-fast), color var(--duration-fast), border-color var(--duration-fast);
 }
 
-.mstep-success__share-option:hover {
-  background: var(--color-gray-50);
+.mstep-success__action:hover {
+  background: var(--color-text-primary);
+  color: var(--color-bg-primary);
+  border-color: var(--color-text-primary);
 }
 
-.mstep-success__share-option:disabled {
-  opacity: 0.5;
+.mstep-success__action:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .mstep-success__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 /* Error message */
