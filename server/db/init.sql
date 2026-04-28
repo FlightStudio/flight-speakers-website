@@ -193,3 +193,29 @@ CREATE TABLE IF NOT EXISTS speaker_waitlist (
 
 CREATE INDEX IF NOT EXISTS idx_speaker_waitlist_status ON speaker_waitlist(status);
 CREATE INDEX IF NOT EXISTS idx_speaker_waitlist_created ON speaker_waitlist(created_at DESC);
+
+-- AI-generated article drafts
+CREATE TABLE IF NOT EXISTS articles (
+  id TEXT PRIMARY KEY,
+  slug TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT 'Rankings',
+  excerpt TEXT NOT NULL,
+  image TEXT,
+  image_credit TEXT,
+  tile_c1 TEXT,
+  tile_c2 TEXT,
+  body JSONB NOT NULL,
+  read_time INT NOT NULL DEFAULT 8,
+  status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','published','rejected')),
+  generated_by TEXT NOT NULL DEFAULT 'auto' CHECK (generated_by IN ('auto','manual','seed')),
+  topic_angle TEXT,
+  generated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  published_at TIMESTAMPTZ,
+  reviewed_at TIMESTAMPTZ,
+  admin_notes TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_articles_status ON articles(status);
+CREATE INDEX IF NOT EXISTS idx_articles_published ON articles(published_at DESC) WHERE status = 'published';

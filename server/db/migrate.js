@@ -5,6 +5,7 @@
 // so anything new since the initial schema needs to live here.
 
 import pool from './connection.js'
+import { SEED_ARTICLES } from '../data/seedArticles.js'
 
 async function applyMigrations() {
   await pool.query(`
@@ -44,6 +45,62 @@ async function applyMigrations() {
   await pool.query(`
     ALTER TABLE speakers ALTER COLUMN hero_media_type SET DEFAULT 'image';
   `)
+
+  // AI-generated article drafts table
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS articles (
+      id TEXT PRIMARY KEY,
+      slug TEXT UNIQUE NOT NULL,
+      title TEXT NOT NULL,
+      category TEXT NOT NULL DEFAULT 'Rankings',
+      excerpt TEXT NOT NULL,
+      image TEXT,
+      image_credit TEXT,
+      tile_c1 TEXT,
+      tile_c2 TEXT,
+      body JSONB NOT NULL,
+      read_time INT NOT NULL DEFAULT 8,
+      status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','published','rejected')),
+      generated_by TEXT NOT NULL DEFAULT 'auto' CHECK (generated_by IN ('auto','manual','seed')),
+      topic_angle TEXT,
+      generated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      published_at TIMESTAMPTZ,
+      reviewed_at TIMESTAMPTZ,
+      admin_notes TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_articles_status ON articles(status);
+    CREATE INDEX IF NOT EXISTS idx_articles_published ON articles(published_at DESC) WHERE status = 'published';
+  `)
+
+  // Seed existing static articles into DB (idempotent — ON CONFLICT DO NOTHING)
+  for (const article of SEED_ARTICLES) {
+    await pool.query(
+      `INSERT INTO articles (
+        id, slug, title, category, excerpt, image, tile_c1, tile_c2,
+        body, read_time, status, generated_by, topic_angle,
+        generated_at, published_at, reviewed_at, created_at, updated_at
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8,
+        $9, $10, 'published', 'seed', NULL,
+        $11, $11, $11, $11, $11
+      ) ON CONFLICT (slug) DO NOTHING`,
+      [
+        article.id,
+        article.slug,
+        article.title,
+        article.category,
+        article.excerpt,
+        article.image || null,
+        article.tile_c1 || null,
+        article.tile_c2 || null,
+        JSON.stringify(article.body),
+        article.read_time,
+        new Date(article.date),
+      ]
+    )
+  }
 
   // Speaker waitlist table
   await pool.query(`
