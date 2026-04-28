@@ -154,6 +154,11 @@ export default function SpeakerPortalPage() {
               ? 'Fill in your details below. Your profile will be reviewed before going live.'
               : 'Make changes to your profile below. Updates will be reviewed before being published.'}
           </p>
+          {type === 'new' && speaker && (
+            <p className="portal-page__text portal-page__text--muted" style={{ marginTop: 8 }}>
+              We have pre-filled some fields from your application. Please review and complete the remaining details.
+            </p>
+          )}
         </div>
 
         {error && (

@@ -52,7 +52,10 @@ export const speakerPatchSchema = z.object({
 // Portal: speakers update their own profile but cannot set their fee.
 // `feeMin: z.never().optional()` actively rejects any feeMin value rather
 // than silently stripping it (defence against a malicious portal client).
+// Photo accepts an empty string (speaker may submit before uploading, or upload
+// separately via the dropzone — the draft reviewer can check before approving).
 export const portalDraftSchema = z.object({
   ...baseSpeakerFields,
+  photo: z.union([z.string().url().max(1000), z.literal('')]).optional().nullable(),
   feeMin: z.never().optional(),
 }).partial().required({ name: true, headline: true, bio: true })
