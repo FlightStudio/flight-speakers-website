@@ -1,15 +1,15 @@
 import crypto from 'crypto'
 import pool from './connection.js'
 
-export async function createToken({ speakerId, type, expiresInDays = 7 }) {
+export async function createToken({ speakerId, type, expiresInDays = 7, prefillData = null }) {
   const token = crypto.randomBytes(32).toString('hex')
   const expiresAt = new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000)
 
   const { rows } = await pool.query(
-    `INSERT INTO speaker_tokens (speaker_id, token, type, expires_at)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO speaker_tokens (speaker_id, token, type, expires_at, prefill_data)
+     VALUES ($1, $2, $3, $4, $5)
      RETURNING *`,
-    [speakerId || null, token, type, expiresAt]
+    [speakerId || null, token, type, expiresAt, prefillData ? JSON.stringify(prefillData) : null]
   )
   return rows[0]
 }
@@ -42,7 +42,7 @@ export async function validateToken(token) {
     return { valid: false, error: 'Invalid or expired link' }
   }
 
-  // Build speaker data for pre-fill if update type
+  // Build speaker data for pre-fill
   let speaker = null
   if (row.type === 'update' && row.speaker_id) {
     speaker = {
@@ -63,6 +63,11 @@ export async function validateToken(token) {
       location: row.speaker_location,
       socialProfiles: row.speaker_socialProfiles,
     }
+  } else if (row.type === 'new' && row.prefill_data) {
+    // Waitlist-invite tokens carry pre-mapped applicant data
+    speaker = typeof row.prefill_data === 'string'
+      ? JSON.parse(row.prefill_data)
+      : row.prefill_data
   }
 
   return {
@@ -148,6 +153,11 @@ export async function validateAndConsumeToken(token) {
         location: row.speaker_location,
         socialProfiles: row.speaker_socialProfiles,
       }
+    } else if (row.type === 'new' && row.prefill_data) {
+      // Waitlist-invite tokens carry pre-mapped applicant data
+      speaker = typeof row.prefill_data === 'string'
+        ? JSON.parse(row.prefill_data)
+        : row.prefill_data
     }
     return { valid: true, token: row, speaker }
   } catch (err) {
