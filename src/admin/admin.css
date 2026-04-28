@@ -5594,3 +5594,28 @@
   color: #16a34a;
   opacity: 1;
 }
+
+.spkr-form__divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: var(--space-6) 0 var(--space-4);
+}
+
+.spkr-form__label--internal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-text-secondary);
+}
+
+.spkr-form__lock-icon {
+  display: inline-flex;
+  color: var(--color-text-tertiary);
+}
+
+.spkr-form__help {
+  display: block;
+  margin-top: 0.4rem;
+  color: var(--color-text-tertiary);
+  font-size: var(--text-xs);
+}

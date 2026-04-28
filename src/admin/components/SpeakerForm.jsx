@@ -153,9 +153,10 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
       nationality: '',
       location: '',
       socialProfiles: { instagram: '', x: '', linkedin: '', youtube: '', tiktok: '' },
+      boostNotes: '',
     }
     if (!initialData) return defaults
-    return { ...defaults, ...initialData, feeMin: initialData.feeMin ?? '' }
+    return { ...defaults, ...initialData, feeMin: initialData.feeMin ?? '', boostNotes: initialData.boostNotes ?? '' }
   })
 
   const [showSocial, setShowSocial] = useState(false)
@@ -281,6 +282,32 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
             ))}
           </div>
         )}
+      </div>
+
+      <div className="spkr-form__divider" aria-hidden="true" />
+
+      <div className="spkr-form__field spkr-form__field--internal">
+        <label className="spkr-form__label spkr-form__label--internal" htmlFor="boostNotes">
+          <span className="spkr-form__lock-icon" aria-hidden="true">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <rect x="3" y="5" width="6" height="5" rx="1" stroke="currentColor" strokeWidth="1.2"/>
+              <path d="M4.5 5V3.5a1.5 1.5 0 1 1 3 0V5" stroke="currentColor" strokeWidth="1.2"/>
+            </svg>
+          </span>
+          AI Boost Notes (internal — not shown to users)
+        </label>
+        <textarea
+          id="boostNotes"
+          name="boostNotes"
+          className="spkr-form__textarea"
+          rows={3}
+          value={form.boostNotes || ''}
+          onChange={e => set('boostNotes', e.target.value)}
+          placeholder="e.g. Has delivered 3 health-focused keynotes; Especially strong with C-suite audiences"
+        />
+        <small className="spkr-form__help">
+          Hidden context that influences AI search ranking. Soft signal, not a hard filter.
+        </small>
       </div>
 
       <div className="spkr-form__actions">
