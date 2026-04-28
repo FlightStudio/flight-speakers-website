@@ -269,9 +269,10 @@ export default function AdminReviewPage() {
         credentials: 'include',
       })
       const data = await res.json()
-      if (data.success) {
-        const link = `${window.location.origin}/speaker-portal/${data.token}`
-        setNewLink(link)
+      if (data.success && data.link) {
+        // Use the link the server built — the portal reads the token from the
+        // URL hash fragment, not a path segment, so we must not reconstruct it.
+        setNewLink(data.link)
       }
     } catch { /* ignore */ }
     setLinkLoading(false)

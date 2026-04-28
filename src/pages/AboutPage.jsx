@@ -1,44 +1,36 @@
 import { Link } from 'react-router-dom'
 import './AboutPage.css'
 
-// Local-demo-only competitor table. `import.meta.env.DEV` is true during `npm run dev`
-// and false in any production build, so this section never ships with `npm run build`.
 const COMPARE_ROWS = [
   {
-    label: 'Roster size',
-    traditional: 'Hundreds of names, thinly known',
-    flight: '13, hand-picked and personally backed',
-    directory: 'Open marketplace, anyone can list',
+    label: 'Audience data',
+    flight: 'Verified audience intelligence on every speaker — reach, demographics, engagement, region-level performance.',
+    traditional: 'A bio, a showreel, and a fee. You’re booking on vibes.',
   },
   {
-    label: 'Matching method',
-    traditional: 'Agent’s rolodex and best guess',
-    flight: 'AI-surfaced shortlist, human reviewed',
-    directory: 'Keyword / algorithm only',
+    label: 'Speed',
+    flight: 'Shortlist in 24 hours. Direct line to the team that manages the talent.',
+    traditional: 'Days of back-and-forth through layers of agents and assistants.',
   },
   {
-    label: 'Response time',
-    traditional: '24–48 hours for a quote',
-    flight: 'Seconds to match, human follow-up same day',
-    directory: 'Instant, but no follow-up',
+    label: 'Roster strategy',
+    flight: 'Curated, not commoditised. We represent talent we actively work with — not a directory of 5,000 names.',
+    traditional: 'Wide catalogues, thin relationships. Most bureaus have never met half their roster.',
   },
   {
-    label: 'Speaker vetting',
-    traditional: 'Some — depends on the agent',
-    flight: 'Every speaker vetted and personally booked',
-    directory: 'Self-declared only',
+    label: 'Content & creative',
+    flight: 'In-house production from the team behind The Diary Of A CEO. Sizzle reels, briefing decks, custom content built around your event.',
+    traditional: 'A speaker headshot and a paragraph bio.',
   },
   {
-    label: 'Pricing transparency',
-    traditional: 'Opaque commission, fee on request',
-    flight: 'Clear fee ranges, no hidden margin',
-    directory: 'Self-serve, no pricing guidance',
+    label: 'Booking experience',
+    flight: 'One point of contact, end-to-end. From first enquiry through to post-event wrap.',
+    traditional: 'Handed off between sales, contracts, and logistics. You re-explain yourself three times.',
   },
   {
-    label: 'Brief understanding',
-    traditional: 'Human judgement, often surface-level',
-    flight: 'AI extracts the brief, humans sense-check',
-    directory: 'Keyword match only',
+    label: 'Post-event value',
+    flight: 'Performance recap, audience reach data, content amplification across the speaker’s channels.',
+    traditional: 'Invoice sent. Relationship ends.',
   },
 ]
 
@@ -60,59 +52,64 @@ function AboutPage() {
         </div>
       </section>
 
-      {/* DEV-ONLY: Competitor table for stakeholder demo. Placed at the top
-          of the content (right after the hero) so it opens the argument.
-          Remove the `import.meta.env.DEV &&` wrapper to ship, or delete the
-          whole section. */}
-      {import.meta.env.DEV && (
-        <section className="section about-compare">
-          <div className="container">
-            <div className="section-header about-compare__header">
-              <span className="about-compare__badge">Demo preview</span>
-              <h2 className="section-title">How we compare</h2>
-              <p className="section-subtitle">
-                The speaker bureau category, rethought. Human curation meets AI speed — without the trade-offs of either extreme.
-              </p>
-            </div>
-
-            <div className="compare-table-wrap">
-              <table className="compare-table" aria-label="Comparison of speaker sourcing options">
-                <thead>
-                  <tr>
-                    <th scope="col" className="compare-table__corner" aria-hidden="true"></th>
-                    <th scope="col" className="compare-table__col compare-table__col--side">
-                      <span className="compare-table__col-name">Traditional Bureau</span>
-                      <span className="compare-table__col-sub">The old way</span>
-                    </th>
-                    <th scope="col" className="compare-table__col compare-table__col--center">
-                      <span className="compare-table__col-flag">Flight Speakers</span>
-                      <span className="compare-table__col-sub compare-table__col-sub--center">Curated + AI-powered</span>
-                    </th>
-                    <th scope="col" className="compare-table__col compare-table__col--side">
-                      <span className="compare-table__col-name">AI Directory</span>
-                      <span className="compare-table__col-sub">Self-serve marketplace</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {COMPARE_ROWS.map((row) => (
-                    <tr key={row.label}>
-                      <th scope="row" className="compare-table__rowlabel">{row.label}</th>
-                      <td className="compare-table__cell compare-table__cell--side">{row.traditional}</td>
-                      <td className="compare-table__cell compare-table__cell--center">{row.flight}</td>
-                      <td className="compare-table__cell compare-table__cell--side">{row.directory}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <p className="about-compare__disclaimer">
-              Placeholder copy for stakeholder review. Final positioning, competitors named or kept generic, and row content all still open.
+      {/* Comparison: how Flight Speakers differs from traditional bureaus. */}
+      <section className="section about-compare">
+        <div className="container">
+          <div className="section-header about-compare__header">
+            <span className="about-compare__eyebrow">Why Flight Speakers</span>
+            <h2 className="section-title about-compare__title">
+              Built for how brands actually book speakers today.
+            </h2>
+            <p className="section-subtitle">
+              Most bureaus run on rolodexes, gut feel, and PDF one-sheets. We don't. Here's the difference.
             </p>
           </div>
-        </section>
-      )}
+
+          <div className="compare-table-wrap">
+            <table className="compare-table" aria-label="Flight Speakers vs traditional bureaus">
+              <thead>
+                <tr>
+                  <th scope="col" className="compare-table__corner" aria-hidden="true"></th>
+                  <th scope="col" className="compare-table__col compare-table__col--us">
+                    <span className="compare-table__col-flag">Flight Speakers</span>
+                  </th>
+                  <th scope="col" className="compare-table__col compare-table__col--them">
+                    <span className="compare-table__col-name">Traditional Bureaus</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {COMPARE_ROWS.map((row) => (
+                  <tr key={row.label}>
+                    <th scope="row" className="compare-table__rowlabel">{row.label}</th>
+                    <td className="compare-table__cell compare-table__cell--us">
+                      <span className="compare-table__icon compare-table__icon--check" aria-label="Yes">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                          <path d="M2.5 7L5.5 10L11.5 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </span>
+                      <span>{row.flight}</span>
+                    </td>
+                    <td className="compare-table__cell compare-table__cell--them">
+                      <span className="compare-table__icon compare-table__icon--cross" aria-label="No">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                          <path d="M3 3L11 11M3 11L11 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                        </svg>
+                      </span>
+                      <span>{row.traditional}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="about-compare__footnote">
+            Built inside <strong>Flight Story</strong> — the media company behind <strong>The Diary Of A CEO</strong>. We understand audiences because we build them.
+          </div>
+        </div>
+      </section>
+
 
       {/* Story Section */}
       <section className="section about-story">
