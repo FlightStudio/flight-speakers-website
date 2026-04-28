@@ -12,6 +12,7 @@ import SpeakersPage from './pages/SpeakersPage'
 import BookPage from './pages/BookPage'
 import NewsPage from './pages/NewsPage'
 import NewsArticlePage from './pages/NewsArticlePage'
+import SpeakerWaitlistPage from './pages/SpeakerWaitlistPage'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -37,6 +38,9 @@ function App() {
       {/* Enquiry pages — full-screen Typeform-style, no layout shell */}
       <Route path="/enquiry" element={<EnquiryPage />} />
       <Route path="/enquiry/:speakerId" element={<EnquiryPage />} />
+
+      {/* Speaker waitlist — full-screen, no layout shell */}
+      <Route path="/join" element={<SpeakerWaitlistPage />} />
 
       {/* All other pages — standard layout with header/footer */}
       <Route path="*" element={

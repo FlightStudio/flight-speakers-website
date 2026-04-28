@@ -1709,3 +1709,359 @@
     animation: none;
   }
 }
+
+/* ============================================
+   Waitlist Form (.wstep-*)
+   Extends .mstep-* with waitlist-specific UI
+   ============================================ */
+
+/* Section anchor badge — "01 ABOUT YOU" */
+.wstep-anchor {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+
+.wstep-anchor__num {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+}
+
+.wstep-anchor__title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* Multi-checkbox topic grid */
+.wstep-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.wstep-topic-btn {
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-base);
+  font-weight: 500;
+  border-radius: 100px;
+  border: 1.5px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out-expo);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.wstep-topic-btn:hover {
+  border-color: rgba(0, 0, 0, 0.15);
+  background: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.wstep-topic-btn--active {
+  border-color: var(--color-charcoal);
+  background: var(--color-charcoal);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.wstep-topic-btn--active:hover {
+  background: var(--color-charcoal);
+  transform: translateY(-1px);
+}
+
+/* Representation radio cards */
+.wstep-rep-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.wstep-rep-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  border-radius: var(--radius-2xl);
+  border: 1.5px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.95);
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out-expo);
+  text-align: left;
+}
+
+.wstep-rep-card:hover {
+  border-color: rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.wstep-rep-card--active {
+  border-color: var(--color-charcoal);
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.wstep-rep-card__radio {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  background: #fff;
+  flex-shrink: 0;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s var(--ease-out-expo);
+}
+
+.wstep-rep-card--active .wstep-rep-card__radio {
+  border-color: var(--color-charcoal);
+  background: var(--color-charcoal);
+}
+
+.wstep-rep-card__radio::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: #fff;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.wstep-rep-card--active .wstep-rep-card__radio::after {
+  opacity: 1;
+}
+
+.wstep-rep-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.wstep-rep-card__title {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.3;
+}
+
+.wstep-rep-card__helper {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+/* Review grid — waitlist-specific */
+.wstep-review {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.wstep-review__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.wstep-review__section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-1);
+}
+
+.wstep-review__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.wstep-review__cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3) var(--space-4);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: background 0.2s var(--ease-out-expo);
+}
+
+.wstep-review__cell:hover {
+  background: rgba(255, 255, 255, 1);
+}
+
+.wstep-review__cell--wide {
+  grid-column: 1 / -1;
+}
+
+.wstep-review__label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+}
+
+.wstep-review__value {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  line-height: 1.3;
+}
+
+.wstep-review__value--empty {
+  color: var(--color-text-muted);
+  font-weight: 400;
+  font-style: italic;
+}
+
+/* Consent footer */
+.wstep-consent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius-xl);
+  backdrop-filter: blur(8px);
+}
+
+.wstep-consent__checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  cursor: pointer;
+}
+
+.wstep-consent__checkbox input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-charcoal);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.wstep-consent__text {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.wstep-consent__text a {
+  color: var(--color-text-primary);
+  text-decoration: underline;
+}
+
+/* Currency + bracket row for fee step */
+.wstep-fee-row {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.wstep-fee-row__currency {
+  flex-shrink: 0;
+  width: 120px;
+}
+
+.wstep-fee-row__brackets {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Dark theme overrides */
+[data-theme="dark"] .wstep-topic-btn {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .wstep-topic-btn:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .wstep-topic-btn--active {
+  color: #0a0a0a;
+}
+
+[data-theme="dark"] .wstep-rep-card {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .wstep-rep-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .wstep-rep-card--active {
+  border-color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .wstep-rep-card__radio {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: transparent;
+}
+
+[data-theme="dark"] .wstep-rep-card--active .wstep-rep-card__radio {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="dark"] .wstep-rep-card--active .wstep-rep-card__radio::after {
+  background: #1a1a1a;
+}
+
+[data-theme="dark"] .wstep-review__grid {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .wstep-review__cell {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+[data-theme="dark"] .wstep-review__cell:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .wstep-consent {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 540px) {
+  .wstep-fee-row {
+    flex-direction: column;
+  }
+
+  .wstep-fee-row__currency {
+    width: 100%;
+  }
+
+  .wstep-review__grid {
+    grid-template-columns: 1fr;
+  }
+}
