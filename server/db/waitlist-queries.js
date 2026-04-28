@@ -76,7 +76,7 @@ export async function getWaitlistEntryById(id) {
   return rows[0] || null
 }
 
-export async function updateWaitlistEntry(id, { status, admin_notes }) {
+export async function updateWaitlistEntry(id, { status, admin_notes, invited_at, invited_token }) {
   const sets = []
   const params = [id]
 
@@ -88,6 +88,16 @@ export async function updateWaitlistEntry(id, { status, admin_notes }) {
   if (admin_notes !== undefined) {
     params.push(admin_notes)
     sets.push(`admin_notes = $${params.length}`)
+  }
+
+  if (invited_at !== undefined) {
+    params.push(invited_at)
+    sets.push(`invited_at = $${params.length}`)
+  }
+
+  if (invited_token !== undefined) {
+    params.push(invited_token)
+    sets.push(`invited_token = $${params.length}`)
   }
 
   if (sets.length === 0) return null
