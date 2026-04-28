@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 
 export default function AdminSidebar({ user, newCount = 0, onLogout }) {
   const [reviewCount, setReviewCount] = useState(0)
+  const [articleDraftCount, setArticleDraftCount] = useState(0)
 
   useEffect(() => {
     async function fetchReviewCount() {
@@ -14,6 +15,19 @@ export default function AdminSidebar({ user, newCount = 0, onLogout }) {
     }
     fetchReviewCount()
     const interval = setInterval(fetchReviewCount, 30000)
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    async function fetchArticleCounts() {
+      try {
+        const res = await fetch('/api/admin/articles/counts', { credentials: 'include' })
+        const data = await res.json()
+        if (data.success) setArticleDraftCount(data.counts.draft || 0)
+      } catch { /* ignore */ }
+    }
+    fetchArticleCounts()
+    const interval = setInterval(fetchArticleCounts, 60000)
     return () => clearInterval(interval)
   }, [])
 
@@ -86,7 +100,20 @@ export default function AdminSidebar({ user, newCount = 0, onLogout }) {
           <svg className="admin-sidebar__icon" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M2 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 002 2H4a2 2 0 01-2-2V5zm3 1h6v2H5V6zm6 3H5v1h6V9zm-6 2h6v1H5v-1zm8-3.5V14a1 1 0 102 0V7.5a1 1 0 00-2 0z" clipRule="evenodd" />
           </svg>
-          News
+          News Guide
+        </NavLink>
+
+        <NavLink
+          to="/admin/articles"
+          className={({ isActive }) =>
+            `admin-sidebar__link ${isActive ? 'admin-sidebar__link--active' : ''}`
+          }
+        >
+          <svg className="admin-sidebar__icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+          </svg>
+          Articles
+          {articleDraftCount > 0 && <span className="admin-sidebar__badge">{articleDraftCount}</span>}
         </NavLink>
 
         <NavLink

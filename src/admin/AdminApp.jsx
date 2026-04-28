@@ -16,6 +16,8 @@ import AdminSpeakerFormPage from './pages/AdminSpeakerFormPage'
 import AdminReviewPage from './pages/AdminReviewPage'
 import AdminNewsGuidePage from './pages/AdminNewsGuidePage'
 import AdminWaitlistPage from './pages/AdminWaitlistPage'
+import AdminArticlesPage from './pages/AdminArticlesPage'
+import AdminArticleEditPage from './pages/AdminArticleEditPage'
 import '../admin/admin.css'
 
 export default function AdminApp() {
@@ -47,6 +49,8 @@ export default function AdminApp() {
         <Route path="review" element={<AdminReviewPage />} />
         <Route path="news" element={<AdminNewsGuidePage />} />
         <Route path="waitlist" element={<AdminWaitlistPage />} />
+        <Route path="articles" element={<AdminArticlesPage />} />
+        <Route path="articles/:id/edit" element={<AdminArticleEditPage />} />
         <Route path="integrations" element={<AdminSettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/admin" replace />} />
