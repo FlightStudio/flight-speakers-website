@@ -68,7 +68,7 @@ function Header() {
                 </svg>
               </motion.div>
               <span className="logo-text">
-                Flight Story
+                Flight Speakers
               </span>
             </Link>
 
@@ -171,7 +171,7 @@ function Header() {
                       <path d="M8 24L16 6L24 24L16 18L8 24Z" fill="currentColor"/>
                     </svg>
                   </div>
-                  <span className="logo-text">Flight Story</span>
+                  <span className="logo-text">Flight Speakers</span>
                 </Link>
               </div>
 

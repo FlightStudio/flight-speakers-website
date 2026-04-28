@@ -53,7 +53,7 @@ function AboutPage() {
               We're rethinking the speaker bureau
             </h1>
             <p className="about-hero__subtitle">
-              Flight Story Speakers combines curated talent with AI-powered matching
+              Flight Speakers combines curated talent with AI-powered matching
               to help you find the perfect voice for your event.
             </p>
           </div>
@@ -126,7 +126,7 @@ function AboutPage() {
                 what makes a great speaker, and what makes a great event.
               </p>
               <p>
-                We built Flight Story Speakers because we saw a gap: traditional
+                We built Flight Speakers because we saw a gap: traditional
                 speaker bureaus are slow, opaque, and built for volume over quality.
                 We wanted something better.
               </p>

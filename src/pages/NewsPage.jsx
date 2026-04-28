@@ -34,7 +34,7 @@ function TileVisual({ article, eager = false }) {
 
 function NewsPage() {
   useEffect(() => {
-    document.title = 'News - Flight Story Speakers'
+    document.title = 'News - Flight Speakers'
   }, [])
 
   const [featured, ...rest] = ARTICLES

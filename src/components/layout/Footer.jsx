@@ -12,7 +12,7 @@ function Footer() {
                 <path d="M8 24L16 6L24 24L16 18L8 24Z" fill="currentColor" fillOpacity="0.9"/>
                 <circle cx="16" cy="12" r="3" fill="#6366f1"/>
               </svg>
-              <span>Flight Story Speakers</span>
+              <span>Flight Speakers</span>
             </Link>
             <p className="footer-tagline">
               Curated talent meets AI-powered matching. Find the perfect speaker for your next event.

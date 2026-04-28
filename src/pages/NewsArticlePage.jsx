@@ -37,8 +37,8 @@ function NewsArticlePage() {
 
   useEffect(() => {
     document.title = article
-      ? `${article.title} - Flight Story Speakers`
-      : 'Article not found - Flight Story Speakers'
+      ? `${article.title} - Flight Speakers`
+      : 'Article not found - Flight Speakers'
   }, [article])
 
   if (!article) {
