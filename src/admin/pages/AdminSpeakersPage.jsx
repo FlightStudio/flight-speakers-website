@@ -26,6 +26,26 @@ export default function AdminSpeakersPage() {
   const [error, setError] = useState(null)
   const [period, setPeriod] = useState('all')
   const [sortBy, setSortBy] = useState('enquiries')
+  const [inviteLink, setInviteLink] = useState('')
+  const [inviteLoading, setInviteLoading] = useState(false)
+  const [inviteCopied, setInviteCopied] = useState(false)
+
+  async function handleSendBlankInvite() {
+    setInviteLoading(true)
+    try {
+      const res = await fetch('/api/admin/invite/new', { method: 'POST' })
+      const data = await res.json()
+      if (data.success && data.link) setInviteLink(data.link)
+    } catch { /* ignore */ }
+    setInviteLoading(false)
+  }
+
+  function handleCopyInvite() {
+    if (!inviteLink) return
+    navigator.clipboard.writeText(inviteLink)
+    setInviteCopied(true)
+    setTimeout(() => setInviteCopied(false), 2000)
+  }
 
   const fetchAnalytics = useCallback((p) => {
     setLoading(true)
@@ -67,10 +87,43 @@ export default function AdminSpeakersPage() {
           <h1 className="admin-page__title">Speakers</h1>
           <p className="admin-page__subtitle">{analytics.length} speakers</p>
         </div>
-        <Link to="/admin/speakers/new" className="speakers-page__add-btn">
-          + Add Speaker
-        </Link>
+        <div className="speakers-page__header-actions">
+          <button
+            type="button"
+            className="speakers-page__invite-btn"
+            onClick={handleSendBlankInvite}
+            disabled={inviteLoading}
+            title="Generate a magic link with a blank intake form for an invited speaker"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
+              <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
+            </svg>
+            {inviteLoading ? 'Generating...' : 'Send Blank Invite'}
+          </button>
+          <Link to="/admin/speakers/new" className="speakers-page__add-btn">
+            + Add Speaker
+          </Link>
+        </div>
       </div>
+
+      {inviteLink && (
+        <div className="speakers-page__invite-bar">
+          <span className="speakers-page__invite-bar-label">Share this link with the invited speaker (expires in 7 days):</span>
+          <input
+            className="speakers-page__invite-bar-input"
+            value={inviteLink}
+            readOnly
+            onClick={e => e.target.select()}
+          />
+          <button type="button" className="speakers-page__invite-bar-copy" onClick={handleCopyInvite}>
+            {inviteCopied ? 'Copied' : 'Copy'}
+          </button>
+          <button type="button" className="speakers-page__invite-bar-close" onClick={() => setInviteLink('')} aria-label="Dismiss">
+            &times;
+          </button>
+        </div>
+      )}
 
       {/* Clean toolbar: period tabs left, sort dropdown right */}
       <div className="speakers-toolbar">
