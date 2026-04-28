@@ -284,3 +284,23 @@ export function getArticleBySlug(slug) {
 export function getRelatedArticles(currentSlug, limit = 2) {
   return ARTICLES.filter((a) => a.slug !== currentSlug).slice(0, limit)
 }
+
+// Map an article row coming from the API to the shape this codebase expects
+export function mapArticleFromApi(row) {
+  if (!row) return null
+  return {
+    slug: row.slug,
+    title: row.title,
+    category: row.category,
+    // Use publishedAt if available, fall back to generatedAt
+    date: (row.publishedAt || row.generatedAt || '').slice(0, 10),
+    readTime: row.readTime,
+    excerpt: row.excerpt,
+    image: row.image || null,
+    tile: row.tile || { c1: '#0F172A', c2: '#1E3A5F' },
+    body: row.body || [],
+    imageCredit: row.imageCredit || null,
+    status: row.status,
+    id: row.id,
+  }
+}

@@ -1,7 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ARTICLES } from '../data/articles'
+import { ARTICLES, mapArticleFromApi } from '../data/articles'
 import { EASE } from '../constants/animation'
 import './NewsPage.css'
 
@@ -33,11 +33,30 @@ function TileVisual({ article, eager = false }) {
 }
 
 function NewsPage() {
+  const [articles, setArticles] = useState(null)
+
   useEffect(() => {
     document.title = 'News - Flight Speakers'
   }, [])
 
-  const [featured, ...rest] = ARTICLES
+  useEffect(() => {
+    fetch('/api/articles')
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.articles) && data.articles.length > 0) {
+          setArticles(data.articles.map(mapArticleFromApi))
+        } else {
+          setArticles(ARTICLES)
+        }
+      })
+      .catch(() => {
+        setArticles(ARTICLES)
+      })
+  }, [])
+
+  // While loading, show static articles to avoid blank flash
+  const displayArticles = articles ?? ARTICLES
+  const [featured, ...rest] = displayArticles
 
   return (
     <div className="news-page">

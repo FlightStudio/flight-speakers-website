@@ -1,7 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { getArticleBySlug, getRelatedArticles } from '../data/articles'
+import { ARTICLES, getArticleBySlug, mapArticleFromApi } from '../data/articles'
 import { EASE } from '../constants/animation'
 import './NewsPage.css'
 
@@ -33,14 +33,56 @@ function renderInline(text) {
 
 function NewsArticlePage() {
   const { slug } = useParams()
-  const article = getArticleBySlug(slug)
+  const [article, setArticle] = useState(undefined) // undefined = loading, null = not found
+  const [relatedArticles, setRelatedArticles] = useState([])
 
   useEffect(() => {
-    document.title = article
-      ? `${article.title} - Flight Speakers`
-      : 'Article not found - Flight Speakers'
+    setArticle(undefined)
+    fetch(`/api/articles/${encodeURIComponent(slug)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.article) {
+          setArticle(mapArticleFromApi(data.article))
+        } else {
+          // Fall back to static data
+          const staticArticle = getArticleBySlug(slug)
+          setArticle(staticArticle)
+        }
+      })
+      .catch(() => {
+        const staticArticle = getArticleBySlug(slug)
+        setArticle(staticArticle)
+      })
+  }, [slug])
+
+  useEffect(() => {
+    if (article) {
+      document.title = `${article.title} - Flight Speakers`
+    } else if (article === null) {
+      document.title = 'Article not found - Flight Speakers'
+    }
   }, [article])
 
+  // Build related articles from static list (excluding current)
+  useEffect(() => {
+    if (article) {
+      const related = ARTICLES.filter(a => a.slug !== slug).slice(0, 2)
+      setRelatedArticles(related)
+    }
+  }, [article, slug])
+
+  // Loading state
+  if (article === undefined) {
+    return (
+      <div className="news-page">
+        <div className="container news-article__container">
+          <div className="news-missing" style={{ color: 'var(--color-text-muted)' }}>Loading...</div>
+        </div>
+      </div>
+    )
+  }
+
+  // Not found
   if (!article) {
     return (
       <div className="news-page">
@@ -53,8 +95,6 @@ function NewsArticlePage() {
       </div>
     )
   }
-
-  const related = getRelatedArticles(slug, 2)
 
   return (
     <div className="news-page">
@@ -103,11 +143,11 @@ function NewsArticlePage() {
             })}
           </div>
 
-          {related.length > 0 && (
+          {relatedArticles.length > 0 && (
             <aside className="news-related">
               <h3 className="news-related__heading">Read next</h3>
               <ul>
-                {related.map((r, i) => (
+                {relatedArticles.map((r, i) => (
                   <li key={r.slug}>
                     <Link to={`/news/${r.slug}`} className="news-related__item">
                       <span className="news-related__num" aria-hidden="true">
