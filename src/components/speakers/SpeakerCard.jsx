@@ -112,6 +112,16 @@ function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScor
 
           <p className="speaker-card__headline">{speaker.headline}</p>
 
+          {speaker.location && (
+            <p className="speaker-card__location">
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path d="M6 1.5C4.07 1.5 2.5 3.07 2.5 5C2.5 7.5 6 10.5 6 10.5S9.5 7.5 9.5 5C9.5 3.07 7.93 1.5 6 1.5Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/>
+                <circle cx="6" cy="5" r="1.3" fill="currentColor"/>
+              </svg>
+              {speaker.location}
+            </p>
+          )}
+
           <div className="speaker-card__topics">
             {topicsToShow.map((topic, idx) => (
               <motion.span

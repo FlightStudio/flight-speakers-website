@@ -120,6 +120,15 @@
   overflow: hidden;
 }
 
+.speaker-card__location {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: clamp(10px, 0.65vw, 12px);
+  color: var(--color-text-tertiary);
+  margin: 0 0 8px;
+}
+
 /* Topics */
 .speaker-card__topics {
   display: flex;
