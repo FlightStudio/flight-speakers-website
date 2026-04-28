@@ -49,6 +49,9 @@ export default function AdminWaitlistPage() {
   const [savingId, setSavingId] = useState(null)
   const [editStatus, setEditStatus] = useState('')
   const [editNotes, setEditNotes] = useState('')
+  const [inviting, setInviting] = useState(false)
+  const [inviteLink, setInviteLink] = useState(null)
+  const [inviteCopied, setInviteCopied] = useState(false)
 
   const fetchEntries = useCallback(async (status) => {
     setLoading(true)
@@ -80,12 +83,47 @@ export default function AdminWaitlistPage() {
     setSelectedEntry(entry)
     setEditStatus(entry.status)
     setEditNotes(entry.admin_notes || '')
+    setInviteLink(entry.invited_token ? null : null) // reset link display; we'll show from entry data
+    setInviteCopied(false)
   }, [])
 
   const closeEntry = useCallback(() => {
     setSelectedEntry(null)
     setEditStatus('')
     setEditNotes('')
+    setInviteLink(null)
+    setInviteCopied(false)
+  }, [])
+
+  const handleInvite = useCallback(async () => {
+    if (!selectedEntry) return
+    setInviting(true)
+    try {
+      const csrfToken = document.cookie.match(/csrf_token=([^;]+)/)?.[1] || ''
+      const res = await fetch(`/api/admin/waitlist/${selectedEntry.id}/invite`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+      })
+      const data = await res.json()
+      if (data.success) {
+        setInviteLink(data.link)
+        setSelectedEntry(data.entry)
+        setEditStatus(data.entry.status)
+        setEntries(prev => prev.map(e => e.id === data.entry.id ? data.entry : e))
+      }
+    } catch {
+      // fail silently — link stays null
+    } finally {
+      setInviting(false)
+    }
+  }, [selectedEntry])
+
+  const copyInviteLink = useCallback((link) => {
+    navigator.clipboard.writeText(link).then(() => {
+      setInviteCopied(true)
+      setTimeout(() => setInviteCopied(false), 2000)
+    })
   }, [])
 
   const saveEntry = useCallback(async () => {
@@ -283,6 +321,68 @@ export default function AdminWaitlistPage() {
               {selectedEntry.why_flightspeakers && (
                 <DetailItem label="Why FlightSpeakers" value={selectedEntry.why_flightspeakers} />
               )}
+
+              <hr style={{ border: 'none', borderTop: '1px solid var(--color-border)', margin: '0.5rem 0' }} />
+
+              {/* Invite to Roster */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>Roster invite</div>
+
+                {selectedEntry.invited_at && (
+                  <div style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
+                    Invited {new Date(selectedEntry.invited_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                )}
+
+                {/* Show copyable link if we just generated one, or if entry already has a token */}
+                {(inviteLink || selectedEntry.invited_token) && (
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    padding: '8px 12px',
+                    background: 'rgba(34,197,94,0.08)',
+                    border: '1px solid rgba(34,197,94,0.25)',
+                    borderRadius: 8,
+                  }}>
+                    <input
+                      readOnly
+                      value={inviteLink || `${window.location.origin}/speaker-portal#${selectedEntry.invited_token}`}
+                      style={{
+                        flex: 1, background: 'none', border: 'none', outline: 'none',
+                        fontSize: 12, color: 'var(--color-text-primary)',
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => copyInviteLink(inviteLink || `${window.location.origin}/speaker-portal#${selectedEntry.invited_token}`)}
+                      style={{
+                        flexShrink: 0, padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600,
+                        background: inviteCopied ? 'rgba(34,197,94,0.2)' : 'rgba(34,197,94,0.12)',
+                        color: '#22c55e', border: '1px solid rgba(34,197,94,0.3)', cursor: 'pointer',
+                      }}
+                    >
+                      {inviteCopied ? 'Copied!' : 'Copy'}
+                    </button>
+                  </div>
+                )}
+
+                {selectedEntry.status !== 'declined' && (
+                  <button
+                    type="button"
+                    onClick={handleInvite}
+                    disabled={inviting}
+                    style={{
+                      alignSelf: 'flex-start',
+                      padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                      background: 'rgba(34,197,94,0.1)', color: '#22c55e',
+                      border: '1px solid rgba(34,197,94,0.3)', cursor: inviting ? 'not-allowed' : 'pointer',
+                      opacity: inviting ? 0.7 : 1,
+                    }}
+                  >
+                    {inviting ? 'Generating...' : selectedEntry.invited_token ? 'Re-invite (new link)' : 'Invite to Roster'}
+                  </button>
+                )}
+              </div>
 
               <hr style={{ border: 'none', borderTop: '1px solid var(--color-border)', margin: '0.5rem 0' }} />
 
