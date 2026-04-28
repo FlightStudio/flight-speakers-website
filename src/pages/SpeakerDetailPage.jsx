@@ -17,6 +17,19 @@ function getVideoType(url) {
   return { type: 'none' }
 }
 
+function LocationLine({ location, className }) {
+  if (!location) return null
+  return (
+    <p className={className}>
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+        <path d="M6 1.5C4.07 1.5 2.5 3.07 2.5 5C2.5 7.5 6 10.5 6 10.5S9.5 7.5 9.5 5C9.5 3.07 7.93 1.5 6 1.5Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/>
+        <circle cx="6" cy="5" r="1.3" fill="currentColor"/>
+      </svg>
+      {location}
+    </p>
+  )
+}
+
 function VideoHero({ speaker, video, socialEntries, totalFollowing, brief, onEnquire, onEnquireHover, id, isSelected, setIsSelected, handleSelectAndBack }) {
   const [isMuted, setIsMuted] = useState(true)
   const videoRef = useRef(null)
@@ -106,6 +119,7 @@ function VideoHero({ speaker, video, socialEntries, totalFollowing, brief, onEnq
                     <span className="speaker-video-hero__following"> · {formatFollowers(totalFollowing)} following</span>
                   )}
                 </p>
+                <LocationLine location={speaker.location} className="speaker-video-hero__location" />
               </div>
             </div>
             {socialEntries.length > 0 && (
@@ -440,6 +454,7 @@ function SpeakerDetailPage() {
                 <span className="speaker-hero__label">Speaker Profile</span>
                 <h1 className="speaker-hero__name">{speaker.name}</h1>
                 <p className="speaker-hero__headline">{speaker.headline}</p>
+                <LocationLine location={speaker.location} className="speaker-hero__location" />
 
                 {socialEntries.length > 0 && (
                   <div className="speaker-hero__social">

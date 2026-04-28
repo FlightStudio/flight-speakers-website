@@ -187,6 +187,16 @@
   max-width: 480px;
 }
 
+.speaker-video-hero__location,
+.speaker-hero__location {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  color: var(--color-text-tertiary);
+  font-size: var(--text-sm);
+}
+
 /* Social */
 .speaker-hero__social {
   display: flex;
