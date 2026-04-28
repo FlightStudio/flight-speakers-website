@@ -84,6 +84,10 @@ function buildSpeakerSummaries(speakers) {
     if (s.nationality) parts.push(`   Nationality: ${s.nationality}`)
     if (s.location) parts.push(`   Location: ${s.location}`)
 
+    if (s.boostNotes && s.boostNotes.trim()) {
+      parts.push(`   Internal Notes (for AI consideration): ${s.boostNotes.trim()}`)
+    }
+
     return parts.join('\n')
   }).join('\n\n')
 }
@@ -295,6 +299,8 @@ async function generateReasoningsAndScores(query, speakers) {
     return null
   }
 }
+
+export const _internal = { buildSpeakerSummaries }
 
 async function fullTextFallback(query, limit) {
   const speakers = await fullTextSearch(query, limit)

@@ -25,6 +25,10 @@ export function buildSpeakerText(speaker) {
   if (speaker.nationality) parts.push(`Nationality: ${speaker.nationality}`)
   if (speaker.location) parts.push(`Location: ${speaker.location}`)
 
+  if (speaker.boostNotes && speaker.boostNotes.trim()) {
+    parts.push(`Internal notes: ${speaker.boostNotes.trim()}`)
+  }
+
   return parts.filter(Boolean).join('\n')
 }
 
