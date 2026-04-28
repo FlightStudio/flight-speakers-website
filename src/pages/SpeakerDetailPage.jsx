@@ -353,7 +353,11 @@ function SpeakerDetailPage() {
 
   const totalFollowing = socialEntries.reduce((sum, e) => sum + e.count, 0)
 
-  const video = getVideoType(speaker.videoUrl)
+  // Hero media is admin-controlled. If admin chose 'image' explicitly, render
+  // the photo hero even when a videoUrl exists. Falls back to image if 'video'
+  // is selected but no videoUrl is set.
+  const wantsVideoHero = speaker.heroMediaType === 'video'
+  const video = wantsVideoHero ? getVideoType(speaker.videoUrl) : { type: 'none' }
   const hasVideo = video.type !== 'none'
 
   return (
