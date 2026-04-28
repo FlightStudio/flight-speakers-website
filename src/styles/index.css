@@ -46,9 +46,9 @@
   --color-bg-elevated: var(--color-white);
 
   /* Text */
-  --color-text-primary: var(--color-charcoal);
-  --color-text-secondary: var(--color-gray-700);
-  --color-text-tertiary: var(--color-gray-500);
+  --color-text-primary: #000000;
+  --color-text-secondary: #1A1A1A;
+  --color-text-tertiary: #404040;
   --color-text-muted: var(--color-gray-400);
   --color-text-inverse: var(--color-white);
 
