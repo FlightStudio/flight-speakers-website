@@ -2,6 +2,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { EASE } from '../../constants/animation'
+import AccessibilityMenu from './AccessibilityMenu'
 import './Header.css'
 
 function Header() {
@@ -96,6 +97,8 @@ function Header() {
                   <path d="M1 7H13M13 7L7 1M13 7L7 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </motion.button>
+
+              <AccessibilityMenu />
 
               <motion.button
                 className="theme-toggle"
