@@ -11,6 +11,14 @@ import pool from '../db/connection.js'
 
 const router = express.Router()
 
+// SECURITY/UX INVARIANT: boostNotes is admin-only context for AI search ranking.
+// Never expose to public clients.
+function stripInternalFields(speaker) {
+  if (!speaker) return speaker
+  const { boostNotes, ...publicFields } = speaker
+  return publicFields
+}
+
 const viewLimiter = createLimiter({
   windowMs: 60 * 1000,
   max: 60,
@@ -35,7 +43,7 @@ router.get('/', async (req, res, next) => {
     res.json({
       success: true,
       count: speakers.length,
-      speakers,
+      speakers: speakers.map(stripInternalFields),
     })
   } catch (err) {
     next(err)
@@ -78,8 +86,8 @@ router.get('/:id', async (req, res, next) => {
 
     res.json({
       success: true,
-      speaker,
-      relatedSpeakers,
+      speaker: stripInternalFields(speaker),
+      relatedSpeakers: relatedSpeakers.map(stripInternalFields),
     })
   } catch (err) {
     next(err)
