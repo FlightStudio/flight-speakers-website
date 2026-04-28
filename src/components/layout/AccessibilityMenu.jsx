@@ -31,7 +31,7 @@ function applyPrefs(prefs) {
   html.classList.toggle('a11y-underline-links', !!prefs.underlineLinks)
 }
 
-function AccessibilityMenu() {
+function AccessibilityMenu({ showTrigger = true }) {
   const [open, setOpen] = useState(false)
   const [prefs, setPrefs] = useState(() => readPrefs())
   const [dismissed, setDismissed] = useState(() => {
@@ -88,39 +88,45 @@ function AccessibilityMenu() {
 
   const activeCount = Object.values(prefs).filter(Boolean).length
 
-  if (dismissed) return null
+  // Show the trigger only when allowed by the parent AND not dismissed.
+  // The component itself stays mounted so the footer-link event keeps working.
+  const triggerVisible = showTrigger && !dismissed
 
   return (
     <div className="a11y-menu" ref={wrapRef}>
-      <button
-        type="button"
-        className="a11y-menu__trigger"
-        onClick={() => setOpen(o => !o)}
-        aria-label="Accessibility options"
-        aria-expanded={open}
-        aria-haspopup="dialog"
-        title="Accessibility options"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.6"/>
-          <circle cx="12" cy="7" r="1.4" fill="currentColor"/>
-          <path d="M7.5 10.5C9 11 10.5 11.2 12 11.2C13.5 11.2 15 11 16.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-          <path d="M12 11.2V14M12 14L9.5 18M12 14L14.5 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-        </svg>
-        {activeCount > 0 && <span className="a11y-menu__dot" aria-hidden="true" />}
-      </button>
+      {triggerVisible && (
+        <>
+          <button
+            type="button"
+            className="a11y-menu__trigger"
+            onClick={() => setOpen(o => !o)}
+            aria-label="Accessibility options"
+            aria-expanded={open}
+            aria-haspopup="dialog"
+            title="Accessibility options"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.6"/>
+              <circle cx="12" cy="7" r="1.4" fill="currentColor"/>
+              <path d="M7.5 10.5C9 11 10.5 11.2 12 11.2C13.5 11.2 15 11 16.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M12 11.2V14M12 14L9.5 18M12 14L14.5 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            {activeCount > 0 && <span className="a11y-menu__dot" aria-hidden="true" />}
+          </button>
 
-      <button
-        type="button"
-        className="a11y-menu__close"
-        onClick={dismissFab}
-        aria-label="Hide accessibility button (still available via the footer)"
-        title="Hide (use the footer link to bring it back)"
-      >
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-          <path d="M2 2L8 8M2 8L8 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-        </svg>
-      </button>
+          <button
+            type="button"
+            className="a11y-menu__close"
+            onClick={dismissFab}
+            aria-label="Hide accessibility button (still available via the footer)"
+            title="Hide (use the footer link to bring it back)"
+          >
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+              <path d="M2 2L8 8M2 8L8 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </button>
+        </>
+      )}
 
       <AnimatePresence>
         {open && (
