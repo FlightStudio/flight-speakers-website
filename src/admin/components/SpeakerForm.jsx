@@ -154,9 +154,16 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
       location: '',
       socialProfiles: { instagram: '', x: '', linkedin: '', youtube: '', tiktok: '' },
       boostNotes: '',
+      heroMediaType: 'image',
     }
     if (!initialData) return defaults
-    return { ...defaults, ...initialData, feeMin: initialData.feeMin ?? '', boostNotes: initialData.boostNotes ?? '' }
+    return {
+      ...defaults,
+      ...initialData,
+      feeMin: initialData.feeMin ?? '',
+      boostNotes: initialData.boostNotes ?? '',
+      heroMediaType: initialData.heroMediaType ?? (initialData.videoUrl ? 'video' : 'image'),
+    }
   })
 
   const [showSocial, setShowSocial] = useState(false)
@@ -184,6 +191,7 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
       ethnicity: form.ethnicity || null,
       nationality: form.nationality || null,
       location: form.location || null,
+      heroMediaType: form.heroMediaType,
     })
   }
 
@@ -213,17 +221,41 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
         />
 
         <div className="spkr-form__field spkr-form__field--full">
-          <label className="spkr-form__label">Bio *</label>
-          <textarea className="spkr-form__textarea" value={form.bio} onChange={e => set('bio', e.target.value)} rows={6} required />
-        </div>
-
-        <TagInput label="Topics" value={form.topics} onChange={v => set('topics', v)} />
-        <TagInput label="Audiences" value={form.audiences} onChange={v => set('audiences', v)} />
-        <TagInput label="Keynotes" value={form.keynotes} onChange={v => set('keynotes', v)} />
-
-        <div className="spkr-form__field">
-          <label className="spkr-form__label">Speaking Format</label>
-          <input className="spkr-form__input" value={form.speakingFormat || ''} onChange={e => set('speakingFormat', e.target.value)} placeholder="e.g., 45min keynote + Q&A" />
+          <label className="spkr-form__label">Hero media (shown on speaker profile)</label>
+          <div className="spkr-form__hero-toggle" role="radiogroup" aria-label="Hero media type">
+            <button
+              type="button"
+              role="radio"
+              aria-checked={form.heroMediaType === 'image'}
+              className={`spkr-form__hero-option${form.heroMediaType === 'image' ? ' spkr-form__hero-option--active' : ''}`}
+              onClick={() => set('heroMediaType', 'image')}
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
+                <circle cx="5" cy="6" r="1.2" fill="currentColor"/>
+                <path d="M2 11l3.5-3 3 2.5L11 8l3 3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Use image
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={form.heroMediaType === 'video'}
+              className={`spkr-form__hero-option${form.heroMediaType === 'video' ? ' spkr-form__hero-option--active' : ''}`}
+              onClick={() => set('heroMediaType', 'video')}
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <rect x="1.5" y="3" width="10" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
+                <path d="M11.5 6.5L14.5 5v6l-3-1.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Use video
+            </button>
+          </div>
+          <small className="spkr-form__help">
+            {form.heroMediaType === 'video'
+              ? 'The sizzle reel below will play full-bleed on the profile hero. Falls back to image if no video uploaded.'
+              : 'The photo above will fill the profile hero.'}
+          </small>
         </div>
 
         <DropZone
@@ -237,6 +269,20 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
           onUpload={video.upload}
           progress={video.uploading ? video.progress : 0}
         />
+
+        <div className="spkr-form__field spkr-form__field--full">
+          <label className="spkr-form__label">Bio *</label>
+          <textarea className="spkr-form__textarea" value={form.bio} onChange={e => set('bio', e.target.value)} rows={6} required />
+        </div>
+
+        <TagInput label="Topics" value={form.topics} onChange={v => set('topics', v)} />
+        <TagInput label="Audiences" value={form.audiences} onChange={v => set('audiences', v)} />
+        <TagInput label="Keynotes" value={form.keynotes} onChange={v => set('keynotes', v)} />
+
+        <div className="spkr-form__field">
+          <label className="spkr-form__label">Speaking Format</label>
+          <input className="spkr-form__input" value={form.speakingFormat || ''} onChange={e => set('speakingFormat', e.target.value)} placeholder="e.g., 45min keynote + Q&A" />
+        </div>
 
         {!portalMode && (
           <div className="spkr-form__field">

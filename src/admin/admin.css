@@ -5619,3 +5619,36 @@
   color: var(--color-text-tertiary);
   font-size: var(--text-xs);
 }
+
+.spkr-form__hero-toggle {
+  display: inline-flex;
+  gap: 6px;
+  padding: 4px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
+}
+
+.spkr-form__hero-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: none;
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.spkr-form__hero-option:hover {
+  color: var(--color-text-primary);
+}
+
+.spkr-form__hero-option--active {
+  background: var(--color-text-primary);
+  color: var(--color-bg-primary);
+}
