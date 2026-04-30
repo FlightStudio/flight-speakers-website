@@ -16,6 +16,8 @@ Replace the faked `generateAvailability()` PRNG in `AvailabilityCalendar.jsx` wi
 
 ## Data model
 
+All schema changes ship through `server/db/migrate.js` (idempotent, runs on Express boot). `init.sql` is only the local-docker bootstrap.
+
 ### New table — `speaker_blocked_dates`
 
 ```sql
@@ -33,8 +35,10 @@ One row per blocked day. Composite PK guarantees uniqueness. Cascading delete ke
 
 ### Extend `speaker_tokens`
 
+The existing `type` CHECK constraint is `speaker_tokens_type_check`. Migration drops and re-adds it:
+
 ```sql
-ALTER TABLE speaker_tokens DROP CONSTRAINT speaker_tokens_type_check;
+ALTER TABLE speaker_tokens DROP CONSTRAINT IF EXISTS speaker_tokens_type_check;
 ALTER TABLE speaker_tokens ADD CONSTRAINT speaker_tokens_type_check
     CHECK (type IN ('new', 'update', 'availability'));
 ALTER TABLE speaker_tokens ADD COLUMN IF NOT EXISTS revoked_at TIMESTAMPTZ;
@@ -52,12 +56,14 @@ At most one un-revoked availability token per speaker; rotation revokes the old 
 
 ### Speaker self-service endpoints (`server/routes/availability.js`, new file)
 
-| Method | Path | Auth | Purpose |
-| --- | --- | --- | --- |
-| `GET` | `/api/availability/:token` | token | Return `{ speaker: { id, name, photo, headline }, blocked: ['YYYY-MM-DD', ...] }`. Used to bootstrap the speaker portal page. |
-| `PUT` | `/api/availability/:token` | token | Body: `{ blocked: ['YYYY-MM-DD', ...] }`. Replaces all *future* blocked dates for the speaker (past dates untouched). |
+Tokens travel in the request body, not the URL — same convention as `/api/portal/*` (keeps tokens out of access logs and Referer headers).
 
-Rate limit: 10 req/min per IP (matches existing portal limiter).
+| Method | Path | Body | Purpose |
+| --- | --- | --- | --- |
+| `POST` | `/api/availability/validate` | `{ token }` | Return `{ success, speaker: { id, name, photo, headline }, blocked: ['YYYY-MM-DD', ...] }`. Bootstraps the speaker portal page. |
+| `POST` | `/api/availability/save` | `{ token, blocked: ['YYYY-MM-DD', ...] }` | Replaces all *future* blocked dates for the speaker (past dates untouched). |
+
+Rate limit: 10 req/min per IP (mounted under the existing portal limiter at `/api/availability`).
 
 The PUT replaces the future set transactionally:
 
