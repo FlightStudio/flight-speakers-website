@@ -135,6 +135,32 @@
   margin: 0 0 18px;
 }
 
+/* Tighter heading when paired with the eyebrow + brief search bar — eyebrow
+   already does the "Your brief" framing so the heading itself can be smaller
+   and more functional. */
+.search-hero__lead {
+  margin-bottom: 18px;
+}
+
+.search-hero__eyebrow {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 4px 12px;
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  color: var(--color-accent);
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.search-hero__title--compact {
+  font-size: clamp(1.4rem, 2.3vw, 1.85rem);
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
 /* Larger title only when no query (empty state) */
 .search-hero--full .search-hero__title {
   font-size: clamp(2.25rem, 5vw, 3.25rem);

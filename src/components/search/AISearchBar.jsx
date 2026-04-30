@@ -1,20 +1,12 @@
-import { useState, useRef, useImperativeHandle, useEffect, forwardRef } from 'react'
+import { useState, useRef, useImperativeHandle, forwardRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
-import { EASE } from '../../constants/animation'
+import { motion } from 'framer-motion'
 import './AISearchBar.css'
 
 const AISearchBar = forwardRef(function AISearchBar({ variant = 'default', initialQuery = '', onSearch, hideSubmit = false, showEditHint = false }, ref) {
   const [query, setQuery] = useState(initialQuery)
   const inputRef = useRef(null)
   const [isFocused, setIsFocused] = useState(false)
-  // Refine-search popover: shows briefly after results load to nudge users toward editing.
-  const [showRefinePopover, setShowRefinePopover] = useState(false)
-  useEffect(() => {
-    if (!showEditHint) return
-    const t = setTimeout(() => setShowRefinePopover(true), 600)
-    return () => clearTimeout(t)
-  }, [showEditHint])
 
   useImperativeHandle(ref, () => ({
     setQuery,
@@ -36,7 +28,7 @@ const AISearchBar = forwardRef(function AISearchBar({ variant = 'default', initi
   return (
     <div className={`ai-search ai-search--${variant}`}>
       <form onSubmit={handleSubmit} className="ai-search__form">
-        <div className={`ai-search__container ${isFocused ? 'ai-search__container--focused' : ''}`}>
+        <div className={`ai-search__container ${isFocused ? 'ai-search__container--focused' : ''} ${showEditHint ? 'ai-search__container--brief' : ''}`}>
           <div className="ai-search__icon">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
               <path d="M8.25 14.25C11.5637 14.25 14.25 11.5637 14.25 8.25C14.25 4.93629 11.5637 2.25 8.25 2.25C4.93629 2.25 2.25 4.93629 2.25 8.25C2.25 11.5637 4.93629 14.25 8.25 14.25Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -50,7 +42,7 @@ const AISearchBar = forwardRef(function AISearchBar({ variant = 'default', initi
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            placeholder="Describe your event and ideal speaker..."
+            placeholder={showEditHint ? 'Refine your brief…' : 'Describe your event and ideal speaker...'}
             className="ai-search__input"
           />
           {!hideSubmit && (
@@ -71,36 +63,15 @@ const AISearchBar = forwardRef(function AISearchBar({ variant = 'default', initi
             <button
               type="button"
               className="ai-search__edit"
-              onClick={() => {
-                inputRef.current?.focus()
-                setShowRefinePopover(false)
-              }}
+              onClick={() => inputRef.current?.focus()}
               aria-label="Edit your brief"
             >
-              <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                 <path d="M11.5 1.5L14.5 4.5M1 15L1.5 11.5L12 1L15 4L4.5 14.5L1 15Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
+              <span>Edit</span>
             </button>
           )}
-          <AnimatePresence>
-            {showEditHint && showRefinePopover && (
-              <motion.button
-                type="button"
-                className="ai-search__refine-pop"
-                initial={{ opacity: 0, y: 6, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 6, scale: 0.96 }}
-                transition={{ duration: 0.3, ease: EASE }}
-                onClick={() => {
-                  inputRef.current?.focus()
-                  setShowRefinePopover(false)
-                }}
-              >
-                <span>Not quite right? Add more detail</span>
-                <span className="ai-search__refine-pop-arrow" aria-hidden="true" />
-              </motion.button>
-            )}
-          </AnimatePresence>
         </div>
       </form>
     </div>

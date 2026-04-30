@@ -231,9 +231,14 @@ function SearchResultsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="search-hero__title">
-              {query ? 'Find Your Perfect Speaker for Your Brief' : 'Find Your Perfect Speaker'}
-            </h1>
+            {query ? (
+              <div className="search-hero__lead">
+                <span className="search-hero__eyebrow">Your brief</span>
+                <h1 className="search-hero__title search-hero__title--compact">Speakers matched to your event</h1>
+              </div>
+            ) : (
+              <h1 className="search-hero__title">Find Your Perfect Speaker</h1>
+            )}
 
             <motion.div
               className="search-hero__search"
