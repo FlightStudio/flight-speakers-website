@@ -5,110 +5,39 @@ import { EASE } from '../../constants/animation'
 
 const CATEGORY_OPTIONS = ['Rankings', 'Guide', 'Inspiration', 'Trends']
 
-function BlockEditor({ blocks, onChange }) {
-  const handleBlockChange = (i, field, value) => {
-    const updated = blocks.map((b, idx) => idx === i ? { ...b, [field]: value } : b)
-    onChange(updated)
-  }
+// Body is stored as [{type:'p'|'h2', text}, ...] so the public renderer
+// keeps generating semantic <p>/<h2> tags. The editor exposes one big text
+// box using markdown-style conventions:
+//
+//   ## Heading text         -> { type: 'h2', text: 'Heading text' }
+//   <blank line separator>  -> block boundary
+//   anything else           -> { type: 'p', text: '...' }
+//
+// Round-tripping through these helpers means existing structured articles
+// load cleanly into the textarea and save back unchanged in shape.
 
-  const addBlock = (i) => {
-    const updated = [...blocks]
-    updated.splice(i + 1, 0, { type: 'p', text: '' })
-    onChange(updated)
-  }
-
-  const removeBlock = (i) => {
-    if (blocks.length <= 1) return
-    onChange(blocks.filter((_, idx) => idx !== i))
-  }
-
-  const moveBlock = (i, dir) => {
-    const j = i + dir
-    if (j < 0 || j >= blocks.length) return
-    const updated = [...blocks]
-    ;[updated[i], updated[j]] = [updated[j], updated[i]]
-    onChange(updated)
-  }
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      {blocks.map((block, i) => (
-        <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-          <select
-            value={block.type}
-            onChange={e => handleBlockChange(i, 'type', e.target.value)}
-            title="Block type — p for paragraph, h2 for section heading"
-            style={blockSelectStyle}
-          >
-            <option value="p">p</option>
-            <option value="h2">h2</option>
-          </select>
-          <textarea
-            value={block.text}
-            onChange={e => handleBlockChange(i, 'text', e.target.value)}
-            rows={block.type === 'h2' ? 1 : 3}
-            placeholder={block.type === 'h2' ? 'Section heading' : 'Paragraph text'}
-            style={{
-              ...blockInputStyle,
-              fontWeight: block.type === 'h2' ? 600 : 400,
-              fontSize: block.type === 'h2' ? 15 : 13,
-            }}
-          />
-          <div style={{ display: 'flex', gap: 4 }}>
-            <button type="button" onClick={() => moveBlock(i, -1)} disabled={i === 0} title="Move block up" aria-label="Move block up" style={iconBtnStyle}>
-              ↑
-            </button>
-            <button type="button" onClick={() => moveBlock(i, 1)} disabled={i === blocks.length - 1} title="Move block down" aria-label="Move block down" style={iconBtnStyle}>
-              ↓
-            </button>
-            <button type="button" onClick={() => addBlock(i)} title="Insert a new block below" aria-label="Insert block" style={{ ...iconBtnStyle, color: '#22c55e' }}>
-              +
-            </button>
-            <button type="button" onClick={() => removeBlock(i)} disabled={blocks.length <= 1} title="Delete this block" aria-label="Delete block" style={{ ...iconBtnStyle, color: '#ef4444' }}>
-              ×
-            </button>
-          </div>
-        </div>
-      ))}
-    </div>
-  )
+function bodyToText(body) {
+  if (!Array.isArray(body) || body.length === 0) return ''
+  return body
+    .map(b => (b.type === 'h2' ? `## ${b.text || ''}` : (b.text || '')))
+    .join('\n\n')
 }
 
-const blockInputStyle = {
-  flex: 1,
-  padding: '8px 12px',
-  borderRadius: 6,
-  border: '1px solid var(--color-border)',
-  background: 'transparent',
-  color: 'var(--color-text-primary)',
-  resize: 'vertical',
-  fontFamily: 'inherit',
-  lineHeight: 1.5,
-}
-
-const blockSelectStyle = {
-  width: 54,
-  padding: '6px 4px',
-  borderRadius: 6,
-  border: '1px solid var(--color-border)',
-  background: 'transparent',
-  color: 'var(--color-text-primary)',
-  fontSize: 12,
-}
-
-const iconBtnStyle = {
-  background: 'transparent',
-  border: '1px solid var(--color-border)',
-  borderRadius: 4,
-  width: 28,
-  height: 28,
-  cursor: 'pointer',
-  fontSize: 13,
-  color: 'var(--color-text-secondary)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: 0,
+function textToBody(text) {
+  if (!text || !text.trim()) return [{ type: 'p', text: '' }]
+  return text
+    .split(/\n\s*\n/)
+    .map(s => s.trim())
+    .filter(Boolean)
+    .map(block => {
+      if (block.startsWith('## ')) {
+        return { type: 'h2', text: block.slice(3).trim() }
+      }
+      // Collapse any internal newlines back into single-line paragraph text —
+      // the renderer handles paragraph spacing, internal newlines aren't part
+      // of the data model.
+      return { type: 'p', text: block.replace(/\s*\n\s*/g, ' ').trim() }
+    })
 }
 
 export default function AdminArticleEditPage() {
@@ -430,9 +359,18 @@ export default function AdminArticleEditPage() {
           </div>
         </Field>
 
-        {/* Body blocks */}
-        <Field label="Body Blocks">
-          <BlockEditor blocks={body} onChange={setBody} />
+        {/* Body — single textarea, markdown-lite */}
+        <Field label="Body">
+          <textarea
+            value={bodyToText(body)}
+            onChange={e => setBody(textToBody(e.target.value))}
+            rows={24}
+            placeholder={'Write the article in one box.\n\nSeparate paragraphs with a blank line.\n\n## Use ## at the start of a line for a section heading'}
+            style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.55, fontSize: 14, minHeight: 480 }}
+          />
+          <div style={{ marginTop: 6, fontSize: 12, color: 'var(--color-text-muted)' }}>
+            Blank line = new paragraph. Start a line with <code style={{ padding: '0 4px', background: 'var(--color-bg-secondary)', borderRadius: 3 }}>##&nbsp;</code> to make it a section heading. Inline links use <code style={{ padding: '0 4px', background: 'var(--color-bg-secondary)', borderRadius: 3 }}>[label](/url)</code>.
+          </div>
         </Field>
 
         {/* Admin notes */}
