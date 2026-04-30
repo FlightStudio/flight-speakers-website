@@ -8,7 +8,7 @@ A guide for whoever's inheriting this project. Designed to be read by a non-tech
 
 Flight Speakers is a speaker booking platform with three faces:
 
-- **Public site** — speaker browsing, AI-powered semantic search, multi-step enquiry form. Lives at `https://flightspeakers.com` (Vercel).
+- **Public site** — speaker browsing, AI-powered semantic search, multi-step enquiry form. Lives at `https://flight-speakers-website.vercel.app` (Vercel).
 - **Admin panel** — at `/admin`. Login with username `admin` / password `admin`. Used to manage speakers, enquiries, the waitlist, articles, and integration health checks.
 - **Speaker portals** — magic-link-protected pages where speakers self-serve their profile (`/speaker-portal#<token>`) or block calendar dates (`/speaker-availability#<token>`).
 
@@ -27,7 +27,7 @@ Flight Speakers is a speaker booking platform with three faces:
 
 **Production URLs**
 
-- Frontend: `https://flightspeakers.com`
+- Frontend: `https://flight-speakers-website.vercel.app`
 - Backend API: `https://flight-speakers-api-516196678853.europe-west2.run.app`
 - GitHub: `https://github.com/FlightStudio/flight-speakers-website`
 - GCP project: `flight-speakers` (do **not** confuse with `flightstudio`, which is a different colleague's project)
