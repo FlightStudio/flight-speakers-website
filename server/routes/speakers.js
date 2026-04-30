@@ -7,6 +7,7 @@ import {
   getAllTopics,
   getAllAudiences,
 } from '../db/queries.js'
+import { getBlockedDates } from '../db/availability-queries.js'
 import pool from '../db/connection.js'
 
 const router = express.Router()
@@ -89,6 +90,32 @@ router.get('/:id', async (req, res, next) => {
       speaker: stripInternalFields(speaker),
       relatedSpeakers: relatedSpeakers.map(stripInternalFields),
     })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// Public availability read for the enquiry-form calendar.
+// Returns only blocked dates — no enquiry IDs, reasons, or other metadata.
+router.get('/:id/availability', async (req, res, next) => {
+  try {
+    const { from, to } = req.query
+    if (!from || !to) {
+      return res.status(400).json({ success: false, message: 'from and to required (YYYY-MM-DD)' })
+    }
+    const ISO = /^\d{4}-\d{2}-\d{2}$/
+    if (!ISO.test(from) || !ISO.test(to)) {
+      return res.status(400).json({ success: false, message: 'Dates must be YYYY-MM-DD' })
+    }
+    if (to < from) {
+      return res.status(400).json({ success: false, message: 'to must be >= from' })
+    }
+    const days = (new Date(to) - new Date(from)) / (1000 * 60 * 60 * 24)
+    if (days > 366) {
+      return res.status(400).json({ success: false, message: 'Range cannot exceed 366 days' })
+    }
+    const blocked = await getBlockedDates(req.params.id, from, to)
+    res.json({ success: true, blocked })
   } catch (err) {
     next(err)
   }
