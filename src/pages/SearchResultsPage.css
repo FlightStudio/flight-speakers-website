@@ -220,13 +220,14 @@
    Search Results
    ================================ */
 
-.search-results {
+/* Bumped specificity (.search-results-page .search-results) to beat the
+   global .section rule in HomePage.css that comes later in the cascade.
+   Without this, .section's padding: var(--space-section) wins and pads
+   the top of the results card by ~150px. */
+.search-results-page .search-results {
   background: var(--color-white);
-  /* Glue the results header directly to the hero's bottom border. The
-     .section default (var(--space-section)) is overridden to 0 on top so
-     "8 speakers found" sits immediately under the divider line. Bottom
-     padding stays section-scale so results don't crash into the footer. */
   padding-top: 0;
+  padding-bottom: var(--space-8);
 }
 
 /* Results Header — sits flush against the hero's divider line, zero gap. */
