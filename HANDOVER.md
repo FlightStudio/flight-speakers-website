@@ -9,7 +9,7 @@ A guide for whoever's inheriting this project. Designed to be read by a non-tech
 Flight Speakers is a speaker booking platform with three faces:
 
 - **Public site** — speaker browsing, AI-powered semantic search, multi-step enquiry form. Lives at `https://flightspeakers.com` (Vercel).
-- **Admin panel** — at `/admin`. Login with username `admin` / password `admin` (default; rotate after handover). Used to manage speakers, enquiries, the waitlist, articles, and integration health checks.
+- **Admin panel** — at `/admin`. Login with username `admin` / password `admin`. Used to manage speakers, enquiries, the waitlist, articles, and integration health checks.
 - **Speaker portals** — magic-link-protected pages where speakers self-serve their profile (`/speaker-portal#<token>`) or block calendar dates (`/speaker-availability#<token>`).
 
 **Stack at a glance**
@@ -34,16 +34,140 @@ Flight Speakers is a speaker booking platform with three faces:
 
 ---
 
-## Step 1: Get the accounts you need
+## Before you start: don't migrate anything
 
-You should already have org access to all of these. If anything's missing, ask whoever handed this over.
+You're inheriting a fully-wired-up project that lives across GitHub, Vercel, Google Cloud, Klaviyo, and Monday.com — all under the same parent company. **You should not be creating new accounts, new projects, new buckets, new databases, or new domains.** Every piece of infrastructure already exists; your job is to be added as a member to the existing setup so you can keep maintaining it. If you ever feel tempted to "set this up fresh", stop — that's a signal you're going down the wrong path.
 
-- [ ] **GitHub** — push access to `FlightStudio/flight-speakers-website`
-- [ ] **Google Cloud** — Editor role on project `flight-speakers`. Sign in to `console.cloud.google.com` with your work email and confirm you can see the project in the picker
-- [ ] **Vercel** — collaborator on the `flight-speakers-website` project
-- [ ] **Anthropic Console** (`console.anthropic.com`) — for your own Claude API key (used by Claude Code locally; production uses a separate key already wired into Secret Manager)
-- [ ] **Monday.com** — access to board `1153323847` ("SB Leads — Speaking Engagements") if you want to see CRM events land
-- [ ] **Klaviyo** — access to lists "Flight Speakers — Enquiries" and "Flight Speakers — Newsletter"
+The only thing you create from scratch is your **personal GitHub account** (covered next), because GitHub identities are per-person, not per-company.
+
+---
+
+## Step 1: GitHub — account, org, and SSH access
+
+The code lives on GitHub at `https://github.com/FlightStudio/flight-speakers-website`. You'll need an account, you'll need to be added to the FlightStudio organisation, and your computer will need a way to prove it's you when it talks to GitHub. None of this is hard but it's a fiddly first hour. Walk through 1.1 → 1.5 in order.
+
+### 1.1 Create a GitHub account
+
+1. Open `https://github.com/signup` in your browser.
+2. Enter your work email address. Use the email you'll keep using for this project — once it's tied to commits in the repo, switching is awkward.
+3. Pick a password (let your password manager generate one) and a username. Most people use `firstname-lastname` or `firstinitial-lastname`. Stick to lowercase letters, numbers, and hyphens.
+4. Verify the puzzle, click through the onboarding (skip the optional product preferences), and confirm the email link GitHub sends you.
+
+You now have a GitHub account but it can't see the Flight Speakers code yet. That's the next step.
+
+### 1.2 Turn on two-factor authentication (required by the FlightStudio org)
+
+Most company orgs on GitHub require 2FA. The FlightStudio org is one of them, so do this before asking to be added or the invite will be blocked.
+
+1. Top-right avatar → **Settings** → **Password and authentication** in the left sidebar.
+2. Scroll to "Two-factor authentication" → **Enable two-factor authentication**.
+3. Choose **Set up using an app** (not SMS — apps are more secure and the org may require it).
+4. Scan the QR code with an authenticator app (1Password, Authy, Google Authenticator, or your password manager's built-in TOTP feature).
+5. Enter the 6-digit code GitHub asks for, then **save the recovery codes somewhere safe**. Print them or paste them into your password manager — if you ever lose your phone you'll need them to get back in.
+
+### 1.3 Get added to the FlightStudio organisation
+
+The repo is private to the FlightStudio org, so even with a GitHub account you can't see it until someone invites you.
+
+1. Send your GitHub **username** (e.g. `j-smith`, not your email) to whoever owns this handover (Diana — `innovation@steven.com`) and ask to be added to the `FlightStudio` org as a member with access to the `flight-speakers-website` repository.
+2. GitHub will email you and put a notification on `https://github.com/FlightStudio` once you're invited.
+3. Click **Join FlightStudio** in the email (or go to the org page and accept).
+4. Test it: visit `https://github.com/FlightStudio/flight-speakers-website` — you should see the code, not a 404.
+
+### 1.4 Set up SSH so your computer can talk to GitHub without a password
+
+Every time you push a change, your computer has to prove to GitHub it's you. The cleanest way is an **SSH key** — a pair of files on your Mac, one secret and one public, that GitHub uses to verify you. Set this up once and you'll never type a password to GitHub again.
+
+> **What an SSH key is, in one sentence:** A long random secret on your Mac (`~/.ssh/id_ed25519`) and its matching public half (`~/.ssh/id_ed25519.pub`). You give GitHub the public half. Your Mac uses the secret half to prove its identity. The secret half never leaves your machine.
+
+Open the **Terminal** app (Cmd-Space, type "Terminal") and copy-paste the commands below in order.
+
+**Step 1 — Generate the key.** Replace the email with the one you used to sign up.
+
+```bash
+ssh-keygen -t ed25519 -C "your-github-email@example.com"
+```
+
+GitHub asks where to save it — press Enter to accept the default (`~/.ssh/id_ed25519`). It then asks for a passphrase. You can leave it blank for convenience or set one for extra security; if you set one, your Mac's keychain will remember it after the first use.
+
+**Step 2 — Tell macOS's ssh-agent to load the key on every login.**
+
+```bash
+eval "$(ssh-agent -s)"
+ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+```
+
+If you set a passphrase, you'll be asked for it once. macOS will store it in the keychain so you won't be asked again.
+
+**Step 3 — Copy the public key to your clipboard.**
+
+```bash
+pbcopy < ~/.ssh/id_ed25519.pub
+```
+
+(Nothing visible happens — the public key is now on your clipboard.)
+
+**Step 4 — Add it to your GitHub account.**
+
+1. Open `https://github.com/settings/keys` in your browser.
+2. Click **New SSH key**.
+3. Title: something like "Macbook Pro 2026" (just so you can identify it later).
+4. Key type: leave as **Authentication Key**.
+5. Paste into the Key field (Cmd-V). It should start with `ssh-ed25519` and end with your email.
+6. Click **Add SSH key**. GitHub will ask you to confirm with your password and 2FA code.
+
+**Step 5 — Test the connection.**
+
+```bash
+ssh -T git@github.com
+```
+
+The first time, you'll see "The authenticity of host 'github.com' can't be established... Are you sure you want to continue?" — type `yes` and press Enter.
+
+You should then see:
+
+```
+Hi <your-username>! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+That message is the success message. Don't worry about "does not provide shell access" — that's just GitHub saying you can't log in to a shell on their server, which is expected.
+
+If instead you see "Permission denied (publickey)", the key didn't get added correctly. Re-do Step 4.
+
+### 1.5 Clone the repo
+
+Now you're authenticated. Clone the project to your machine:
+
+```bash
+cd ~/Documents
+git clone git@github.com:FlightStudio/flight-speakers-website.git
+cd flight-speakers-website
+```
+
+The `git@github.com:...` URL is the SSH URL — it must start with `git@`, not `https://`. If you used the `https://` URL by accident, GitHub would ask for a username and password every time. Delete the folder and re-clone with the SSH URL.
+
+### Bonus: Personal Access Token (only if SSH won't work)
+
+If you're on a machine that absolutely won't let you set up SSH (very rare, usually corporate-locked Windows machines), you can use a **Personal Access Token** instead:
+
+1. `https://github.com/settings/tokens` → **Generate new token (classic)**.
+2. Note: "flight-speakers website laptop". Expiration: **No expiration**. Scopes: tick `repo` and `workflow`.
+3. Generate. **Copy the token immediately** — you can't see it again. Put it in your password manager.
+4. When `git push` asks for a password, paste the token instead.
+
+SSH is the cleaner default; tokens are a fallback only.
+
+---
+
+## Step 1B: The other accounts you'll need
+
+These are simpler — usually just "log in with your work Google account" and someone gives you access.
+
+- [ ] **Google Cloud** — Editor role on project `flight-speakers`. Sign in to `https://console.cloud.google.com` with your work email and confirm you can see the project in the picker (top of the page next to the Google Cloud logo). Don't confuse it with `flightstudio` — that's a different team's project and is off-limits.
+- [ ] **Vercel** — `https://vercel.com`. Sign in with GitHub (use the account you just made). Ask Diana to invite you to the existing `flight-speakers-website` Vercel project as a member. **Don't create a new Vercel project, don't fork, and don't migrate** — the existing one is already wired to the right environment variables, the production domain, and the auto-deploy from `main`. You're joining the existing setup, not replacing it.
+- [ ] **Anthropic Console** — `https://console.anthropic.com`. Sign up, then create your own API key under Settings → API Keys. Used by Claude Code locally; production uses a separate key already wired into Google Secret Manager so you don't need to share keys with anyone.
+- [ ] **Monday.com** — `https://flightstory.monday.com` (or your team's URL). Access board `1153323847` ("SB Leads — Speaking Engagements") to see CRM events land when enquiries come in.
+- [ ] **Klaviyo** — `https://www.klaviyo.com/login`. Access lists "Flight Speakers — Enquiries" and "Flight Speakers — Newsletter".
 
 ---
 
