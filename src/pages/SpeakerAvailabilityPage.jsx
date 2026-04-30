@@ -35,6 +35,11 @@ export default function SpeakerAvailabilityPage() {
   const [speaker, setSpeaker] = useState(null)
   const [blocked, setBlocked] = useState(() => new Set())
   const [savedBlocked, setSavedBlocked] = useState(() => new Set())
+  // Selection mode — 'single' toggles one day at a time; 'range' blocks every
+  // day between two clicks (inclusive). Range is additive: it never unblocks
+  // an already-blocked day.
+  const [mode, setMode] = useState('single')
+  const [rangeStart, setRangeStart] = useState(null)
 
   const today = useMemo(() => new Date(), [])
   const todayIso = useMemo(() => today.toISOString().slice(0, 10), [today])
@@ -78,12 +83,41 @@ export default function SpeakerAvailabilityPage() {
 
   const toggleDay = (iso) => {
     if (iso < todayIso) return
+
+    if (mode === 'single') {
+      setBlocked(prev => {
+        const next = new Set(prev)
+        if (next.has(iso)) next.delete(iso)
+        else next.add(iso)
+        return next
+      })
+      return
+    }
+
+    // Range mode: first click sets the start, second click closes the range.
+    if (!rangeStart) {
+      setRangeStart(iso)
+      return
+    }
+    // Normalise so start <= end regardless of click order.
+    const [start, end] = iso < rangeStart ? [iso, rangeStart] : [rangeStart, iso]
     setBlocked(prev => {
       const next = new Set(prev)
-      if (next.has(iso)) next.delete(iso)
-      else next.add(iso)
+      const cursor = new Date(start)
+      const last = new Date(end)
+      while (cursor <= last) {
+        const d = cursor.toISOString().slice(0, 10)
+        if (d >= todayIso) next.add(d)
+        cursor.setDate(cursor.getDate() + 1)
+      }
       return next
     })
+    setRangeStart(null)
+  }
+
+  const switchMode = (next) => {
+    setMode(next)
+    setRangeStart(null)
   }
 
   const handleSave = async () => {
@@ -147,11 +181,38 @@ export default function SpeakerAvailabilityPage() {
             {speaker?.name ? `${speaker.name}'s availability` : 'Availability'}
           </h1>
           <p className="avail-page__subtitle">
-            Tap any future day to mark it as <strong>booked</strong>. We'll only show
-            clients dates you can actually do.
+            Mark days you can't do as <strong>booked</strong>. Use <strong>Range</strong>
+            {' '}to block a holiday or stretch in one go, or <strong>Single</strong> to
+            tweak individual days. We'll only show clients dates you can actually do.
           </p>
         </div>
       </motion.header>
+
+      <div className="avail-page__mode-bar" role="tablist" aria-label="Selection mode">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === 'single'}
+          className={`avail-page__mode-btn ${mode === 'single' ? 'avail-page__mode-btn--active' : ''}`}
+          onClick={() => switchMode('single')}
+        >
+          Single
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === 'range'}
+          className={`avail-page__mode-btn ${mode === 'range' ? 'avail-page__mode-btn--active' : ''}`}
+          onClick={() => switchMode('range')}
+        >
+          Range
+        </button>
+        {mode === 'range' && (
+          <span className="avail-page__mode-hint">
+            {rangeStart ? 'Now tap the end date' : 'Tap the first date of the range'}
+          </span>
+        )}
+      </div>
 
       <main className="avail-page__months">
         {months.map(({ year, month }) => {
@@ -172,6 +233,7 @@ export default function SpeakerAvailabilityPage() {
                   const iso = toIso(year, month, day)
                   const past = iso < todayIso
                   const isBlocked = blocked.has(iso)
+                  const isRangeStart = mode === 'range' && rangeStart === iso
                   return (
                     <button
                       key={day}
@@ -180,6 +242,7 @@ export default function SpeakerAvailabilityPage() {
                         'avail-cell',
                         past && 'avail-cell--past',
                         isBlocked && 'avail-cell--blocked',
+                        isRangeStart && 'avail-cell--range-start',
                       ].filter(Boolean).join(' ')}
                       onClick={() => toggleDay(iso)}
                       disabled={past}

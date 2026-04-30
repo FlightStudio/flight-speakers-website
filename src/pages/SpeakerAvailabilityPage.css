@@ -47,6 +47,45 @@
   line-height: 1.5;
 }
 
+/* Mode toggle (Single / Range) */
+.avail-page__mode-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.avail-page__mode-btn {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.4rem 1rem;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.avail-page__mode-btn:hover:not(.avail-page__mode-btn--active) {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+.avail-page__mode-btn--active {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border-color: var(--color-primary);
+}
+
+.avail-page__mode-hint {
+  margin-left: auto;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
 .avail-page__months {
   display: grid;
   gap: 2rem;
@@ -125,6 +164,17 @@
 
 .avail-cell--blocked:hover:not(:disabled) {
   background: rgba(232, 93, 76, 0.26);
+}
+
+/* Highlight the first click in range mode while waiting for the second. */
+.avail-cell--range-start {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border-color: var(--color-primary);
+}
+
+.avail-cell--range-start:hover:not(:disabled) {
+  background: var(--color-primary-hover);
 }
 
 .avail-page__save-bar {
