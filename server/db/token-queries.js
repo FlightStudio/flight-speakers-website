@@ -52,7 +52,7 @@ export async function validateToken(token) {
 
   // Build speaker data for pre-fill
   let speaker = null
-  if (row.type === 'update' && row.speaker_id) {
+  if ((row.type === 'update' || row.type === 'availability') && row.speaker_id) {
     speaker = {
       id: row.speaker_id,
       name: row.speaker_name,

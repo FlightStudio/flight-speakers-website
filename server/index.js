@@ -10,6 +10,7 @@ import searchRouter from './routes/search.js'
 import parseBriefRouter from './routes/parseBrief.js'
 import adminRouter from './routes/admin/index.js'
 import portalRouter from './routes/portal.js'
+import availabilityRouter from './routes/availability.js'
 import waitlistRouter from './routes/waitlist.js'
 import pool from './db/connection.js'
 import { runMigrations } from './db/migrate.js'
@@ -99,6 +100,7 @@ app.use('/api/parse-brief', searchLimiter, parseBriefRouter)
 app.use('/api/admin/login', loginLimiter)
 app.use('/api/admin', adminRouter)
 app.use('/api/portal', portalLimiter, portalRouter)
+app.use('/api/availability', portalLimiter, availabilityRouter)
 app.use('/api/waitlist', enquiryLimiter, waitlistRouter)
 app.use('/api/articles', articlesRouter)
 
