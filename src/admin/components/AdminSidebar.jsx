@@ -66,6 +66,10 @@ export default function AdminSidebar({ user, newCount = 0, onLogout }) {
           {newCount > 0 && <span className="admin-sidebar__badge">{newCount}</span>}
         </NavLink>
 
+        {/* Speaker pipeline — parent is the live roster, sub-items show the
+            upstream stages someone passes through to become one. Reading the
+            list top-down: Speakers (destination) → Waitlist (intake) →
+            New & Updates (review queue). */}
         <NavLink
           to="/admin/speakers"
           className={({ isActive }) =>
@@ -76,6 +80,19 @@ export default function AdminSidebar({ user, newCount = 0, onLogout }) {
             <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
           </svg>
           Speakers
+        </NavLink>
+
+        <NavLink
+          to="/admin/waitlist"
+          className={({ isActive }) =>
+            `admin-sidebar__link admin-sidebar__link--sub ${isActive ? 'admin-sidebar__link--active' : ''}`
+          }
+        >
+          <svg className="admin-sidebar__icon" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+            <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
+          </svg>
+          Waitlist
         </NavLink>
 
         <NavLink
@@ -102,19 +119,6 @@ export default function AdminSidebar({ user, newCount = 0, onLogout }) {
           </svg>
           Articles
           {articleDraftCount > 0 && <span className="admin-sidebar__badge">{articleDraftCount}</span>}
-        </NavLink>
-
-        <NavLink
-          to="/admin/waitlist"
-          className={({ isActive }) =>
-            `admin-sidebar__link ${isActive ? 'admin-sidebar__link--active' : ''}`
-          }
-        >
-          <svg className="admin-sidebar__icon" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-            <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
-          </svg>
-          Waitlist
         </NavLink>
 
         <NavLink
