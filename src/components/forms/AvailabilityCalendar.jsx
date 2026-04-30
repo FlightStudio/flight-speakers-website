@@ -1,7 +1,8 @@
 import { useState, useRef, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { EASE } from '../../constants/animation'
-import { formatDisplayDate, formatEventDate } from '../../utils/dateFormat'
+import { formatEventDate } from '../../utils/dateFormat'
+import { useSpeakerAvailability } from './useSpeakerAvailability'
 
 const DAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
 const MONTHS = [
@@ -12,44 +13,6 @@ const SHORT_MONTHS = [
   'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ]
-
-function seededRandom(seed) {
-  let s = seed
-  return () => {
-    s = (s * 16807 + 0) % 2147483647
-    return (s - 1) / 2147483646
-  }
-}
-
-function hashString(str) {
-  let hash = 0
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i)
-    hash |= 0
-  }
-  return Math.abs(hash)
-}
-
-function generateAvailability(speakerId, year, month) {
-  const seed = hashString(`${speakerId}-${year}-${month}`)
-  const rand = seededRandom(seed)
-  const daysInMonth = new Date(year, month + 1, 0).getDate()
-  const availability = {}
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const date = new Date(year, month, d)
-    const isWeekend = date.getDay() === 0 || date.getDay() === 6
-    const r = rand()
-
-    if (isWeekend) {
-      availability[d] = r < 0.6 ? 'unavailable' : r < 0.85 ? 'limited' : 'available'
-    } else {
-      availability[d] = r < 0.2 ? 'unavailable' : r < 0.45 ? 'limited' : 'available'
-    }
-  }
-
-  return availability
-}
 
 function toDateStr(year, month, day) {
   return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
@@ -90,10 +53,19 @@ function AvailabilityCalendar({ value, onChange, speakerId = '' }) {
   const { year, month } = viewDate
   const monthPills = useMemo(() => getMonthPills(today), [])
 
-  const availability = useMemo(
-    () => generateAvailability(speakerId, year, month),
-    [speakerId, year, month]
-  )
+  // Real availability — fetch once per speaker for a 12-month forward window.
+  const fromIso = useMemo(() => today.toISOString().slice(0, 10), [])
+  const toIso = useMemo(() => {
+    const d = new Date()
+    d.setFullYear(d.getFullYear() + 1)
+    return d.toISOString().slice(0, 10)
+  }, [])
+  const { blocked: blockedSet } = useSpeakerAvailability(speakerId, fromIso, toIso)
+
+  const dayState = (day) => {
+    const iso = toDateStr(year, month, day)
+    return blockedSet.has(iso) ? 'unavailable' : 'available'
+  }
 
   const daysInMonth = new Date(year, month + 1, 0).getDate()
   const firstDayOfWeek = (new Date(year, month, 1).getDay() + 6) % 7
@@ -233,7 +205,7 @@ function AvailabilityCalendar({ value, onChange, speakerId = '' }) {
     ? (() => {
         const d = new Date(selectedStart)
         if (d.getFullYear() === year && d.getMonth() === month) {
-          return availability[d.getDate()]
+          return dayState(d.getDate())
         }
         return null
       })()
@@ -261,7 +233,7 @@ function AvailabilityCalendar({ value, onChange, speakerId = '' }) {
         </span>
         {value && selectedAvail && (
           <span className={`cal-input__badge cal-input__badge--${selectedAvail}`}>
-            {selectedAvail === 'available' ? 'Likely available' : selectedAvail === 'limited' ? 'Limited' : 'Booked'}
+            {selectedAvail === 'available' ? 'Likely available' : 'Booked'}
           </span>
         )}
         <svg className={`cal-input__chevron ${isOpen ? 'cal-input__chevron--open' : ''}`} width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -377,7 +349,7 @@ function AvailabilityCalendar({ value, onChange, speakerId = '' }) {
                 {Array.from({ length: daysInMonth }, (_, i) => {
                   const day = i + 1
                   const past = isPast(day)
-                  const avail = availability[day]
+                  const avail = dayState(day)
                   const selected = isSelectedDay(day)
                   const inRange = isInRange(day)
                   const todayMark = isToday(day)
@@ -410,10 +382,6 @@ function AvailabilityCalendar({ value, onChange, speakerId = '' }) {
               <span className="cal__legend-item">
                 <span className="cal__legend-dot cal__legend-dot--available" />
                 Likely available
-              </span>
-              <span className="cal__legend-item">
-                <span className="cal__legend-dot cal__legend-dot--limited" />
-                Limited
               </span>
               <span className="cal__legend-item">
                 <span className="cal__legend-dot cal__legend-dot--unavailable" />
