@@ -590,23 +590,25 @@
 .ai-pipe {
   display: flex;
   flex-direction: column;
-  /* Treat the mock-browser frame as a sizing container so every nested element
-     (pills, paths, orb, results) scales with this frame's actual width via
-     cqw units instead of viewport-width. Resizing the window now shrinks the
-     whole pipeline proportionally rather than just wrapping the pill row. */
+  /* Treat the mock-browser frame as a sizing container, then drive a SINGLE
+     base font-size from container width. Every nested element uses em units,
+     so the whole pipeline (search, pills, lines, orb, results) scales as one
+     unit. No element shrinks faster than another, no pills wrap to a second
+     row at narrow widths. */
   container-type: inline-size;
   container-name: ai-pipe;
+  font-size: clamp(8.5px, 1.65cqw, 13px);
 }
 
 /* Search bar — top of window */
 .ai-pipe__search {
   display: flex;
   align-items: center;
-  gap: clamp(6px, 1.4cqw, 10px);
-  padding: clamp(8px, 1.4cqw, 10px) clamp(10px, 1.8cqw, 14px);
+  gap: 0.7em;
+  padding: 0.7em 1em;
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 10px;
+  border-radius: 0.75em;
 }
 
 .ai-pipe__search-icon {
@@ -616,10 +618,10 @@
 
 .ai-pipe__search-text {
   flex: 1;
-  font-size: clamp(10px, 1.85cqw, 13px);
+  font-size: 1em;
   color: var(--color-charcoal);
   line-height: 1.5;
-  min-height: 18px;
+  min-height: 1.4em;
 }
 
 .ai-pipe__placeholder {
@@ -650,30 +652,33 @@
   overflow: hidden;
 }
 
-/* Token pills — never wrap to a second row. Sizes scale via cqw so pills
-   shrink proportionally with the pipeline frame. */
+/* Token pills — guaranteed single row. Grid (5 explicit columns with
+   minmax(0,auto)) is more bulletproof than flex-wrap: nowrap because there's
+   literally no second-row track to drop into. Each pill sits in its own
+   centered column and scales with the inherited base font-size. */
 .ai-pipe__token-row {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: clamp(3px, 1cqw, 8px);
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, auto));
   justify-content: center;
+  gap: 0.55em;
   width: 100%;
 }
 
 .ai-pipe__token {
-  padding: clamp(3px, 1cqw, 7px) clamp(7px, 2.2cqw, 18px);
-  font-size: clamp(8.5px, 1.7cqw, 12.5px);
+  padding: 0.45em 1.15em;
+  font-size: 0.95em;
   font-weight: 600;
   letter-spacing: 0.01em;
   color: var(--tk);
   background: color-mix(in srgb, var(--tk) 8%, #f5f1ea);
   border: 1px solid color-mix(in srgb, var(--tk) 18%, transparent);
   border-radius: 100px;
-  white-space: nowrap;
-  /* Allow flex to shrink pills below their content width if the container
-     gets very narrow — pills still scale via cqw, but min-width: 0 lets the
-     ellipsis kick in instead of overflowing the row. */
+  /* min-width: 0 + overflow + ellipsis is the safety net for very narrow
+     containers — pills truncate gracefully instead of overflowing the grid. */
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* SVG paths area — wrap is sized by CSS, SVG uses pixel coords inside.
@@ -681,7 +686,7 @@
    exactly during resize instead of warping with the aspect ratio. */
 .ai-pipe__paths-wrap {
   width: 100%;
-  height: clamp(70px, 18cqw, 140px);
+  height: 11em;
   position: relative;
 }
 
@@ -695,9 +700,9 @@
 /* Analyzing orb at convergence */
 .ai-pipe__orb {
   position: relative;
-  width: clamp(22px, 4.5cqw, 36px);
-  height: clamp(22px, 4.5cqw, 36px);
-  margin: -2px 0 clamp(6px, 1.8cqw, 14px);
+  width: 2.6em;
+  height: 2.6em;
+  margin: -2px 0 1em;
 }
 
 .ai-pipe__orb-ring {
@@ -729,18 +734,18 @@
 .ai-pipe__results {
   display: flex;
   flex-direction: column;
-  gap: clamp(4px, 0.85cqw, 6px);
+  gap: 0.45em;
   width: 100%;
 }
 
 .ai-pipe__result {
   display: flex;
   align-items: center;
-  gap: clamp(6px, 1.4cqw, 10px);
-  padding: clamp(6px, 1.4cqw, 10px) clamp(8px, 1.7cqw, 12px);
+  gap: 0.7em;
+  padding: 0.7em 0.9em;
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 10px;
+  border-radius: 0.75em;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -750,8 +755,8 @@
 }
 
 .ai-pipe__result-av {
-  width: clamp(20px, 4.2cqw, 32px);
-  height: clamp(20px, 4.2cqw, 32px);
+  width: 2.4em;
+  height: 2.4em;
   border-radius: 50%;
   background: linear-gradient(135deg, #e0e7ff, #ddd6fe);
   flex-shrink: 0;
@@ -765,25 +770,25 @@
 
 .ai-pipe__result-name {
   display: block;
-  font-size: clamp(10px, 1.85cqw, 13px);
+  font-size: 1em;
   font-weight: 600;
   color: var(--color-charcoal);
 }
 
 .ai-pipe__result-topic {
   display: block;
-  font-size: clamp(9px, 1.5cqw, 11px);
+  font-size: 0.85em;
   color: var(--color-gray-500);
 }
 
 .ai-pipe__result-score {
   flex-shrink: 0;
-  padding: clamp(2px, 0.6cqw, 3px) clamp(5px, 1.1cqw, 8px);
-  font-size: clamp(9px, 1.5cqw, 11px);
+  padding: 0.2em 0.55em;
+  font-size: 0.85em;
   font-weight: 700;
   color: #14b8a6;
   background: rgba(20, 184, 166, 0.12);
-  border-radius: 6px;
+  border-radius: 0.4em;
 }
 
 /* Footer CTA */
