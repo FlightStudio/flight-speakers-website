@@ -557,11 +557,20 @@
   background: #fff;
   border: 1px solid #e8e8e6;
   border-radius: 14px;
-  overflow: hidden;
+  /* overflow-x: auto so the table scrolls horizontally on narrow viewports
+     instead of squashing columns into each other. The min-width on the
+     table itself sets a readable floor — once below that, the wrapper takes
+     over with a scrollbar. This is the WCAG 1.4.10 "reflow" pattern: page
+     remains zoomable to 400% / 320 CSS px without two-axis scrolling, and
+     individual data tables can scroll horizontally as a permitted exception. */
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .enquiry-table {
   width: 100%;
+  min-width: 760px;
   border-collapse: collapse;
 }
 
@@ -1905,11 +1914,14 @@
   background: #fff;
   border: 1px solid #e8e8e6;
   border-radius: 14px;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .speaker-analytics__table {
   width: 100%;
+  min-width: 720px;
   border-collapse: collapse;
 }
 
@@ -5736,5 +5748,87 @@
   }
   .articles-row__chevron {
     display: none;
+  }
+}
+
+/* ─── Dash table (admin waitlist + similar list views) ─────────────────────
+   Pattern follows current best practice for responsive admin tables:
+   • Wrapper has overflow-x: auto so narrow viewports get a horizontal
+     scrollbar instead of squashing columns together (WCAG 1.4.10 reflow,
+     data-table exception).
+   • Table has a min-width floor so columns stay readable.
+   • Cells default to nowrap, with a .dash-table__cell--wrap escape hatch
+     for free-text fields that should wrap (like long location strings).
+   • Long-content columns use ellipsis with the cell's title attribute as
+     the accessible reveal. */
+.dash-table-wrap {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.dash-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+
+.dash-table thead {
+  background: var(--color-bg-secondary);
+}
+
+.dash-table th {
+  text-align: left;
+  padding: 0.7rem 1rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.dash-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border-light);
+  font-size: 0.85rem;
+  vertical-align: middle;
+  /* Prevent any single cell from blowing the column wider than its share —
+     ellipsis kicks in via the per-column max-width / class overrides below. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+}
+
+.dash-table tr:last-child td {
+  border-bottom: none;
+}
+
+.dash-table tbody tr {
+  transition: background-color 150ms ease;
+}
+
+.dash-table tbody tr:hover {
+  background: var(--color-bg-secondary);
+}
+
+/* Escape hatch — free-text columns that should wrap rather than truncate. */
+.dash-table__cell--wrap {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  max-width: 320px;
+}
+
+/* Tighter narrow-viewport polish: shrink padding, keep horizontal scroll. */
+@media (max-width: 720px) {
+  .dash-table th,
+  .dash-table td {
+    padding: 0.6rem 0.75rem;
   }
 }

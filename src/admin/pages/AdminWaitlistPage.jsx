@@ -217,11 +217,11 @@ export default function AdminWaitlistPage() {
                   style={{ cursor: 'pointer' }}
                   onClick={() => openEntry(entry)}
                 >
-                  <td style={{ fontWeight: 500 }}>{entry.full_name}</td>
-                  <td style={{ color: 'var(--color-text-muted)' }}>{entry.email}</td>
-                  <td>{entry.based_in}</td>
-                  <td>{entry.speaking_experience}</td>
-                  <td style={{ whiteSpace: 'nowrap' }}>{entry.fee_currency} {entry.fee_bracket}</td>
+                  <td style={{ fontWeight: 500 }} title={entry.full_name}>{entry.full_name}</td>
+                  <td style={{ color: 'var(--color-text-muted)' }} title={entry.email}>{entry.email}</td>
+                  <td title={entry.based_in}>{entry.based_in}</td>
+                  <td className="dash-table__cell--wrap" title={entry.speaking_experience}>{entry.speaking_experience}</td>
+                  <td>{entry.fee_currency} {entry.fee_bracket}</td>
                   <td><StatusBadge status={entry.status} /></td>
                   <td style={{ color: 'var(--color-text-muted)', fontSize: 12 }}>
                     {new Date(entry.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
