@@ -53,8 +53,8 @@ export const SEED_ARTICLES = [
     read_time: 10,
     excerpt: 'These are the keynote speakers that American corporate organizers are booking most consistently across New York, San Francisco and the wider US conference circuit in 2026.',
     image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800&h=600&fit=crop&crop=face',
-    tile_c1: '#1E1B4B',
-    tile_c2: '#312E81',
+    tile_c1: '#0F2A2E',
+    tile_c2: '#134E4A',
     body: [
       { type: 'p', text: 'The American corporate-events sector is the largest and most competitive in the world. Conferences in New York, San Francisco, Los Angeles and Chicago set the agenda for the rest of the international circuit, and the keynote speakers who land repeatedly with US audiences shape what the wider conference year looks like. We have compiled this guide of the speakers booked most consistently across the United States in 2026, and the themes their talks address.' },
       { type: 'h2', text: 'What makes a strong keynote speaker for US audiences?' },
@@ -90,8 +90,8 @@ export const SEED_ARTICLES = [
     read_time: 9,
     excerpt: 'A guide to the most consistently booked inspirational keynote speakers for corporate events in 2026, and the audiences they connect with most strongly.',
     image: 'https://storage.googleapis.com/flight-speakers-photos/speakers/davina-mccall.webp',
-    tile_c1: '#5B21B6',
-    tile_c2: '#2E1065',
+    tile_c1: '#1A1A1A',
+    tile_c2: '#0F172A',
     body: [
       { type: 'p', text: 'Inspirational keynote speakers occupy a particular slot in any well-built corporate event. Where business and technical talks ask audiences to learn, inspirational talks ask audiences to feel -- and then to act differently. The best inspirational speakers do both. They combine a credible personal story with a framework the audience can apply to their own work the following Monday. We have compiled this guide of the inspirational keynote speakers booked most consistently across UK and US corporate events in 2026.' },
       { type: 'h2', text: 'What makes a great inspirational keynote speaker?' },
@@ -123,8 +123,8 @@ export const SEED_ARTICLES = [
     read_time: 9,
     excerpt: 'The share of female keynote speakers at corporate events climbed past 40% in 2026 across both UK and US markets. These are the names most consistently booked.',
     image: 'https://storage.googleapis.com/flight-speakers-photos/speakers/vanessa-van-edwards.webp',
-    tile_c1: '#7C3AED',
-    tile_c2: '#3B1675',
+    tile_c1: '#1A1A1A',
+    tile_c2: '#3D1419',
     body: [
       { type: 'p', text: 'Across our own bookings and several public data sets covering both UK and US corporate events, the share of female keynote speakers has moved from roughly 28% in 2024 to 41% in early 2026. That is a meaningful shift in a category historically slow to change. We have compiled this guide of the female keynote speakers most consistently booked across UK and US technology, business and leadership events in 2026.' },
       { type: 'h2', text: 'Why are female keynote speakers in higher demand in 2026?' },

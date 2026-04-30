@@ -31,13 +31,14 @@ function BlockEditor({ blocks, onChange }) {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {blocks.map((block, i) => (
         <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
           <select
             value={block.type}
             onChange={e => handleBlockChange(i, 'type', e.target.value)}
-            style={{ width: 60, padding: '6px 4px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'var(--color-bg-elevated)', color: 'var(--color-text-primary)', fontSize: 12 }}
+            title="Block type — p for paragraph, h2 for section heading"
+            style={blockSelectStyle}
           >
             <option value="p">p</option>
             <option value="h2">h2</option>
@@ -46,25 +47,24 @@ function BlockEditor({ blocks, onChange }) {
             value={block.text}
             onChange={e => handleBlockChange(i, 'text', e.target.value)}
             rows={block.type === 'h2' ? 1 : 3}
+            placeholder={block.type === 'h2' ? 'Section heading' : 'Paragraph text'}
             style={{
-              flex: 1, padding: '6px 10px', borderRadius: 6,
-              border: '1px solid var(--color-border)',
-              background: block.type === 'h2' ? 'rgba(99,102,241,0.06)' : 'var(--color-bg-elevated)',
-              color: 'var(--color-text-primary)', fontSize: 13, resize: 'vertical',
+              ...blockInputStyle,
               fontWeight: block.type === 'h2' ? 600 : 400,
+              fontSize: block.type === 'h2' ? 15 : 13,
             }}
           />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <button type="button" onClick={() => moveBlock(i, -1)} disabled={i === 0} style={iconBtnStyle}>
+          <div style={{ display: 'flex', gap: 4 }}>
+            <button type="button" onClick={() => moveBlock(i, -1)} disabled={i === 0} title="Move block up" aria-label="Move block up" style={iconBtnStyle}>
               ↑
             </button>
-            <button type="button" onClick={() => moveBlock(i, 1)} disabled={i === blocks.length - 1} style={iconBtnStyle}>
+            <button type="button" onClick={() => moveBlock(i, 1)} disabled={i === blocks.length - 1} title="Move block down" aria-label="Move block down" style={iconBtnStyle}>
               ↓
             </button>
-            <button type="button" onClick={() => addBlock(i)} style={{ ...iconBtnStyle, color: '#22c55e' }}>
+            <button type="button" onClick={() => addBlock(i)} title="Insert a new block below" aria-label="Insert block" style={{ ...iconBtnStyle, color: '#22c55e' }}>
               +
             </button>
-            <button type="button" onClick={() => removeBlock(i)} disabled={blocks.length <= 1} style={{ ...iconBtnStyle, color: '#ef4444' }}>
+            <button type="button" onClick={() => removeBlock(i)} disabled={blocks.length <= 1} title="Delete this block" aria-label="Delete block" style={{ ...iconBtnStyle, color: '#ef4444' }}>
               ×
             </button>
           </div>
@@ -74,13 +74,40 @@ function BlockEditor({ blocks, onChange }) {
   )
 }
 
-const iconBtnStyle = {
-  background: 'var(--color-bg-elevated)',
+const blockInputStyle = {
+  flex: 1,
+  padding: '8px 12px',
+  borderRadius: 6,
   border: '1px solid var(--color-border)',
-  borderRadius: 4, width: 26, height: 26,
-  cursor: 'pointer', fontSize: 13,
-  color: 'var(--color-text-muted)',
-  display: 'flex', alignItems: 'center', justifyContent: 'center',
+  background: 'transparent',
+  color: 'var(--color-text-primary)',
+  resize: 'vertical',
+  fontFamily: 'inherit',
+  lineHeight: 1.5,
+}
+
+const blockSelectStyle = {
+  width: 54,
+  padding: '6px 4px',
+  borderRadius: 6,
+  border: '1px solid var(--color-border)',
+  background: 'transparent',
+  color: 'var(--color-text-primary)',
+  fontSize: 12,
+}
+
+const iconBtnStyle = {
+  background: 'transparent',
+  border: '1px solid var(--color-border)',
+  borderRadius: 4,
+  width: 28,
+  height: 28,
+  cursor: 'pointer',
+  fontSize: 13,
+  color: 'var(--color-text-secondary)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
   padding: 0,
 }
 

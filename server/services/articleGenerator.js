@@ -36,14 +36,15 @@ export const ANGLE_POOL = [
   { region: 'US', year: 2026, focus: 'Best Diversity and Inclusion Speakers', audience: 'DEI summits' },
 ]
 
-// Tile gradient options for fallback when no image is available
+// Tile gradient options for fallback when no image is available.
+// Dark, neutral palettes only — no purple/violet.
 const TILE_GRADIENTS = [
-  { c1: '#0F172A', c2: '#1E3A5F' },
-  { c1: '#1F2937', c2: '#4C1D95' },
-  { c1: '#1E1B4B', c2: '#312E81' },
-  { c1: '#5B21B6', c2: '#2E1065' },
-  { c1: '#1E40AF', c2: '#0B2554' },
-  { c1: '#7C3AED', c2: '#3B1675' },
+  { c1: '#0F172A', c2: '#1E3A5F' }, // slate to navy
+  { c1: '#1A1A1A', c2: '#3D1419' }, // charcoal to deep burgundy
+  { c1: '#0F2A2E', c2: '#134E4A' }, // dark teal
+  { c1: '#1E40AF', c2: '#0B2554' }, // blue
+  { c1: '#0F1F14', c2: '#14452F' }, // forest
+  { c1: '#1A1A1A', c2: '#0F172A' }, // mono dark
 ]
 
 // --- Speaker filtering ---
