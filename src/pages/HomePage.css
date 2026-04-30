@@ -590,14 +590,20 @@
 .ai-pipe {
   display: flex;
   flex-direction: column;
+  /* Treat the mock-browser frame as a sizing container so every nested element
+     (pills, paths, orb, results) scales with this frame's actual width via
+     cqw units instead of viewport-width. Resizing the window now shrinks the
+     whole pipeline proportionally rather than just wrapping the pill row. */
+  container-type: inline-size;
+  container-name: ai-pipe;
 }
 
 /* Search bar — top of window */
 .ai-pipe__search {
   display: flex;
   align-items: center;
-  gap: clamp(6px, 1vw, 10px);
-  padding: clamp(8px, 1vw, 10px) clamp(10px, 1.2vw, 14px);
+  gap: clamp(6px, 1.4cqw, 10px);
+  padding: clamp(8px, 1.4cqw, 10px) clamp(10px, 1.8cqw, 14px);
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 10px;
@@ -610,7 +616,7 @@
 
 .ai-pipe__search-text {
   flex: 1;
-  font-size: clamp(11px, 1.3vw, 13px);
+  font-size: clamp(10px, 1.85cqw, 13px);
   color: var(--color-charcoal);
   line-height: 1.5;
   min-height: 18px;
@@ -644,18 +650,19 @@
   overflow: hidden;
 }
 
-/* Token pills */
+/* Token pills — never wrap to a second row. Sizes scale via cqw so pills
+   shrink proportionally with the pipeline frame. */
 .ai-pipe__token-row {
   display: flex;
-  flex-wrap: wrap;
-  gap: clamp(4px, 0.8vw, 8px);
+  flex-wrap: nowrap;
+  gap: clamp(3px, 1cqw, 8px);
   justify-content: center;
   width: 100%;
 }
 
 .ai-pipe__token {
-  padding: clamp(4px, 0.8vw, 7px) clamp(10px, 1.8vw, 18px);
-  font-size: clamp(10px, 1.4vw, 12.5px);
+  padding: clamp(3px, 1cqw, 7px) clamp(7px, 2.2cqw, 18px);
+  font-size: clamp(8.5px, 1.7cqw, 12.5px);
   font-weight: 600;
   letter-spacing: 0.01em;
   color: var(--tk);
@@ -663,6 +670,10 @@
   border: 1px solid color-mix(in srgb, var(--tk) 18%, transparent);
   border-radius: 100px;
   white-space: nowrap;
+  /* Allow flex to shrink pills below their content width if the container
+     gets very narrow — pills still scale via cqw, but min-width: 0 lets the
+     ellipsis kick in instead of overflowing the row. */
+  min-width: 0;
 }
 
 /* SVG paths area — wrap is sized by CSS, SVG uses pixel coords inside.
@@ -670,7 +681,7 @@
    exactly during resize instead of warping with the aspect ratio. */
 .ai-pipe__paths-wrap {
   width: 100%;
-  height: clamp(80px, 14vw, 140px);
+  height: clamp(70px, 18cqw, 140px);
   position: relative;
 }
 
@@ -684,9 +695,9 @@
 /* Analyzing orb at convergence */
 .ai-pipe__orb {
   position: relative;
-  width: clamp(28px, 3.5vw, 36px);
-  height: clamp(28px, 3.5vw, 36px);
-  margin: -2px 0 clamp(8px, 1.4vw, 14px);
+  width: clamp(22px, 4.5cqw, 36px);
+  height: clamp(22px, 4.5cqw, 36px);
+  margin: -2px 0 clamp(6px, 1.8cqw, 14px);
 }
 
 .ai-pipe__orb-ring {
@@ -718,15 +729,15 @@
 .ai-pipe__results {
   display: flex;
   flex-direction: column;
-  gap: clamp(4px, 0.6vw, 6px);
+  gap: clamp(4px, 0.85cqw, 6px);
   width: 100%;
 }
 
 .ai-pipe__result {
   display: flex;
   align-items: center;
-  gap: clamp(6px, 1vw, 10px);
-  padding: clamp(6px, 1vw, 10px) clamp(8px, 1.2vw, 12px);
+  gap: clamp(6px, 1.4cqw, 10px);
+  padding: clamp(6px, 1.4cqw, 10px) clamp(8px, 1.7cqw, 12px);
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 10px;
@@ -739,8 +750,8 @@
 }
 
 .ai-pipe__result-av {
-  width: clamp(24px, 3.2vw, 32px);
-  height: clamp(24px, 3.2vw, 32px);
+  width: clamp(20px, 4.2cqw, 32px);
+  height: clamp(20px, 4.2cqw, 32px);
   border-radius: 50%;
   background: linear-gradient(135deg, #e0e7ff, #ddd6fe);
   flex-shrink: 0;
@@ -754,21 +765,21 @@
 
 .ai-pipe__result-name {
   display: block;
-  font-size: clamp(11px, 1.3vw, 13px);
+  font-size: clamp(10px, 1.85cqw, 13px);
   font-weight: 600;
   color: var(--color-charcoal);
 }
 
 .ai-pipe__result-topic {
   display: block;
-  font-size: clamp(9px, 1.1vw, 11px);
+  font-size: clamp(9px, 1.5cqw, 11px);
   color: var(--color-gray-500);
 }
 
 .ai-pipe__result-score {
   flex-shrink: 0;
-  padding: clamp(2px, 0.4vw, 3px) clamp(5px, 0.8vw, 8px);
-  font-size: clamp(9px, 1.1vw, 11px);
+  padding: clamp(2px, 0.6cqw, 3px) clamp(5px, 1.1cqw, 8px);
+  font-size: clamp(9px, 1.5cqw, 11px);
   font-weight: 700;
   color: #14b8a6;
   background: rgba(20, 184, 166, 0.12);
