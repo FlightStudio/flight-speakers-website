@@ -4,7 +4,8 @@
 
 .search-results-page {
   min-height: 100vh;
-  background: var(--color-white);
+  /* Theme-aware page background — dark in dark mode, white in light. */
+  background: var(--color-bg-primary);
   position: relative;
 }
 
@@ -102,12 +103,13 @@
    ================================ */
 
 /* Layout already pads var(--header-height) to clear the fixed header — don't
-   double-count it here. Just a tiny buffer above the search bar so it doesn't
-   crash into the page header, and zero buffer below so "8 speakers found"
-   sits directly underneath. */
+   double-count it here. Generous top padding pushes the bar away from the
+   page header; zero bottom padding keeps "8 speakers found" flush. No
+   background gradient — hero inherits the page background so there's a
+   single consistent shade from header to results. */
 .search-hero {
-  padding: var(--space-3) 0 0;
-  background: linear-gradient(180deg, #faf8f2 0%, var(--color-off-white) 100%);
+  padding: clamp(2.5rem, 6vw, 4.5rem) 0 0;
+  background: transparent;
   position: relative;
 }
 
@@ -223,9 +225,10 @@
 /* Bumped specificity (.search-results-page .search-results) to beat the
    global .section rule in HomePage.css that comes later in the cascade.
    Without this, .section's padding: var(--space-section) wins and pads
-   the top of the results card by ~150px. */
+   the top of the results card by ~150px. Background uses the theme-aware
+   bg-primary token so dark mode stays dark and light mode stays light. */
 .search-results-page .search-results {
-  background: var(--color-white);
+  background: var(--color-bg-primary);
   padding-top: 0;
   padding-bottom: var(--space-8);
 }
@@ -432,10 +435,9 @@
   background: radial-gradient(circle, #ffffff 0%, rgba(255, 255, 255, 0.5) 100%);
 }
 
-[data-theme="dark"] .search-hero {
-  background: linear-gradient(180deg, #111111 0%, var(--color-off-white) 100%);
-}
-
+/* No gradient on .search-hero in dark mode — the page background already
+   provides a consistent dark shade. Mismatched gradient endpoints (dark →
+   off-white) create the "two shades" visual bug. */
 [data-theme="dark"] .search-hero--full {
   background: linear-gradient(180deg, #0a0a0a 0%, #111111 100%);
 }
