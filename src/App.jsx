@@ -8,6 +8,7 @@ import EnquiryPage from './pages/EnquiryPage'
 import AboutPage from './pages/AboutPage'
 import AdminApp from './admin/AdminApp'
 import SpeakerPortalPage from './pages/SpeakerPortalPage'
+import SpeakerAvailabilityPage from './pages/SpeakerAvailabilityPage'
 import SpeakersPage from './pages/SpeakersPage'
 import BookPage from './pages/BookPage'
 import NewsPage from './pages/NewsPage'
@@ -34,6 +35,10 @@ function App() {
           previously-issued links still work until they expire. */}
       <Route path="/speaker-portal" element={<SpeakerPortalPage />} />
       <Route path="/speaker-portal/:token" element={<SpeakerPortalPage />} />
+
+      {/* Speaker availability — long-lived self-service link to mark blocked
+          dates. Token rides in URL fragment so it never reaches the server. */}
+      <Route path="/speaker-availability" element={<SpeakerAvailabilityPage />} />
 
       {/* Enquiry pages — full-screen Typeform-style, no layout shell */}
       <Route path="/enquiry" element={<EnquiryPage />} />
