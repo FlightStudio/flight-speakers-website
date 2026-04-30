@@ -28,3 +28,4 @@ export { speakerCreateSchema, speakerPatchSchema, portalDraftSchema } from './sp
 export { enquirySchema, enquiryUpdateSchema } from './enquiry.js'
 export { waitlistSchema, waitlistUpdateSchema } from './waitlist.js'
 export { articlePatchSchema, articleRejectSchema } from './article.js'
+export { availabilitySaveSchema } from './availability.js'
