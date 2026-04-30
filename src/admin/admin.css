@@ -2376,6 +2376,79 @@
 .speaker-detail__action-btns {
   display: flex;
   gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Tertiary action — visually less prominent than the brand-coloured buttons
+   so it doesn't compete for attention. Used for "Rotate availability link"
+   which is a rarely-used safety action. */
+.speaker-detail__rotate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.8rem;
+  font-size: clamp(0.72rem, 0.6vw, 0.82rem);
+  font-weight: 500;
+  color: var(--color-text-tertiary);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.speaker-detail__rotate-btn:hover:not(:disabled) {
+  color: var(--color-text-primary);
+  border-color: var(--color-border-strong);
+  background: var(--color-bg-secondary);
+}
+
+.speaker-detail__rotate-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Modal overlay for one-way actions (rotate link, etc.). Centered card,
+   dimmed backdrop, click-outside-to-cancel handled in JSX. */
+.speaker-detail__confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+}
+
+.speaker-detail__confirm-card {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 1.5rem;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.speaker-detail__confirm-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.speaker-detail__confirm-card p {
+  margin: 0 0 1.25rem;
+  font-size: 0.85rem;
+  color: var(--color-text-tertiary);
+  line-height: 1.5;
+}
+
+.speaker-detail__confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
 }
 
 .speaker-detail__delete-btn {

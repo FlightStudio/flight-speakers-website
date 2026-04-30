@@ -15,7 +15,6 @@ export default function AdminSpeakerDetailPage() {
   const [deleting, setDeleting] = useState(false)
   const [feeMin, setFeeMin] = useState('')
   const [showScores, setShowScores] = useState(false)
-  const [inviteLink, setInviteLink] = useState('')
   const [inviteLoading, setInviteLoading] = useState(false)
   const [copied, setCopied] = useState(false)
   const [availLink, setAvailLink] = useState('')
@@ -81,6 +80,9 @@ export default function AdminSpeakerDetailPage() {
     } catch { /* silent */ }
   }, [id, feeMin])
 
+  // Generate a fresh invite link AND copy it to the clipboard in one click.
+  // No URL field shown — admins just want the link on their clipboard, not on
+  // their screen. Button flashes "Copied!" briefly to confirm.
   const handleGenerateLink = useCallback(async () => {
     setInviteLoading(true)
     try {
@@ -90,19 +92,14 @@ export default function AdminSpeakerDetailPage() {
       })
       const data = await res.json()
       if (data.success) {
-        // Build frontend URL (the API returns the API host, we want the frontend host)
         const link = `${window.location.origin}/speaker-portal/${data.token}`
-        setInviteLink(link)
+        try { await navigator.clipboard.writeText(link) } catch { /* clipboard blocked */ }
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
       }
     } catch { /* ignore */ }
     setInviteLoading(false)
   }, [id])
-
-  const handleCopyLink = useCallback(() => {
-    navigator.clipboard.writeText(inviteLink)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }, [inviteLink])
 
   // Speaker availability link — long-lived, rotatable.
   useEffect(() => {
@@ -279,7 +276,7 @@ export default function AdminSpeakerDetailPage() {
               />
             </div>
             <div className="speaker-detail__action-btns">
-              <Link to={`/admin/speakers/${id}/edit`} className="speaker-detail__edit-btn">
+              <Link to={`/admin/speakers/${id}/edit`} className="speaker-detail__edit-btn" title="Edit speaker profile">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <path d="M10 1.5L12.5 4M1.5 12.5L2 10L10 2L12 4L4 12L1.5 12.5Z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -289,16 +286,43 @@ export default function AdminSpeakerDetailPage() {
                 className="speaker-detail__invite-btn"
                 onClick={handleGenerateLink}
                 disabled={inviteLoading}
+                title="Generate a one-time profile-edit link and copy to clipboard"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
                   <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
                 </svg>
-                {inviteLoading ? 'Generating...' : 'Invite Link'}
+                {inviteLoading ? 'Generating…' : copied ? 'Copied!' : 'Invite link'}
+              </button>
+              <button
+                className="speaker-detail__invite-btn"
+                onClick={handleCopyAvailLink}
+                disabled={!availLink}
+                title="Copy the speaker's long-lived availability calendar link"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <path d="M16 2v4M8 2v4M3 10h18" />
+                </svg>
+                {availCopied ? 'Copied!' : 'Availability link'}
+              </button>
+              <button
+                className="speaker-detail__rotate-btn"
+                onClick={() => setRotateConfirm(true)}
+                disabled={!availLink}
+                title="Rotate availability link — invalidates the previous URL"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="23 4 23 10 17 10" />
+                  <polyline points="1 20 1 14 7 14" />
+                  <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+                </svg>
+                Rotate
               </button>
               <button
                 className="speaker-detail__delete-btn"
                 onClick={() => setShowDeleteConfirm(true)}
+                title="Delete this speaker"
               >
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <path d="M2 4h10M5 4V2.5h4V4M3 4v8.5h8V4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -306,61 +330,37 @@ export default function AdminSpeakerDetailPage() {
                 Delete
               </button>
             </div>
-            {inviteLink && (
-              <div className="speaker-detail__invite-link">
-                <input
-                  className="speaker-detail__invite-input"
-                  value={inviteLink}
-                  readOnly
-                  onClick={e => e.target.select()}
-                />
-                <button className="speaker-detail__invite-copy" onClick={handleCopyLink}>
-                  {copied ? 'Copied!' : 'Copy'}
-                </button>
-              </div>
-            )}
-            {availLink && (
-              <div className="speaker-detail__invite-link" style={{ marginTop: '0.5rem' }}>
-                <input
-                  className="speaker-detail__invite-input"
-                  value={availLink}
-                  readOnly
-                  onClick={e => e.target.select()}
-                  title="Speaker availability link — share with the speaker so they can mark blocked dates."
-                />
-                <button className="speaker-detail__invite-copy" onClick={handleCopyAvailLink}>
-                  {availCopied ? 'Copied!' : 'Copy availability link'}
-                </button>
-                {rotateConfirm ? (
-                  <>
-                    <button
-                      className="speaker-detail__invite-copy"
-                      style={{ background: '#7f1d1d', color: '#fff' }}
-                      onClick={handleRotateAvailLink}
-                      disabled={availRotating}
-                    >
-                      {availRotating ? 'Rotating…' : 'Confirm rotate'}
-                    </button>
-                    <button
-                      className="speaker-detail__invite-copy"
-                      onClick={() => setRotateConfirm(false)}
-                    >
-                      Cancel
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    className="speaker-detail__invite-copy"
-                    onClick={() => setRotateConfirm(true)}
-                    title="Invalidate the existing availability link and create a new one"
-                  >
-                    Rotate
-                  </button>
-                )}
-              </div>
-            )}
           </div>
         </div>
+
+        {/* Rotate confirmation overlay — explicit step because rotating
+            invalidates the previous link, which is a one-way action. */}
+        {rotateConfirm && (
+          <div className="speaker-detail__confirm-overlay" onClick={() => !availRotating && setRotateConfirm(false)}>
+            <div className="speaker-detail__confirm-card" onClick={e => e.stopPropagation()}>
+              <h3>Rotate availability link?</h3>
+              <p>The current link will stop working immediately. The speaker will need the new URL to continue managing their calendar.</p>
+              <div className="speaker-detail__confirm-actions">
+                <button
+                  type="button"
+                  className="speaker-detail__edit-btn"
+                  onClick={() => setRotateConfirm(false)}
+                  disabled={availRotating}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="speaker-detail__delete-btn"
+                  onClick={handleRotateAvailLink}
+                  disabled={availRotating}
+                >
+                  {availRotating ? 'Rotating…' : 'Yes, rotate'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Stats row */}
         <div className="speaker-detail__stats">
