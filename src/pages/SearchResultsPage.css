@@ -226,15 +226,14 @@
   padding-top: 0;
 }
 
-/* Results Header — small top margin keeps text from kissing the divider
-   line, but visually anchored to the hero rather than floating in space. */
+/* Results Header — sits flush against the hero's divider line, zero gap. */
 .search-results__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 24px;
-  margin-top: var(--space-4);
+  margin-top: 0;
   margin-bottom: 28px;
 }
 
