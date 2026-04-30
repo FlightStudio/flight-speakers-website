@@ -1,15 +1,17 @@
 import crypto from 'crypto'
 import pool from './connection.js'
 
-export async function createToken({ speakerId, type, expiresInDays = 7, prefillData = null }) {
+export async function createToken({ speakerId, type, expiresInDays = 7, expiresAt = null, prefillData = null }) {
   const token = crypto.randomBytes(32).toString('hex')
-  const expiresAt = new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000)
+  const expires = expiresAt
+    ? new Date(expiresAt)
+    : new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000)
 
   const { rows } = await pool.query(
     `INSERT INTO speaker_tokens (speaker_id, token, type, expires_at, prefill_data)
      VALUES ($1, $2, $3, $4, $5)
      RETURNING *`,
-    [speakerId || null, token, type, expiresAt, prefillData ? JSON.stringify(prefillData) : null]
+    [speakerId || null, token, type, expires, prefillData ? JSON.stringify(prefillData) : null]
   )
   return rows[0]
 }
@@ -38,7 +40,13 @@ export async function validateToken(token) {
 
   const row = rows[0]
 
-  if (row.used_at || new Date(row.expires_at) < new Date()) {
+  const isExpired = new Date(row.expires_at) < new Date()
+  const isRevoked = row.revoked_at !== null && row.revoked_at !== undefined
+  if (isExpired || isRevoked) {
+    return { valid: false, error: 'Invalid or expired link' }
+  }
+  // 'availability' tokens are multi-use; only 'new' / 'update' are consumed.
+  if (row.type !== 'availability' && row.used_at) {
     return { valid: false, error: 'Invalid or expired link' }
   }
 
@@ -122,7 +130,16 @@ export async function validateAndConsumeToken(token) {
       await client.query('ROLLBACK')
       return { valid: false, error: 'Invalid or expired link' }
     }
-    if (row.used_at || new Date(row.expires_at) < new Date()) {
+    // validateAndConsumeToken is for single-use tokens only. Availability
+    // tokens must never go through this path — they'd be marked used_at and
+    // permanently broken.
+    if (row.type === 'availability') {
+      await client.query('ROLLBACK')
+      return { valid: false, error: 'Wrong token type' }
+    }
+    const isExpired = new Date(row.expires_at) < new Date()
+    const isRevoked = row.revoked_at !== null && row.revoked_at !== undefined
+    if (isExpired || isRevoked || row.used_at) {
       await client.query('ROLLBACK')
       return { valid: false, error: 'Invalid or expired link' }
     }
@@ -166,4 +183,26 @@ export async function validateAndConsumeToken(token) {
   } finally {
     client.release()
   }
+}
+
+export async function getActiveAvailabilityToken(speakerId) {
+  const { rows } = await pool.query(
+    `SELECT * FROM speaker_tokens
+     WHERE speaker_id = $1
+       AND type = 'availability'
+       AND revoked_at IS NULL
+       AND expires_at > NOW()
+     ORDER BY created_at DESC
+     LIMIT 1`,
+    [speakerId]
+  )
+  return rows[0] || null
+}
+
+export async function revokeToken(token) {
+  await pool.query(
+    `UPDATE speaker_tokens SET revoked_at = NOW()
+     WHERE token = $1 AND revoked_at IS NULL`,
+    [token]
+  )
 }
