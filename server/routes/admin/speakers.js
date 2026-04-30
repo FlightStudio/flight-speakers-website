@@ -7,6 +7,11 @@ import { getSpeakerAnalytics, getSpeakerDetailAnalytics } from '../../db/analyti
 import { deleteSpeaker } from '../../db/admin-queries.js'
 import { validate, speakerCreateSchema, speakerPatchSchema } from '../../schemas/index.js'
 import {
+  createToken,
+  getActiveAvailabilityToken,
+  revokeToken,
+} from '../../db/token-queries.js'
+import {
   imageUpload,
   videoUpload,
   uploadToGCS,
@@ -161,6 +166,50 @@ router.delete('/speakers/:id', requireAdmin, async (req, res) => {
   } catch (err) {
     console.error('Speaker delete error:', err)
     res.status(500).json({ success: false, message: 'Failed to delete speaker' })
+  }
+})
+
+// One un-revoked availability token per speaker. Returns the existing one or
+// lazily creates a new one with far-future expiry — effectively perpetual
+// until rotated.
+router.get('/speakers/:id/availability-link', requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params
+    let token = await getActiveAvailabilityToken(id)
+    if (!token) {
+      const farFuture = new Date()
+      farFuture.setFullYear(farFuture.getFullYear() + 100)
+      token = await createToken({
+        speakerId: id,
+        type: 'availability',
+        expiresAt: farFuture.toISOString(),
+      })
+    }
+    res.json({ success: true, token: token.token, createdAt: token.created_at })
+  } catch (err) {
+    console.error('availability-link error:', err)
+    res.status(500).json({ success: false, message: 'Failed to fetch link' })
+  }
+})
+
+router.post('/speakers/:id/availability-link/rotate', requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params
+    const current = await getActiveAvailabilityToken(id)
+    if (current) {
+      await revokeToken(current.token)
+    }
+    const farFuture = new Date()
+    farFuture.setFullYear(farFuture.getFullYear() + 100)
+    const token = await createToken({
+      speakerId: id,
+      type: 'availability',
+      expiresAt: farFuture.toISOString(),
+    })
+    res.json({ success: true, token: token.token, createdAt: token.created_at })
+  } catch (err) {
+    console.error('rotate availability-link error:', err)
+    res.status(500).json({ success: false, message: 'Failed to rotate link' })
   }
 })
 
