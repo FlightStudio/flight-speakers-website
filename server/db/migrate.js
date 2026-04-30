@@ -143,6 +143,29 @@ async function applyMigrations() {
   await pool.query(`
     ALTER TABLE speaker_tokens ADD COLUMN IF NOT EXISTS prefill_data JSONB;
   `)
+
+  // Speaker self-service availability — one row per blocked day.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS speaker_blocked_dates (
+      speaker_id TEXT NOT NULL REFERENCES speakers(id) ON DELETE CASCADE,
+      blocked_date DATE NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (speaker_id, blocked_date)
+    );
+    CREATE INDEX IF NOT EXISTS idx_speaker_blocked_dates_speaker
+      ON speaker_blocked_dates(speaker_id);
+    CREATE INDEX IF NOT EXISTS idx_speaker_blocked_dates_date
+      ON speaker_blocked_dates(blocked_date);
+  `)
+
+  // 'availability' token type for long-lived self-service links + revoked_at
+  // column so we can rotate without losing the row.
+  await pool.query(`
+    ALTER TABLE speaker_tokens DROP CONSTRAINT IF EXISTS speaker_tokens_type_check;
+    ALTER TABLE speaker_tokens ADD CONSTRAINT speaker_tokens_type_check
+      CHECK (type IN ('new', 'update', 'availability'));
+    ALTER TABLE speaker_tokens ADD COLUMN IF NOT EXISTS revoked_at TIMESTAMPTZ;
+  `)
 }
 
 // Retry with backoff. Cloud SQL on Cloud Run can take >5s to accept the
