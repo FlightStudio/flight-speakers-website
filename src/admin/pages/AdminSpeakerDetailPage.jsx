@@ -18,6 +18,10 @@ export default function AdminSpeakerDetailPage() {
   const [inviteLink, setInviteLink] = useState('')
   const [inviteLoading, setInviteLoading] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [availLink, setAvailLink] = useState('')
+  const [availCopied, setAvailCopied] = useState(false)
+  const [availRotating, setAvailRotating] = useState(false)
+  const [rotateConfirm, setRotateConfirm] = useState(false)
   const [photoUploading, setPhotoUploading] = useState(false)
   const [photoDragOver, setPhotoDragOver] = useState(false)
   const photoInputRef = useRef(null)
@@ -99,6 +103,39 @@ export default function AdminSpeakerDetailPage() {
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }, [inviteLink])
+
+  // Speaker availability link — long-lived, rotatable.
+  useEffect(() => {
+    fetch(`/api/admin/speakers/${id}/availability-link`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          setAvailLink(`${window.location.origin}/speaker-availability#${data.token}`)
+        }
+      })
+      .catch(() => { /* silent — panel just won't render */ })
+  }, [id])
+
+  const handleCopyAvailLink = useCallback(() => {
+    navigator.clipboard.writeText(availLink)
+    setAvailCopied(true)
+    setTimeout(() => setAvailCopied(false), 2000)
+  }, [availLink])
+
+  const handleRotateAvailLink = useCallback(async () => {
+    setAvailRotating(true)
+    try {
+      const res = await fetch(`/api/admin/speakers/${id}/availability-link/rotate`, {
+        method: 'POST',
+      })
+      const data = await res.json()
+      if (data.success) {
+        setAvailLink(`${window.location.origin}/speaker-availability#${data.token}`)
+      }
+    } catch { /* ignore */ }
+    setAvailRotating(false)
+    setRotateConfirm(false)
+  }, [id])
 
   const handlePhotoUpload = useCallback(async (file) => {
     if (!file || !file.type.startsWith('image/')) return
@@ -280,6 +317,46 @@ export default function AdminSpeakerDetailPage() {
                 <button className="speaker-detail__invite-copy" onClick={handleCopyLink}>
                   {copied ? 'Copied!' : 'Copy'}
                 </button>
+              </div>
+            )}
+            {availLink && (
+              <div className="speaker-detail__invite-link" style={{ marginTop: '0.5rem' }}>
+                <input
+                  className="speaker-detail__invite-input"
+                  value={availLink}
+                  readOnly
+                  onClick={e => e.target.select()}
+                  title="Speaker availability link — share with the speaker so they can mark blocked dates."
+                />
+                <button className="speaker-detail__invite-copy" onClick={handleCopyAvailLink}>
+                  {availCopied ? 'Copied!' : 'Copy availability link'}
+                </button>
+                {rotateConfirm ? (
+                  <>
+                    <button
+                      className="speaker-detail__invite-copy"
+                      style={{ background: '#7f1d1d', color: '#fff' }}
+                      onClick={handleRotateAvailLink}
+                      disabled={availRotating}
+                    >
+                      {availRotating ? 'Rotating…' : 'Confirm rotate'}
+                    </button>
+                    <button
+                      className="speaker-detail__invite-copy"
+                      onClick={() => setRotateConfirm(false)}
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    className="speaker-detail__invite-copy"
+                    onClick={() => setRotateConfirm(true)}
+                    title="Invalidate the existing availability link and create a new one"
+                  >
+                    Rotate
+                  </button>
+                )}
               </div>
             )}
           </div>
