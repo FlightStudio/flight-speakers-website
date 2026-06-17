@@ -7,12 +7,24 @@ import { placeholders } from './examples';
 
 import ellipsePink from '../../../../assets/ellipse-pink.png';
 import ellipseBlue from '../../../../assets/ellipse-blue.png';
-import searchIcon from '../../../../assets/search.png';
+import cursorLight from '../../../../assets/cursor-light-purple.png';
+import star from '../../../../assets/star.png';
 
 function SearchBar() {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [isFocused, setIsFocused] = useState(false);
   const [typingText, setTypingText] = useState('')
+
+  const SPARKS = [
+    { x: 7,  y: 52, s: 2, d: 5.0, delay: 0 },
+    { x: 12, y: 45, s: 3, d: 6.2, delay: 0.6 },
+    { x: 17, y: 58, s: 1, d: 7.4, delay: 1.1 },
+    { x: 21, y: 42, s: 2, d: 4.8, delay: 0.3 },
+    { x: 29, y: 53, s: 4, d: 4.0, delay: 0.9 },
+    { x: 34, y: 37, s: 3, d: 5.6, delay: 1.4 },
+    { x: 40, y: 58, s: 2, d: 8.0, delay: 0.5 },
+    { x: 45, y: 53, s: 3, d: 5.2, delay: 0.8 },
+  ];
 
 	useEffect(() => {
 		if (searchQuery || isFocused) return
@@ -62,12 +74,8 @@ function SearchBar() {
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.6, delay: 0.7 }}
 		>
-      <img src={ellipseBlue} alt="spotlight-blue" className="hearo-search__spotlight left" />
+      <img src={ellipseBlue} alt="spotlight-blue" className="hero-search__spotlight left hide-mobile" />
 			<div className={`hero-search__container ${isFocused ? 'hero-search__container--focused' : ''}`}>
-				<div className="hero-search__icon">
-          <img src={searchIcon} alt="search-icon" />
-				</div>
-
 				<div className="hero-search__input-wrapper">
 					<input
 						// ref={inputRef}
@@ -80,9 +88,62 @@ function SearchBar() {
 						placeholder=""
 					/>
 					{!searchQuery && (
-						<span className="hero-search__placeholder">
-							{isFocused ? 'Describe your event and ideal speaker...' : typingText}
-							{!isFocused && <span className="hero-search__cursor">|</span>}
+						<span className="hero-search__placeholder" style={{
+              overflow: 'visible'
+            }}>
+              <span style={{ opacity: '0.5' }}>{ isFocused
+                ? "Describe your event and ideal speaker..."
+                : typingText
+              }</span>
+							{ !isFocused && (
+                <span className="hero-search__caret" style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  verticalAlign: 'middle'
+                }}>
+                  <span className="hero-search__cursor">|</span>
+                  <span style={{ position: 'relative', display: 'inline-flex' }}>
+                    <img
+                      className="cursor-light"
+                      src={cursorLight}
+                      alt=""
+                      style={{ height: '4em', width: 'auto', transform: 'translateX(-2px)' }}
+                    />
+
+                    <ul className="sparks" style={{
+                      position: 'absolute',
+                      inset: '-30px -15px -30px 0px',
+                      margin: 0,
+                      padding: 0,
+                      listStyle: 'none',
+                      pointerEvents: 'none',
+                    }}>
+                      {SPARKS.map((p, i) => (
+                        <li key={i} style={{
+                          position: 'absolute',
+                          left: `${p.x}%`,
+                          top: `${p.y}%`,
+                          transform: 'translate(-50%, -50%)',
+                          // opacity: '0.1'
+                        }}>
+                          <span style={{
+                            display: 'block',
+                            width: p.s,
+                            height: p.s,
+                            borderRadius: '50%',
+                            background: 'rgba(255, 240, 226, 0.95)',
+                            boxShadow: `0 0 ${p.s * 1.6}px rgba(255, 220, 196, 0.9)`,
+                            mixBlendMode: 'screen',
+                            // opacity: '0.1',
+                            // animation: `twinkle ${p.d}s ease-in-out ${p.delay}s infinite alternate`,
+                            animation: `twinkle ${p.d}s ease-in-out ${p.delay}s infinite alternate backwards`,
+                          }} />
+                        </li>
+                      ))}
+                    </ul>
+                  </span>
+                </span>
+              )}
 						</span>
 					)}
 				</div>
@@ -100,7 +161,7 @@ function SearchBar() {
 					</svg>
 				</motion.button>
 			</div>
-      <img src={ellipsePink} alt="spotlight-pink" className="hearo-search__spotlight right" />
+      <img src={ellipsePink} alt="spotlight-pink" className="hero-search__spotlight right hide-mobile" />
 		</motion.form>
 	);
 }

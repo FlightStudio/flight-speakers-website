@@ -5,7 +5,7 @@
   position: relative;
 }
 
-.hearo-search__spotlight {
+.hero-search__spotlight {
   position: absolute;
   transform: translateY(-50%);
   top: 50%;
@@ -13,10 +13,10 @@
   z-index: 1;
   pointer-events: none;
 }
-.hearo-search__spotlight.left {
+.hero-search__spotlight.left {
   left: 0%;
 }
-.hearo-search__spotlight.right {
+.hero-search__spotlight.right {
   right: 0%;
 }
 
@@ -24,7 +24,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 6px 8px 12px;
+  padding: 8px 6px 8px 16px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -50,14 +50,6 @@
   box-shadow:
     0 8px 40px rgba(0, 0, 0, 0.08),
     0 0 0 4px rgba(26, 26, 26, 0.04);
-}
-
-.hero-search__icon {
-  height: 20px;
-  width: 20px;
-  position: relative;
-  flex-shrink: 0;
-  filter: invert(var(--invert));
 }
 
 .hero-search__input-wrapper {
@@ -91,9 +83,35 @@
   animation: blink 1s ease-in-out infinite;
 }
 
+[data-theme="light"] .hero-search__caret img.cursor-light {
+  opacity: 0.4;
+}
+
 @keyframes blink {
   0%, 50% { opacity: 1; }
   51%, 100% { opacity: 0; }
+}
+
+@keyframes twinkle {
+  from {
+    opacity: 0.1;
+    transform: translateY(3px) scale(0.7);
+  }
+  to {
+    opacity: 0.3;
+    transform: translateY(-3px) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-caret__bloom,
+  .glow-caret .spark {
+    animation: none;
+  }
+  .caret-field.is-focused
+  .glow-caret__bar {
+    animation: none; opacity: 1;
+  }
 }
 
 .hero-search__button {
