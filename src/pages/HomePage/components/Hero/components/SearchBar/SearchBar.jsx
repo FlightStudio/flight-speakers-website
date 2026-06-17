@@ -5,10 +5,10 @@ import { motion } from 'framer-motion';
 
 import { placeholders } from './examples';
 
-import ellipsePink from '../../../../assets/ellipse-pink.png';
-import ellipseBlue from '../../../../assets/ellipse-blue.png';
-import cursorLight from '../../../../assets/cursor-light-purple.png';
-import star from '../../../../assets/star.png';
+import ellipsePink from '../../../../../../assets/ellipse-pink.png';
+import ellipseBlue from '../../../../../../assets/ellipse-blue.png';
+import cursorLight from '../../../../../../assets/cursor-light-purple.png';
+import star from '../../../../../../assets/star.png';
 
 function SearchBar() {
 	const [searchQuery, setSearchQuery] = useState('');
@@ -93,7 +93,7 @@ function SearchBar() {
               overflow: 'visible'
             }}>
               <span
-                className={isFocused && "hide-mobile"}
+                className={isFocused ? "hide-mobile" : ""}
                 style={{ opacity: '0.5' }}
               >{ isFocused
                 ? "Describe your event and ideal speaker..."
