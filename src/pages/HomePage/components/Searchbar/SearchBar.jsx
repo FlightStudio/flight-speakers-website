@@ -7,6 +7,7 @@ import { placeholders } from './examples';
 
 import ellipsePink from '../../../../assets/ellipse-pink.png';
 import ellipseBlue from '../../../../assets/ellipse-blue.png';
+import searchIcon from '../../../../assets/search.png';
 
 function SearchBar() {
 	const [searchQuery, setSearchQuery] = useState('');
@@ -64,10 +65,7 @@ function SearchBar() {
       <img src={ellipseBlue} alt="spotlight-blue" className="hearo-search__spotlight left" />
 			<div className={`hero-search__container ${isFocused ? 'hero-search__container--focused' : ''}`}>
 				<div className="hero-search__icon">
-					<svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-						<circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1.5"/>
-						<path d="M18 18L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-					</svg>
+          <img src={searchIcon} alt="search-icon" />
 				</div>
 
 				<div className="hero-search__input-wrapper">

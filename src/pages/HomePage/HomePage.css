@@ -1396,10 +1396,6 @@
   color: #ffffff;
 }
 
-[data-theme="dark"] .hero-search__icon {
-  color: #808080;
-}
-
 [data-theme="dark"] .hero-search__container {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.1);
