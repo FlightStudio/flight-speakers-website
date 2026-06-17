@@ -5,6 +5,9 @@ import { motion } from 'framer-motion';
 
 import { placeholders } from './examples';
 
+import ellipsePink from '../../../../assets/ellipse-pink.png';
+import ellipseBlue from '../../../../assets/ellipse-blue.png';
+
 function SearchBar() {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [isFocused, setIsFocused] = useState(false);
@@ -58,6 +61,7 @@ function SearchBar() {
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.6, delay: 0.7 }}
 		>
+      <img src={ellipseBlue} alt="spotlight-blue" className="hearo-search__spotlight left" />
 			<div className={`hero-search__container ${isFocused ? 'hero-search__container--focused' : ''}`}>
 				<div className="hero-search__icon">
 					<svg width="22" height="22" viewBox="0 0 22 22" fill="none">
@@ -98,6 +102,7 @@ function SearchBar() {
 					</svg>
 				</motion.button>
 			</div>
+      <img src={ellipsePink} alt="spotlight-pink" className="hearo-search__spotlight right" />
 		</motion.form>
 	);
 }
