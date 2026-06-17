@@ -101,13 +101,13 @@
 .nav-right {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-1);
 }
 
 .nav-right img {
   height: 100%;
   transition: transform var(--duration-base) var(--ease-out-expo);
-  filter: invert(var(--invert));
+  filter: invert(var(--reverse-invert));
 }
 .nav-right:has(button.book-speaker:hover) img {
   transform: scale(1.02);
@@ -147,7 +147,7 @@
   -webkit-mask-composite: xor;
           mask-composite: exclude;
   pointer-events: none;
-  filter: invert(var(--invert));
+  filter: invert(var(--reverse-invert));
 }
 
 .header--search.header--minimal .nav-center,

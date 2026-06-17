@@ -1,7 +1,7 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import Layout from './components/layout/Layout'
-import HomePage from './pages/HomePage'
+import HomePage from './pages/HomePage/HomePage'
 import SpeakerDetailPage from './pages/SpeakerDetailPage'
 import SearchResultsPage from './pages/SearchResultsPage'
 import EnquiryPage from './pages/EnquiryPage'
