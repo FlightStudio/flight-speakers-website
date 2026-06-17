@@ -8,6 +8,9 @@ import { EASE } from '../../../../constants/animation'
 
 import SearchBar from './components/SearchBar/SearchBar'
 
+import heroBgTop from '../../../../assets/hero-bg-top.png';
+import heroBgBottom from '../../../../assets/hero-bg-bottom.png';
+
 // Animated text reveal
 function RevealText({ children, delay = 0 }) {
   const ref = useRef(null)
@@ -29,7 +32,6 @@ function RevealText({ children, delay = 0 }) {
 function Hero() {
   const heroRef = useRef(null)
 
-
   // Parallax scrolling
   const { scrollYProgress } = useScroll()
   const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -100])
@@ -39,8 +41,11 @@ function Hero() {
 
   return (
     <section className="hero" ref={heroRef}>
+
       <div className="hero__background">
+        <img className="hero__spotlight top" src={heroBgTop} alt="hero-bg-top" />
         <GradientMesh />
+        <img className="hero__spotlight bottom" src={heroBgBottom} alt="hero-bg-bottom" />
       </div>
 
       <motion.div
@@ -53,7 +58,7 @@ function Hero() {
             <span className="hero__title-line">
               <RevealText delay={0.3}>Find the voice that</RevealText>
             </span>
-            <span className="hero__title-line hero__title-emphasis">
+            <span className="hero__title-line">
               <RevealText delay={0.4}>transforms your event</RevealText>
             </span>
           </h1>
@@ -73,7 +78,7 @@ function Hero() {
           <SearchBar />
 
           {/* Example Queries */}
-          <motion.div
+          {/* <motion.div
             className="hero-examples"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -100,7 +105,7 @@ function Hero() {
                 </button>
               ))}
             </div>
-          </motion.div>
+          </motion.div> */}
 
         </div>
       </motion.div>

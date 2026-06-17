@@ -3,6 +3,10 @@
    Inspired by Stripe, igloo.inc
    ================================ */
 
+.main-content {
+  padding-top: 0 !important;
+}
+
 .home-page {
   min-height: 100vh;
   background: var(--color-white);
