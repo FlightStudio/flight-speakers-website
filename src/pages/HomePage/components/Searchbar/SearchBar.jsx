@@ -78,6 +78,7 @@ function SearchBar() {
 			<div className={`hero-search__container ${isFocused ? 'hero-search__container--focused' : ''}`}>
 				<div className="hero-search__input-wrapper">
 					<input
+            id="search"
 						// ref={inputRef}
 						type="text"
 						value={searchQuery}
@@ -88,10 +89,13 @@ function SearchBar() {
 						placeholder=""
 					/>
 					{!searchQuery && (
-						<span className="hero-search__placeholder" style={{
+            <span className="hero-search__placeholder" style={{
               overflow: 'visible'
             }}>
-              <span style={{ opacity: '0.5' }}>{ isFocused
+              <span
+                className={isFocused && "hide-mobile"}
+                style={{ opacity: '0.5' }}
+              >{ isFocused
                 ? "Describe your event and ideal speaker..."
                 : typingText
               }</span>
@@ -152,13 +156,10 @@ function SearchBar() {
 					type="submit"
 					className="hero-search__button"
 					disabled={!searchQuery.trim()}
-					whileHover={{ scale: 1.02 }}
 					whileTap={{ scale: 0.98 }}
 				>
+          <img src={star} alt="star" />
 					<span>Find Speakers</span>
-					<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-						<path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-					</svg>
 				</motion.button>
 			</div>
       <img src={ellipsePink} alt="spotlight-pink" className="hero-search__spotlight right hide-mobile" />
