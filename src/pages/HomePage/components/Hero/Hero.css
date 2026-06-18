@@ -26,6 +26,12 @@
   height: 100vh;
 }
 
+.hero__background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
 .hero__spotlight {
   position: absolute;
   max-height: 50vh;
@@ -35,16 +41,24 @@
   opacity: 0.8;
 }
 .hero__spotlight.top {
-  top: 0
+  top: 0;
+  animation: spotlight-drift-right 20s ease-in-out infinite;
 }
 .hero__spotlight.bottom {
-  bottom: 0
+  bottom: 0;
+  animation: spotlight-drift-left 20s ease-in-out infinite;
 }
 
-.hero__background {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
+@keyframes spotlight-drift-left {
+  0%   { transform: translateX(0); }
+  50%  { transform: translateX(-15%); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes spotlight-drift-right {
+  0%   { transform: translateX(0); }
+  50%  { transform: translateX(15%); }
+  100% { transform: translateX(0); }
 }
 
 .hero__background .gradient-mesh {
