@@ -136,6 +136,7 @@ function SearchResultsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            style={{ margin: "var(--space-8) auto" }}
           >
             {!query && (
               <h1 className="search-hero__title">Find Your Perfect Speaker</h1>
