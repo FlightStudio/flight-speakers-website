@@ -1,6 +1,7 @@
 import './SearchBar.css';
 
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion';
 
 import { placeholders } from './examples';
@@ -11,6 +12,8 @@ import cursorLight from '../../../../../../assets/cursor-light-purple.png';
 import star from '../../../../../../assets/star.png';
 
 function SearchBar() {
+  const navigate = useNavigate()
+
 	const [searchQuery, setSearchQuery] = useState('');
 	const [isFocused, setIsFocused] = useState(false);
   const [typingText, setTypingText] = useState('')
