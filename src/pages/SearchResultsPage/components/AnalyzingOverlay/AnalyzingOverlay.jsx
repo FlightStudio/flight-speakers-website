@@ -4,9 +4,15 @@ import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 import { EASE } from '../../../../constants/animation'
-import { analyzingMessages, analyzingMessagesDelay } from '../../config'
+import { analyzingMessages, analyzingMessagesDelay, ORB_LAYERS } from './config'
+
+import whiteSpotlight from '../../../../assets/orb/white-spotlight.png'
+
+const randomN = (arr, n) => arr.sort(() => Math.random() - 0.5).slice(0, n);
 
 function AnalyzingOverlay({ query }) {
+  const orbs = useMemo(() => randomN(ORB_LAYERS, 3), []);
+
   const [messageIndex, setMessageIndex] = useState(0)
   useEffect(() => {
     const interval = setInterval(() => {
@@ -37,54 +43,48 @@ function AnalyzingOverlay({ query }) {
         transition={{ duration: 0.5, ease: EASE }}
       >
         {/* Analyzing Orb */}
-        <div className="analyzing-orb">
-          <motion.div
-            className="analyzing-orb__ring analyzing-orb__ring--outer"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-          />
-          <motion.div
-            className="analyzing-orb__ring analyzing-orb__ring--inner"
-            animate={{ rotate: -360 }}
-            transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
-          />
-          <motion.div
-            className="analyzing-orb__core"
-            animate={{ scale: [1, 1.15, 1] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-          />
-        </div>
+        <motion.div
+          className="analyzing-orb"
+          aria-hidden="true"
+          style={{ x: "-50%", y: "-50%" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1, scale: [1, 1.5, 1] }}
+          transition={{
+            opacity: { duration: 1, ease: EASE },
+            scale: {
+              type: 'tween',
+              duration: 60,
+              repeat: Infinity,
+              ease: 'easeInOut'
+            },
+          }}
+        >
+          {orbs.map((layer, i) => (
+            <motion.img
+              key={i}
+              alt=""
+              className="analyzing-orb__layer"
+              animate={layer.animate}
+              transition={layer.transition}
+              draggable={false}
+              style={{
+                backgroundColor: layer.color,
+                WebkitMaskImage: `url(${whiteSpotlight})`,
+                maskImage: `url(${whiteSpotlight})`,
+              }}
+            />
+          ))}
+        </motion.div>
 
-        <motion.h2
-          className="analyzing-overlay__title"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5, ease: EASE }}
-        >Analyzing your brief</motion.h2>
-
-        {/* Analyzing messages */}
-        <div className="analyzing-messages">
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={messageIndex}
-              className="analyzing-messages__text"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.4, ease: EASE }}
-            >
-              {analyzingMessages[messageIndex]}
-            </motion.p>
-          </AnimatePresence>
-          <motion.p
-            className="analyzing-messages__query"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-          >
-            "{query}"
-          </motion.p>
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.h2
+            key={messageIndex}
+            className="analyzing-overlay__title"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5, ease: EASE }}
+          >{analyzingMessages[messageIndex]}</motion.h2>
+        </AnimatePresence>
       </motion.div>
     </motion.div>
   );

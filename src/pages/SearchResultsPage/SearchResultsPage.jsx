@@ -16,7 +16,7 @@ function SearchResultsPage() {
   const searchBarRef = useRef(null)
   const query = searchParams.get('q') || ''
 
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [results, setResults] = useState(() => {
     // Restore cached results for this query (back navigation)
     try {

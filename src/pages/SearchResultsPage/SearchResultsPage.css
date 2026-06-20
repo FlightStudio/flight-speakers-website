@@ -319,32 +319,11 @@
   .search-no-results {
     padding: 64px 0;
   }
-
-  .analyzing-orb {
-    width: 80px;
-    height: 80px;
-  }
 }
 
 /* ================================
    Dark Theme Overrides
    ================================ */
-
-[data-theme="dark"] .analyzing-overlay {
-  background: linear-gradient(135deg, #0a0a0a 0%, #111111 40%, #130e0e 70%, #110e14 100%);
-}
-
-[data-theme="dark"] .analyzing-orb__ring--outer {
-  border-right-color: rgba(255, 255, 255, 0.15);
-}
-
-[data-theme="dark"] .analyzing-orb__ring--inner {
-  border-left-color: rgba(255, 255, 255, 0.12);
-}
-
-[data-theme="dark"] .analyzing-orb__core {
-  background: radial-gradient(circle, #ffffff 0%, rgba(255, 255, 255, 0.5) 100%);
-}
 
 /* No gradient on .search-hero in dark mode — the page background already
    provides a consistent dark shade. Mismatched gradient endpoints (dark →
@@ -370,11 +349,6 @@
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .analyzing-orb__ring,
-  .analyzing-orb__core {
-    animation: none !important;
-  }
-
   .search-hero__example {
     transition: none;
   }
