@@ -82,6 +82,7 @@ function AnalyzingOverlay({ query }) {
             className="analyzing-overlay__title"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
             transition={{ delay: 0.2, duration: 0.5, ease: EASE }}
           >{analyzingMessages[messageIndex]}</motion.h2>
         </AnimatePresence>

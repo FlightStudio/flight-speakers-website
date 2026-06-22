@@ -1,5 +1,5 @@
 import express from 'express'
-import { semanticSearch } from '../services/claude.js'
+import { semanticSearch } from '../services/claude/claude.js'
 import { searchSuggest } from '../db/queries.js'
 import pool from '../db/connection.js'
 
@@ -8,7 +8,7 @@ const router = express.Router()
 // Semantic search via Claude
 router.get('/', async (req, res, next) => {
   try {
-    const { q, limit = 8, budget } = req.query
+    const { q, limit = 8, budget } = req.query;
 
     if (!q || !q.trim()) {
       return res.status(400).json({
