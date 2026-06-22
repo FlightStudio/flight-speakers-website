@@ -30,7 +30,6 @@ export const enquirySchema = z.object({
 
   // engagement
   engagementType: z.enum(ENGAGEMENT_TYPES).optional().nullable(),
-  hasBudget: z.enum(HAS_BUDGET_OPTIONS).optional().nullable().or(z.literal('')),
   budgetRange: z.string().max(100).optional().nullable(),
   currency: z.enum(CURRENCY_CODES).optional().nullable(),
   proBonoFlexible: z.boolean().optional(),

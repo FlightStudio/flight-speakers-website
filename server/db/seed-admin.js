@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt'
 import pool from './connection.js'
 
-async function seedAdmin() {
+export async function seedAdmin() {
   const username = 'admin'
   const password = process.env.ADMIN_DEFAULT_PASSWORD
 
@@ -37,5 +37,3 @@ async function seedAdmin() {
     process.exit(1)
   }
 }
-
-seedAdmin()

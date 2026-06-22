@@ -63,7 +63,7 @@ function StepReview({ formData, handleChange, goToStep, primarySpeaker = null, p
           const raw = formData[key]
           const display = format ? format(raw, formData) : raw
           // Skip hidden conditional fields with no value
-          if (!display && (key === 'budgetRange' || key === 'hasBudget')) return null
+          if (!display && key === 'budgetRange') return null
           return (
             <button
               key={key}

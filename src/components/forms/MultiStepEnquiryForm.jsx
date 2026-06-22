@@ -88,9 +88,7 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '', preSelectedSp
 
         if (cancelled) return
         if (data.extracted && Object.keys(data.extracted).length > 0) {
-          // If budget extracted, set hasBudget so the form tree is open
           if (data.extracted.budgetRange || data.extracted.customBudget) {
-            data.extracted.hasBudget = 'Yes'
             if (!data.extracted.engagementType) data.extracted.engagementType = 'Paid'
           }
           // If an exact custom budget was extracted, use it as the budgetRange value
@@ -124,7 +122,6 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '', preSelectedSp
     const prefilled = new Set(Object.keys(extractedData).filter(k => extractedData[k]))
     // Never skip budget step — user must confirm currency and range
     prefilled.delete('engagementType')
-    prefilled.delete('hasBudget')
     prefilled.delete('budgetRange')
     if (prefillBrief) prefilled.add('brief')
     setPrefilledFields(prefilled)
@@ -150,7 +147,6 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '', preSelectedSp
     const prefilled = new Set(Object.keys(extractedData).filter(k => extractedData[k]))
     // Never skip budget step
     prefilled.delete('engagementType')
-    prefilled.delete('hasBudget')
     prefilled.delete('budgetRange')
     if (prefillBrief) prefilled.add('brief')
     // Remove the field being edited so it shows
@@ -396,7 +392,6 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '', preSelectedSp
                 onClick={() => {
                   handleChange({ target: { name: 'engagementType', value: opt } })
                   if (opt === 'Pro Bono') {
-                    handleChange({ target: { name: 'hasBudget', value: '' } })
                     handleChange({ target: { name: 'budgetRange', value: '' } })
                   }
                 }}
@@ -435,74 +430,45 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '', preSelectedSp
               transition={{ duration: 0.3, ease: EASE }}
               className="mstep-tree-level"
             >
-              <div className="mstep-tree-level__label">Do you have a budget in mind?</div>
-              <div className="mstep-budget-toggle mstep-budget-toggle--small">
-                {HAS_BUDGET_OPTIONS.map(opt => (
-                  <button
-                    key={opt}
-                    type="button"
-                    className={`mstep-budget-toggle__btn mstep-budget-toggle__btn--sm ${formData.hasBudget === opt ? 'mstep-budget-toggle__btn--active' : ''}`}
-                    onClick={() => {
-                      handleChange({ target: { name: 'hasBudget', value: opt } })
-                      if (opt === 'No') {
-                        handleChange({ target: { name: 'budgetRange', value: '' } })
-                      }
-                    }}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-
-              {/* Level 3: Budget range (only when Yes) */}
-              {formData.hasBudget === 'Yes' && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  transition={{ duration: 0.3, ease: EASE }}
-                  className="mstep-tree-level"
-                >
-                  <div className="mstep-tree-level__label">What's your budget range?</div>
-                  <div className="mstep-budget-row">
-                    <div className="mstep-budget-row__currency">
-                      <select
-                        name="currency"
-                        value={formData.currency || 'USD'}
-                        onChange={(e) => {
-                          const newCurrency = e.target.value
-                          setFormData(prev => ({
-                            ...prev,
-                            currency: newCurrency,
-                            budgetRange: '',
-                          }))
-                        }}
-                        className="mstep-currency-select"
-                      >
-                        {CURRENCIES.map(c => (
-                          <option key={c.code} value={c.code}>{c.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="mstep-budget-row__range">
-                      <div className="mstep-budget-custom">
-                        <span className="mstep-budget-custom__symbol">{currencySymbol}</span>
-                        <input
-                          type="text"
-                          name="budgetRange"
-                          className="form-input mstep-budget-custom__input"
-                          placeholder=""
-                          value={formData.budgetRange || ''}
-                          onChange={(e) => {
-                            const val = e.target.value.replace(/[^0-9,.\-\s]/g, '')
-                            handleChange({ target: { name: 'budgetRange', value: val } })
-                          }}
-                          autoFocus
-                        />
-                      </div>
-                    </div>
+              <div className="mstep-tree-level__label">What's your budget range?</div>
+                <div className="mstep-budget-row">
+                  <div className="mstep-budget-row__currency">
+                    <select
+                      name="currency"
+                      value={formData.currency || 'USD'}
+                      onChange={(e) => {
+                        const newCurrency = e.target.value
+                        setFormData(prev => ({
+                          ...prev,
+                          currency: newCurrency,
+                          budgetRange: '',
+                        }))
+                      }}
+                      className="mstep-currency-select"
+                    >
+                    {CURRENCIES.map(c => (
+                      <option key={c.code} value={c.code}>{c.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="mstep-budget-row__range">
+                  <div className="mstep-budget-custom">
+                    <span className="mstep-budget-custom__symbol">{currencySymbol}</span>
+                    <input
+                      type="text"
+                      name="budgetRange"
+                      className="form-input mstep-budget-custom__input"
+                      placeholder=""
+                      value={formData.budgetRange || ''}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/[^0-9,.\-\s]/g, '')
+                        handleChange({ target: { name: 'budgetRange', value: val } })
+                      }}
+                      autoFocus
+                    />
                   </div>
-                </motion.div>
-              )}
+                </div>
+              </div>
             </motion.div>
           )}
 

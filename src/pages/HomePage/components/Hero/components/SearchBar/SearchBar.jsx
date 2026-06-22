@@ -97,7 +97,7 @@ function SearchBar() {
             }}>
               <span
                 className={isFocused ? "hide-mobile" : ""}
-                style={{ opacity: '0.5' }}
+                style={{ opacity: '0.8' }}
               >{ isFocused
                 ? "Describe your event and ideal speaker..."
                 : typingText

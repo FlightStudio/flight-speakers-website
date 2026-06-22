@@ -2,7 +2,7 @@ import express from 'express'
 import { requireAdmin } from '../../middleware/auth.js'
 import { getEnquiries, getEnquiryById, updateEnquiry } from '../../db/enquiry-queries.js'
 import { getSpeakerById, getRelatedSpeakers } from '../../db/queries.js'
-import { semanticSearch } from '../../services/claude.js'
+import { semanticSearch } from '../../services/claude/claude.js'
 import { notifyEnquiryResponse } from '../../services/notifications.js'
 import { validate, enquiryUpdateSchema } from '../../schemas/index.js'
 

@@ -78,7 +78,6 @@ describe('enquirySchema', () => {
       eventLocation: 'London, UK',
       audienceSize: '500',
       engagementType: 'Paid',
-      hasBudget: 'Yes',
       budgetRange: '25000-40000',
       currency: 'GBP',
       proBonoFlexible: false,

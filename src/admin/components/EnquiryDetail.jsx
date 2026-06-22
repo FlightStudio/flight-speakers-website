@@ -52,7 +52,6 @@ export default function EnquiryDetail({ enquiry, additionalSpeakers = [] }) {
     { label: 'Event Type', value: enquiry.event_type },
     { label: 'Engagement Type', value: enquiry.engagement_type },
     { label: 'Currency', value: enquiry.currency },
-    { label: 'Has Budget', value: enquiry.has_budget },
     { label: 'Pro Bono Flexible', value: enquiry.pro_bono_flexible ? 'Yes' : null },
     { label: 'Newsletter', value: enquiry.newsletter ? 'Yes' : 'No' },
   ]

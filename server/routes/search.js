@@ -1,5 +1,5 @@
 import express from 'express'
-import { semanticSearch } from '../services/claude.js'
+import { semanticSearch } from '../services/claude/claude.js'
 import { searchSuggest } from '../db/queries.js'
 import pool from '../db/connection.js'
 
@@ -8,27 +8,35 @@ const router = express.Router()
 // Semantic search via Claude
 router.get('/', async (req, res, next) => {
   try {
-    const { q, limit = 8, budget } = req.query
+    const { q, limit = 8, budget } = req.query;
 
+    // query limit [1, 2_000]
     if (!q || !q.trim()) {
       return res.status(400).json({
         success: false,
         message: 'Search query is required',
       })
     }
-
-    if (q.length > 2000) {
+    if (q.length > 2_000) {
       return res.status(400).json({
         success: false,
         message: 'Search query exceeds maximum length',
       })
     }
 
+    // budget limit [0, 100_000_000]
     const parsedBudget = budget ? parseInt(budget, 10) : undefined
-    if (parsedBudget !== undefined && (isNaN(parsedBudget) || parsedBudget < 0 || parsedBudget > 100000000)) {
+    if (
+      parsedBudget !== undefined && (
+        isNaN(parsedBudget) ||
+        parsedBudget < 0 ||
+        parsedBudget > 100_000_000
+      )
+    ) {
       return res.status(400).json({ success: false, message: 'Invalid budget value' })
     }
-
+    
+    // number of speakers limit [1, 50]
     const parsedLimit = Math.min(Math.max(parseInt(limit, 10) || 8, 1), 50)
 
     const results = await semanticSearch(q, parsedLimit, parsedBudget)
@@ -43,7 +51,7 @@ router.get('/', async (req, res, next) => {
     if (results.speakers.length > 0) {
       const values = results.speakers.map((_, i) => `($${i * 2 + 1}, $${i * 2 + 2})`).join(', ')
       const params = results.speakers.flatMap(s => [s.id, q])
-      pool.query(`INSERT INTO speaker_recommendations (speaker_id, query) VALUES ${values}`, params)
+      await pool.query(`INSERT INTO speaker_recommendations (speaker_id, query) VALUES ${values}`, params)
         .catch(err => console.error('Failed to track recommendations:', err.message))
     }
 

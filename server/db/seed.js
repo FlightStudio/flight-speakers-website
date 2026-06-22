@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import pg from 'pg'
 import { speakers } from '../data/speakers.js'
+import {seedAdmin} from './seed-admin.js'
 
 const { Pool } = pg
 
@@ -57,6 +58,8 @@ async function seed() {
 
   const { rows } = await pool.query('SELECT count(*) AS total FROM speakers')
   console.log(`\nDone. ${rows[0].total} speakers in database.`)
+
+  await seedAdmin();
 
   await pool.end()
 }
