@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
 function SpeakerCard({ s }) {
   const bio = s.bio ? s.bio.split('\n\n').slice(0, 2).join('\n\n') : ''
   return (
-    <View style={styles.otherSpeakerCard}>
+    <View style={styles.otherSpeakerCard} wrap={false}>
       <View style={styles.otherSpeakerRow}>
         {s.photo && (
           <Image style={styles.otherPhotoLg} src={s.photo} />
@@ -324,8 +324,10 @@ export default function SpeakerBrief({ speaker, reasoning, matchScore, selectedS
         )}
 
         {/* 1. Primary Speaker */}
-        <Text style={styles.sectionLabel}>{reasoning ? 'AI Recommended Speaker' : 'Recommended Speaker'}</Text>
-        <View style={styles.speakerSection}>
+        <Text style={styles.sectionLabel}>
+          {reasoning ? 'AI Recommended Speaker' : 'Recommended Speaker'}
+        </Text>
+        <View style={styles.speakerSection} wrap={false}>
           <View style={styles.speakerRow}>
             {speaker.photo && (
               <Image style={styles.speakerPhoto} src={speaker.photo} />

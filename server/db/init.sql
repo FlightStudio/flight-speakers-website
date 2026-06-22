@@ -78,7 +78,6 @@ CREATE INDEX IF NOT EXISTS idx_speaker_views_viewed_at ON speaker_views(viewed_a
 ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS additional_speaker_ids TEXT[] DEFAULT '{}';
 ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS currency TEXT;
 ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS engagement_type TEXT;
-ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS has_budget TEXT;
 
 -- Pro bono flexible flag
 ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS pro_bono_flexible BOOLEAN DEFAULT false;

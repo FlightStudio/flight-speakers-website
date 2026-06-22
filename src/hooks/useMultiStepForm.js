@@ -159,7 +159,6 @@ const INITIAL_FORM_DATA = {
   eventLocation: '',
   audienceSize: '',
   engagementType: '',
-  hasBudget: '',
   budgetRange: '',
   currency: 'USD',
   eventType: '',
@@ -194,8 +193,10 @@ function validateField(field, value, formData) {
     case 'engagementType':
       if (!value.trim()) return 'Please select paid or pro bono'
       if (value === 'Paid' && formData) {
-        if (!formData.hasBudget?.trim()) return 'Please select whether you have a budget'
-        if (formData.hasBudget === 'Yes' && !formData.budgetRange?.trim()) {
+        if (
+          !formData.budgetRange?.trim() ||
+          formData.budgetRange?.trim()[0] === "0"
+        ) {
           return 'Please select or enter a budget range'
         }
       }

@@ -1,6 +1,7 @@
 import pool from './connection.js'
 import { createSpeaker, updateSpeaker, getSpeakerById, updateSpeakerEmbedding } from './queries.js'
-import { generateEmbeddings, buildSpeakerText } from '../services/embeddings.js'
+import { generateEmbeddings } from '../services/voyage/index.js'
+import { buildSpeakerText } from '../services/voyage/buildSpeakerText.js'
 
 export async function createDraft({ speakerId, type, data, submittedBy = 'admin' }) {
   const { rows } = await pool.query(

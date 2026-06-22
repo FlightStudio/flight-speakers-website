@@ -10,7 +10,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "server": "node --env-file=.env server/index.js",
+    "server": "node --watch --env-file=.env server/index.js",
     "dev:all": "concurrently \"npm run dev\" \"npm run server\"",
     "db:start": "docker compose up -d",
     "db:stop": "docker compose down",
