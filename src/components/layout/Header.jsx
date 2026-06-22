@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { EASE } from '../../constants/animation'
 import './Header.css'
+import ellipse from '../../assets/header-ellipse.png';
 
 function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -85,16 +86,16 @@ function Header() {
             </div>
 
             <div className="nav-right">
+              <img src={ellipse} alt="" className="hide-mobile" style={{
+                position:'absolute'
+              }} />
               <motion.button
-                className="btn btn-primary nav-cta hide-mobile"
+                className="btn hide-mobile book-speaker"
                 onClick={() => navigate('/book')}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
                 Book a Speaker
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M1 7H13M13 7L7 1M13 7L7 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
               </motion.button>
 
               <motion.button

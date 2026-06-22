@@ -10,95 +10,6 @@
 }
 
 /* ================================
-   Full-Screen Analyzing Overlay
-   ================================ */
-
-.analyzing-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #faf8f2 0%, #f5efe6 40%, #f8ebe8 70%, #f0e8f4 100%);
-}
-
-.analyzing-overlay__content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 0 var(--space-6);
-}
-
-.analyzing-overlay__title {
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
-  font-weight: 600;
-  color: var(--color-charcoal);
-  letter-spacing: -0.03em;
-  margin-bottom: var(--space-4);
-}
-
-/* Animated orb */
-.analyzing-orb {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  margin-bottom: var(--space-8);
-}
-
-.analyzing-orb__ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 2px solid transparent;
-}
-
-.analyzing-orb__ring--outer {
-  border-top-color: var(--color-charcoal);
-  border-right-color: rgba(26, 26, 26, 0.2);
-}
-
-.analyzing-orb__ring--inner {
-  inset: 14px;
-  border-bottom-color: var(--color-charcoal);
-  border-left-color: rgba(26, 26, 26, 0.15);
-}
-
-.analyzing-orb__core {
-  position: absolute;
-  inset: 30px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--color-charcoal) 0%, rgba(26, 26, 26, 0.6) 100%);
-}
-
-/* Cycling messages */
-.analyzing-messages {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-4);
-  min-height: 80px;
-}
-
-.analyzing-messages__text {
-  font-size: var(--text-base);
-  font-weight: 500;
-  color: var(--color-gray-600);
-  letter-spacing: -0.01em;
-}
-
-.analyzing-messages__query {
-  font-size: var(--text-sm);
-  color: var(--color-gray-400);
-  font-style: italic;
-  max-width: 400px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* ================================
    Search Hero
    ================================ */
 
@@ -408,32 +319,11 @@
   .search-no-results {
     padding: 64px 0;
   }
-
-  .analyzing-orb {
-    width: 80px;
-    height: 80px;
-  }
 }
 
 /* ================================
    Dark Theme Overrides
    ================================ */
-
-[data-theme="dark"] .analyzing-overlay {
-  background: linear-gradient(135deg, #0a0a0a 0%, #111111 40%, #130e0e 70%, #110e14 100%);
-}
-
-[data-theme="dark"] .analyzing-orb__ring--outer {
-  border-right-color: rgba(255, 255, 255, 0.15);
-}
-
-[data-theme="dark"] .analyzing-orb__ring--inner {
-  border-left-color: rgba(255, 255, 255, 0.12);
-}
-
-[data-theme="dark"] .analyzing-orb__core {
-  background: radial-gradient(circle, #ffffff 0%, rgba(255, 255, 255, 0.5) 100%);
-}
 
 /* No gradient on .search-hero in dark mode — the page background already
    provides a consistent dark shade. Mismatched gradient endpoints (dark →
@@ -459,11 +349,6 @@
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .analyzing-orb__ring,
-  .analyzing-orb__core {
-    animation: none !important;
-  }
-
   .search-hero__example {
     transition: none;
   }

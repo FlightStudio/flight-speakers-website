@@ -101,45 +101,53 @@
 .nav-right {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-1);
 }
 
-.nav-cta {
-  z-index: 1001;
-  display: flex;
+.nav-right img {
+  height: 100%;
+  transition: transform var(--duration-base) var(--ease-out-expo);
+  filter: invert(var(--reverse-invert));
+}
+.nav-right:has(button.book-speaker:hover) img {
+  transform: scale(1.02);
+}
+
+.nav-right .book-speaker {
+  position: relative;
+  display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: 10px 20px;
-  background: var(--color-charcoal);
-  color: var(--color-white);
-  border-radius: var(--radius-full);
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  justify-content: center;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-black);
+  font-weight: 600;
+  cursor: pointer;
+  isolation: isolate;
 }
 
-.nav-cta:hover {
-  background: var(--color-black);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.nav-cta svg {
-  transition: transform 0.2s ease;
-}
-
-.nav-cta:hover svg {
-  transform: translateX(2px);
-}
-
-/* Search page header — CTA always hidden, nav hides on scroll */
-.header--search .nav-cta {
-  opacity: 0;
+.nav-right .book-speaker::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.05) 35%,
+    rgba(255, 255, 255, 0) 60%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
   pointer-events: none;
-  width: 0;
-  padding: 0;
-  overflow: hidden;
+  filter: invert(var(--reverse-invert));
 }
 
 .header--search.header--minimal .nav-center,
@@ -157,7 +165,6 @@
 }
 
 .header .nav-center,
-.header .nav-cta,
 .header .mobile-menu-toggle,
 .header .logo-text {
   transition: opacity 0.3s ease;

@@ -5,6 +5,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;450;500;600;700;800&display=swap');
 
 :root {
+  --invert: 0;
+  --reverse-invert: 1;
+
   /* ================================
      CORE PALETTE - Clean & Premium
      White/Black with warm accents
@@ -180,6 +183,10 @@
    ================================ */
 
 [data-theme="dark"] {
+  --invert: 1;
+  --reverse-invert: 0;
+
+
   --color-white: #0a0a0a;
   --color-off-white: #111111;
   --color-cream: #161616;
@@ -287,7 +294,6 @@
 [data-theme] .card,
 [data-theme] .glass-card,
 [data-theme] .section,
-[data-theme] .nav-cta,
 [data-theme] .tag,
 [data-theme] .section-label,
 [data-theme] h1, [data-theme] h2, [data-theme] h3,

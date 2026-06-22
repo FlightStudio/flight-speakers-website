@@ -1,13 +1,13 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView } from 'framer-motion'
+import { motion, AnimatePresence, useInView } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
-import SpeakerCard from '../components/speakers/SpeakerCard'
-import GradientMesh from '../components/effects/GradientMesh'
-import { useSmoothScroll } from '../hooks/useSmoothScroll'
-import { useMagneticEffect } from '../hooks/useMagneticEffect'
-import { EASE } from '../constants/animation'
-import { sessionShuffle } from '../utils/shuffle'
+import SpeakerCard from '../../components/speakers/SpeakerCard'
+import { useSmoothScroll } from '../../hooks/useSmoothScroll'
+import { useMagneticEffect } from '../../hooks/useMagneticEffect'
+import { EASE } from '../../constants/animation'
+import { sessionShuffle } from '../../utils/shuffle'
 import './HomePage.css'
+import Hero from './components/Hero/Hero'
 
 // Magnetic button wrapper
 function MagneticButton({ children, className, ...props }) {
@@ -93,24 +93,6 @@ function CtaSpeakerPreview({ speakers, isHovered }) {
         )
       })}
     </div>
-  )
-}
-
-// Animated text reveal
-function RevealText({ children, delay = 0 }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-100px' })
-
-  return (
-    <span ref={ref} className="reveal-text">
-      <motion.span
-        initial={{ y: '100%' }}
-        animate={isInView ? { y: 0 } : { y: '100%' }}
-        transition={{ duration: 0.8, delay, ease: EASE }}
-      >
-        {children}
-      </motion.span>
-    </span>
   )
 }
 
@@ -591,7 +573,6 @@ function SocialProofBar() {
   )
 }
 
-
 function CtaSection({ speakers }) {
   const navigate = useNavigate()
   const [browseHovered, setBrowseHovered] = useState(false)
@@ -665,19 +646,10 @@ function HomePage() {
   useSmoothScroll()
 
   const navigate = useNavigate()
-  const [searchQuery, setSearchQuery] = useState('')
-  const [isFocused, setIsFocused] = useState(false)
-  const [typingText, setTypingText] = useState('')
   const [activeFilter, setActiveFilter] = useState('all')
   const [hoveredStep, setHoveredStep] = useState(null)
   const inputRef = useRef(null)
-  const heroRef = useRef(null)
 
-  // Parallax scrolling
-  const { scrollYProgress } = useScroll()
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0])
-  const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -100])
-  const springY = useSpring(heroY, { stiffness: 100, damping: 30 })
 
   const [speakers, setSpeakers] = useState([])
 
@@ -701,174 +673,12 @@ function HomePage() {
     )
   }, [speakers, activeFilter])
 
-  // Typing animation for placeholder
-  const placeholders = [
-    "I need a leadership speaker for 500 executives...",
-    "Inspirational women in business for our conference...",
-    "High-energy performance speaker for sales kickoff...",
-    "Wellness and resilience expert for corporate retreat...",
-  ]
-
-  useEffect(() => {
-    if (searchQuery || isFocused) return
-
-    let currentIndex = 0
-    let currentChar = 0
-    let isDeleting = false
-    let timeout
-
-    const type = () => {
-      const currentText = placeholders[currentIndex]
-
-      if (!isDeleting) {
-        setTypingText(currentText.slice(0, currentChar + 1))
-        currentChar++
-        if (currentChar === currentText.length) {
-          timeout = setTimeout(() => { isDeleting = true; type() }, 2000)
-          return
-        }
-      } else {
-        setTypingText(currentText.slice(0, currentChar))
-        currentChar--
-        if (currentChar === 0) {
-          isDeleting = false
-          currentIndex = (currentIndex + 1) % placeholders.length
-        }
-      }
-      timeout = setTimeout(type, isDeleting ? 20 : 40)
-    }
-
-    timeout = setTimeout(type, 1000)
-    return () => clearTimeout(timeout)
-  }, [searchQuery, isFocused])
-
-  const handleSearch = (e) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`)
-    }
-  }
-
   return (
     <div className="home-page">
       <CursorGlow />
       <FloatingParticles />
 
-      {/* ========== HERO ========== */}
-      <section className="hero" ref={heroRef}>
-        <div className="hero__background">
-          <GradientMesh />
-        </div>
-
-        <motion.div
-          className="hero__content"
-          style={{ opacity: heroOpacity, y: springY }}
-        >
-          <div className="container">
-            {/* Title with reveal animation */}
-            <h1 className="hero__title">
-              <span className="hero__title-line">
-                <RevealText delay={0.3}>Find the voice that</RevealText>
-              </span>
-              <span className="hero__title-line hero__title-emphasis">
-                <RevealText delay={0.4}>transforms your event</RevealText>
-              </span>
-            </h1>
-
-            {/* Subtitle */}
-            <motion.p
-              className="hero__subtitle"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-            >
-              Describe your event in natural language. Our AI matches you with
-              world-class speakers who will captivate your audience.
-            </motion.p>
-
-            {/* Search Bar */}
-            <motion.form
-              className="hero-search"
-              onSubmit={handleSearch}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.7 }}
-            >
-              <div className={`hero-search__container ${isFocused ? 'hero-search__container--focused' : ''}`}>
-                <div className="hero-search__icon">
-                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                    <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1.5"/>
-                    <path d="M18 18L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                  </svg>
-                </div>
-
-                <div className="hero-search__input-wrapper">
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => setIsFocused(false)}
-                    className="hero-search__input"
-                    placeholder=""
-                  />
-                  {!searchQuery && (
-                    <span className="hero-search__placeholder">
-                      {isFocused ? 'Describe your event and ideal speaker...' : typingText}
-                      {!isFocused && <span className="hero-search__cursor">|</span>}
-                    </span>
-                  )}
-                </div>
-
-                <motion.button
-                  type="submit"
-                  className="hero-search__button"
-                  disabled={!searchQuery.trim()}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <span>Find Speakers</span>
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </motion.button>
-              </div>
-            </motion.form>
-
-            {/* Example Queries */}
-            <motion.div
-              className="hero-examples"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.9 }}
-            >
-              <span className="hero-examples__label">Try an example:</span>
-              <div className="hero-examples__list">
-                {[
-                  'Women in business conference for 500 attendees',
-                  'Leadership keynote for executive summit',
-                  'Motivational speaker for sales kickoff',
-                  'Corporate wellness retreat for executives'
-                ].map((example, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    className="hero-examples__item"
-                    onClick={() => {
-                      setSearchQuery(example)
-                      inputRef.current?.focus()
-                    }}
-                  >
-                    {example}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-
-          </div>
-        </motion.div>
-      </section>
+      <Hero />
 
       {/* ========== HOW IT WORKS — Pipeline in window ========== */}
       <section className="section ai-demo-section">
