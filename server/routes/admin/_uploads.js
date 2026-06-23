@@ -3,7 +3,7 @@
 import multer from 'multer'
 import { Storage } from '@google-cloud/storage'
 
-const GCS_BUCKET = process.env.GCS_BUCKET || 'flight-speakers-photos'
+const GCS_BUCKET = process.env.GCS_BUCKET || 'steven-warehouse-dev-flight-speakers-photos'
 const bucket = new Storage().bucket(GCS_BUCKET)
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024     // 5 MB

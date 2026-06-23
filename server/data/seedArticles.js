@@ -11,7 +11,7 @@ export const SEED_ARTICLES = [
     date: '2026-04-22',
     read_time: 10,
     excerpt: 'From entrepreneurial voices to behavioural scientists, these are the keynote speakers most consistently booked across UK corporate events in 2026.',
-    image: 'https://storage.googleapis.com/flight-speakers-photos/speakers/steven-bartlett.webp',
+    image: 'https://storage.googleapis.com/steven-warehouse-dev-flight-speakers-photos/speakers/steven-bartlett.webp',
     tile_c1: '#0F172A',
     tile_c2: '#1E3A5F',
     body: [
@@ -89,7 +89,7 @@ export const SEED_ARTICLES = [
     date: '2026-04-08',
     read_time: 9,
     excerpt: 'A guide to the most consistently booked inspirational keynote speakers for corporate events in 2026, and the audiences they connect with most strongly.',
-    image: 'https://storage.googleapis.com/flight-speakers-photos/speakers/davina-mccall.webp',
+    image: 'https://storage.googleapis.com/steven-warehouse-dev-flight-speakers-photos/speakers/davina-mccall.webp',
     tile_c1: '#1A1A1A',
     tile_c2: '#0F172A',
     body: [
@@ -122,7 +122,7 @@ export const SEED_ARTICLES = [
     date: '2026-03-22',
     read_time: 9,
     excerpt: 'The share of female keynote speakers at corporate events climbed past 40% in 2026 across both UK and US markets. These are the names most consistently booked.',
-    image: 'https://storage.googleapis.com/flight-speakers-photos/speakers/vanessa-van-edwards.webp',
+    image: 'https://storage.googleapis.com/steven-warehouse-dev-flight-speakers-photos/speakers/vanessa-van-edwards.webp',
     tile_c1: '#1A1A1A',
     tile_c2: '#3D1419',
     body: [
@@ -159,7 +159,7 @@ export const SEED_ARTICLES = [
     date: '2026-03-08',
     read_time: 9,
     excerpt: 'AI is the most-asked-for keynote topic at UK and US corporate events in 2026. These are the speakers actually being booked, and what they tell boards about deployment, productivity and risk.',
-    image: 'https://storage.googleapis.com/flight-speakers-photos/speakers/kristen-holmes.webp',
+    image: 'https://storage.googleapis.com/steven-warehouse-dev-flight-speakers-photos/speakers/kristen-holmes.webp',
     tile_c1: '#1E40AF',
     tile_c2: '#0B2554',
     body: [

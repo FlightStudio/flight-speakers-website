@@ -1,5 +1,6 @@
 import { getSpeakerProfilesForSearch, updateSpeakerEmbedding } from './queries.js'
-import { buildSpeakerText, generateEmbeddings } from '../services/embeddings.js'
+import { generateEmbeddings } from '../services/voyage/index.js'
+import { buildSpeakerText } from '../services/voyage/buildSpeakerText.js'
 import pool from './connection.js'
 
 async function seedEmbeddings() {

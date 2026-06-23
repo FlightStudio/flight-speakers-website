@@ -10,7 +10,7 @@ import 'dotenv/config'
 import { Storage } from '@google-cloud/storage'
 import { readFile } from 'node:fs/promises'
 
-const GCS_BUCKET = process.env.GCS_BUCKET || 'flight-speakers-photos'
+const GCS_BUCKET = process.env.GCS_BUCKET || 'steven-warehouse-dev-flight-speakers-photos'
 const bucket = new Storage().bucket(GCS_BUCKET)
 
 const SMALL_FILE_THRESHOLD = 20 * 1024 // 20 KB — warn if cover is suspiciously low-res

@@ -24,7 +24,7 @@ export const ARTICLES = [
     date: '2026-04-22',
     readTime: 10,
     excerpt: 'From entrepreneurial voices to behavioural scientists, these are the keynote speakers most consistently booked across UK corporate events in 2026.',
-    image: 'https://storage.googleapis.com/flight-speakers-photos/speakers/steven-bartlett.webp',
+    image: 'https://storage.googleapis.com/steven-warehouse-dev-flight-speakers-photos/speakers/steven-bartlett.webp',
     tile: { c1: '#0F172A', c2: '#1E3A5F' },
     body: [
       { type: 'p', text: 'The British corporate-events sector entered 2026 in better shape than at any point since the pandemic, with activity recovering across financial services, technology, retail and the public sector. UK organisations are no longer booking keynote speakers for name recognition alone; audiences now expect a substantive talk that influences how the business operates the following Monday. We have collated this guide of the keynote speakers most consistently booked across UK corporate events this year.' },
@@ -122,7 +122,7 @@ export const ARTICLES = [
     date: '2026-04-08',
     readTime: 9,
     excerpt: 'A guide to the most consistently booked inspirational keynote speakers for corporate events in 2026, and the audiences they connect with most strongly.',
-    image: 'https://storage.googleapis.com/flight-speakers-photos/speakers/davina-mccall.webp',
+    image: 'https://storage.googleapis.com/steven-warehouse-dev-flight-speakers-photos/speakers/davina-mccall.webp',
     tile: { c1: '#1A1A1A', c2: '#0F172A' },
     body: [
       { type: 'p', text: 'Inspirational keynote speakers occupy a particular slot in any well-built corporate event. Where business and technical talks ask audiences to learn, inspirational talks ask audiences to feel — and then to act differently. The best inspirational speakers do both. They combine a credible personal story with a framework the audience can apply to their own work the following Monday. We have compiled this guide of the inspirational keynote speakers booked most consistently across UK and US corporate events in 2026.' },
@@ -162,7 +162,7 @@ export const ARTICLES = [
     date: '2026-03-22',
     readTime: 9,
     excerpt: 'The share of female keynote speakers at corporate events climbed past 40% in 2026 across both UK and US markets. These are the names most consistently booked.',
-    image: 'https://storage.googleapis.com/flight-speakers-photos/speakers/vanessa-van-edwards.webp',
+    image: 'https://storage.googleapis.com/steven-warehouse-dev-flight-speakers-photos/speakers/vanessa-van-edwards.webp',
     tile: { c1: '#1A1A1A', c2: '#3D1419' },
     body: [
       { type: 'p', text: 'Across our own bookings and several public data sets covering both UK and US corporate events, the share of female keynote speakers has moved from roughly 28% in 2024 to 41% in early 2026. That is a meaningful shift in a category historically slow to change. We have compiled this guide of the female keynote speakers most consistently booked across UK and US technology, business and leadership events in 2026.' },
@@ -208,7 +208,7 @@ export const ARTICLES = [
     date: '2026-03-08',
     readTime: 9,
     excerpt: 'AI is the most-asked-for keynote topic at UK and US corporate events in 2026. These are the speakers actually being booked, and what they tell boards about deployment, productivity and risk.',
-    image: 'https://storage.googleapis.com/flight-speakers-photos/speakers/kristen-holmes.webp',
+    image: 'https://storage.googleapis.com/steven-warehouse-dev-flight-speakers-photos/speakers/kristen-holmes.webp',
     tile: { c1: '#1E40AF', c2: '#0B2554' },
     body: [
       { type: 'p', text: 'Artificial intelligence is the single most-requested keynote topic at corporate events in both the United Kingdom and the United States in 2026. The boardroom conversation has moved on from the headline-grabbing speculation of 2023; UK and US executives now want speakers who can answer practical questions about deployment, productivity, compliance and risk. We have compiled this guide of the AI and technology keynote speakers most consistently booked across both markets this year.' },
