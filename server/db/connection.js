@@ -7,6 +7,7 @@ const pool = new Pool({
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
+  ssl: { rejectUnauthorized: false },   // Supabase requires TLS
 })
 
 pool.on('error', (err) => {
