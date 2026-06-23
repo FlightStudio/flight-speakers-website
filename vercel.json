@@ -3,7 +3,7 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
-    { "source": "/api/:path*", "destination": "https://flight-speakers-api-516196678853.europe-west2.run.app/api/:path*" },
+    { "source": "/api/:path*", "destination": "https://flight-speakers-api-30219985459.europe-west2.run.app/api/:path*" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "headers": [

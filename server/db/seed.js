@@ -7,7 +7,10 @@ const { Pool } = pg
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },   // Supabase requires TLS
+  ssl: {
+    rejectUnauthorized: true,
+    ca: (process.env.DATABASE_CA_CRT || "").replace(/\\n/g, "\n"),
+  },
 })
 
 async function seed() {

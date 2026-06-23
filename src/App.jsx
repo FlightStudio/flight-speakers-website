@@ -14,6 +14,7 @@ import BookPage from './pages/BookPage'
 import NewsPage from './pages/NewsPage'
 import NewsArticlePage from './pages/NewsArticlePage'
 import SpeakerWaitlistPage from './pages/SpeakerWaitlistPage'
+import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -59,6 +60,7 @@ function App() {
             <Route path="/about" element={<AboutPage />} />
             <Route path="/news" element={<NewsPage />} />
             <Route path="/news/:slug" element={<NewsArticlePage />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           </Routes>
         </Layout>
       } />
