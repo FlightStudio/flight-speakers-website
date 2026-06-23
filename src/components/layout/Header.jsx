@@ -98,7 +98,7 @@ function Header() {
                 Book a Speaker
               </motion.button>
 
-              <motion.button
+              {/* <motion.button
                 className="theme-toggle"
                 onClick={() => setDarkMode(d => !d)}
                 whileTap={{ scale: 0.9 }}
@@ -131,7 +131,7 @@ function Header() {
                     </motion.svg>
                   )}
                 </AnimatePresence>
-              </motion.button>
+              </motion.button> */}
 
               <button
                 className="mobile-menu-toggle hide-desktop"

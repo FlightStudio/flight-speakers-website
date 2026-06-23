@@ -51,8 +51,8 @@ function Footer() {
         <div className="footer-bottom">
           <p>&copy; {new Date().getFullYear()} Flight Story. All rights reserved.</p>
           <div className="footer-legal">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
+            <Link to="/privacy-policy">Privacy Policy</Link>
+            <Link to="/privacy-policy">Terms of Service</Link>
             <button
               type="button"
               className="footer-legal__btn"
