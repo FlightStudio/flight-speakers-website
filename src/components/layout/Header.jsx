@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { EASE } from '../../constants/animation'
 import './Header.css'
 import ellipse from '../../assets/header-ellipse.png';
+import logo from '../../assets/logo.png';
 
 function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -56,21 +57,7 @@ function Header() {
         <div className="container">
           <nav className="nav">
             <Link to="/" className="logo">
-              <motion.div
-                className="logo-mark"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M8 24L16 6L24 24L16 18L8 24Z"
-                    fill="currentColor"
-                  />
-                </svg>
-              </motion.div>
-              <span className="logo-text">
-                Flight Speakers
-              </span>
+              <img style={{ width: "150px" }} src={logo} alt="logo" />
             </Link>
 
             <div className="nav-center hide-mobile">

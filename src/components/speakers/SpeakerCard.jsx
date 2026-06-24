@@ -25,6 +25,7 @@ function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScor
     <motion.div
       whileHover={{ y: -8 }}
       transition={{ duration: 0.3, ease: EASE }}
+      style={{ height: "100%"}}
     >
       <Link
         ref={cardRef}
@@ -122,7 +123,7 @@ function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScor
             </p>
           )}
 
-          <div className="speaker-card__topics">
+          {/* <div className="speaker-card__topics">
             {topicsToShow.map((topic, idx) => (
               <motion.span
                 key={idx}
@@ -138,7 +139,7 @@ function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScor
             {speaker.topics.length > 2 && (
               <span className="speaker-card__more">+{speaker.topics.length - 2}</span>
             )}
-          </div>
+          </div> */}
 
           {showReasoning && reasoning && (
             <div className="speaker-card__reasoning-section">
