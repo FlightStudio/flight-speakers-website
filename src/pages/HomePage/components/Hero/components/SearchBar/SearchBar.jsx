@@ -11,26 +11,52 @@ import ellipseBlue from '../../../../../../assets/ellipse-blue.png';
 import cursorLight from '../../../../../../assets/cursor-light-purple.png';
 import star from '../../../../../../assets/star.png';
 
+const spotlightVariants = {
+  rest:    { opacity: 0,   scale: 0.85, y: '-50%' },
+  hover:   { opacity: 0.7, scale: 0.95, y: '-50%' },
+  focusIn: { opacity: 1,   scale: 1.0,  y: '-50%' },
+  breathe: {
+    opacity: [1, 0.8, 1],
+    scale: [1.0, 1.1, 1.0],
+    y: '-50%',
+    transition: {
+      duration: 2,
+      repeat: Infinity,
+      repeatType: 'mirror',
+      ease: 'easeInOut'
+    },
+  },
+};
+
 function SearchBar() {
   const navigate = useNavigate()
 
 	const [searchQuery, setSearchQuery] = useState('');
 	const [isFocused, setIsFocused] = useState(false);
+	const [isHovered, setIsHovered] = useState(false);
   const [typingText, setTypingText] = useState('')
+  const [breathing, setBreathing] = useState(false);
+
+  const spotlightState = isFocused
+    ? (breathing ? 'breathe' : 'focusIn')
+    : isHovered ? 'hover' : 'rest';
 
   const SPARKS = [
-    { x: 7,  y: 52, s: 2, d: 5.0, delay: 0 },
-    { x: 12, y: 45, s: 3, d: 6.2, delay: 0.6 },
-    { x: 17, y: 58, s: 1, d: 7.4, delay: 1.1 },
-    { x: 21, y: 42, s: 2, d: 4.8, delay: 0.3 },
-    { x: 29, y: 53, s: 4, d: 4.0, delay: 0.9 },
-    { x: 34, y: 37, s: 3, d: 5.6, delay: 1.4 },
-    { x: 40, y: 58, s: 2, d: 8.0, delay: 0.5 },
-    { x: 45, y: 53, s: 3, d: 5.2, delay: 0.8 },
+    { x: 7,  y: 52, s: 2, d: 3.0, delay: 0 },
+    { x: 12, y: 45, s: 3, d: 4.2, delay: 0.6 },
+    { x: 17, y: 38, s: 1, d: 5.4, delay: 1.1 },
+    { x: 21, y: 42, s: 2, d: 2.8, delay: 0.3 },
+    { x: 29, y: 53, s: 4, d: 2.0, delay: 0.9 },
+    { x: 34, y: 37, s: 3, d: 3.6, delay: 1.4 },
+    { x: 40, y: 58, s: 2, d: 6.0, delay: 0.5 },
+    { x: 45, y: 53, s: 3, d: 3.2, delay: 0.8 },
   ];
 
 	useEffect(() => {
-		if (searchQuery || isFocused) return
+    if (searchQuery || isFocused) {
+			setTypingText('')
+			return
+		}
 
 		let currentIndex = 0
 		let currentChar = 0
@@ -71,13 +97,30 @@ function SearchBar() {
 
 	return (
 		<motion.form
-			className="hero-search"
+      className={"hero-search"}
 			onSubmit={handleSearch}
+			onMouseEnter={() => setIsHovered(true)}
+			onMouseLeave={() => setIsHovered(false)}
 			initial={{ opacity: 0, y: 30 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.6, delay: 0.7 }}
 		>
-      <img src={ellipseBlue} alt="spotlight-blue" className="hero-search__spotlight left hide-mobile" />
+      <motion.img
+        src={ellipseBlue}
+        alt="spotlight-blue"
+        className="hero-search__spotlight left hide-mobile"
+        variants={spotlightVariants}
+        animate={spotlightState}
+        transition={{
+          duration: 0.4,
+          ease: 'easeInOut'
+        }}
+        onAnimationComplete={(def) => {
+          if (def === 'focusIn')
+            setBreathing(true);
+          }
+        }
+      />
 			<div className={`hero-search__container ${isFocused ? 'hero-search__container--focused' : ''}`}>
 				<div className="hero-search__input-wrapper">
 					<input
@@ -86,8 +129,11 @@ function SearchBar() {
 						type="text"
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
-						onFocus={() => setIsFocused(true)}
-						onBlur={() => setIsFocused(false)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => {
+              setIsFocused(false);
+              setBreathing(false);
+            }}
 						className="hero-search__input"
 						placeholder=""
 					/>
@@ -131,7 +177,6 @@ function SearchBar() {
                           left: `${p.x}%`,
                           top: `${p.y}%`,
                           transform: 'translate(-50%, -50%)',
-                          // opacity: '0.1'
                         }}>
                           <span style={{
                             display: 'block',
@@ -141,8 +186,6 @@ function SearchBar() {
                             background: 'rgba(255, 240, 226, 0.95)',
                             boxShadow: `0 0 ${p.s * 1.6}px rgba(255, 220, 196, 0.9)`,
                             mixBlendMode: 'screen',
-                            // opacity: '0.1',
-                            // animation: `twinkle ${p.d}s ease-in-out ${p.delay}s infinite alternate`,
                             animation: `twinkle ${p.d}s ease-in-out ${p.delay}s infinite alternate backwards`,
                           }} />
                         </li>
@@ -165,7 +208,22 @@ function SearchBar() {
 					<span>Find Speakers</span>
 				</motion.button>
 			</div>
-      <img src={ellipsePink} alt="spotlight-pink" className="hero-search__spotlight right hide-mobile" />
+      <motion.img
+        src={ellipsePink}
+        alt="spotlight-pink"
+        className="hero-search__spotlight right hide-mobile"
+        variants={spotlightVariants}
+        animate={spotlightState}
+        transition={{
+          duration: 0.4,
+          ease: 'easeInOut'
+        }}
+        onAnimationComplete={(def) => {
+          if (def === 'focusIn')
+            setBreathing(true);
+          }
+        }
+      />
 		</motion.form>
 	);
 }

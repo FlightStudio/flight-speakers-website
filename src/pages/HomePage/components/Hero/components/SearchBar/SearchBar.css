@@ -7,7 +7,6 @@
 
 .hero-search__spotlight {
   position: absolute;
-  transform: translateY(-50%);
   top: 50%;
   height: 200%;
   z-index: 1;
@@ -15,9 +14,11 @@
 }
 .hero-search__spotlight.left {
   left: 0%;
+  transform-origin: left center;
 }
 .hero-search__spotlight.right {
   right: 0%;
+  transform-origin: right center;
 }
 
 .hero-search__container {
@@ -98,7 +99,7 @@
     transform: translateY(3px) scale(0.7);
   }
   to {
-    opacity: 0.3;
+    opacity: 0.5;
     transform: translateY(-3px) scale(1);
   }
 }
