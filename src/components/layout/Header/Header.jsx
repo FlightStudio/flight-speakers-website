@@ -1,10 +1,10 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { EASE } from '../../constants/animation'
+import { EASE } from '../../../constants/animation'
 import './Header.css'
-import ellipse from '../../assets/header-ellipse.png';
-import logo from '../../assets/logo.png';
+import ellipse from '../../../assets/header-ellipse.png';
+import logo from '../../../assets/logo.png';
 
 function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -16,6 +16,8 @@ function Header() {
     return true
   })
   const [scrolledMinimal, setScrolledMinimal] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
   const navigate = useNavigate()
   const location = useLocation()
   const isSearchPage = location.pathname === '/search'
@@ -41,6 +43,13 @@ function Header() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [isSearchPage])
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   const navItems = [
     { path: '/speakers', label: 'Speakers' },
     { path: '/about', label: 'About' },
@@ -49,7 +58,7 @@ function Header() {
   return (
     <>
       <motion.header
-        className={`header${isSearchPage ? ' header--search' : ''}${scrolledMinimal ? ' header--minimal' : ''}`}
+        className={`header${isSearchPage ? ' header--search' : ''}${scrolledMinimal ? ' header--minimal' : ''}${scrolled ? ' header--scrolled' : ''}`}
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: EASE }}

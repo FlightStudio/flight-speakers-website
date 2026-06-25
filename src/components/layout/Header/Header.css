@@ -6,9 +6,24 @@
   right: 0;
   height: var(--header-height);
   background: transparent;
+  z-index: 1000;
+}
+
+/* Glass layer sits behind content, fades in on scroll */
+.header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
   backdrop-filter: blur(24px) saturate(1.4);
   -webkit-backdrop-filter: blur(24px) saturate(1.4);
-  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.header--scrolled::before {
+  opacity: 1;
 }
 
 .header .container {
