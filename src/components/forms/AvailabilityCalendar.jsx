@@ -370,7 +370,7 @@ function AvailabilityCalendar({ value, onChange, speakerId = '' }) {
                       disabled={past}
                     >
                       <span className="cal__day-num">{day}</span>
-                      {!past && <span className={`cal__avail-dot cal__avail-dot--${avail}`} />}
+                      {!past && speakerId !== "general" && <span className={`cal__avail-dot cal__avail-dot--${avail}`} />}
                     </button>
                   )
                 })}
@@ -378,16 +378,18 @@ function AvailabilityCalendar({ value, onChange, speakerId = '' }) {
             </AnimatePresence>
 
             {/* Legend */}
-            <div className="cal__legend">
-              <span className="cal__legend-item">
-                <span className="cal__legend-dot cal__legend-dot--available" />
-                Likely available
-              </span>
-              <span className="cal__legend-item">
-                <span className="cal__legend-dot cal__legend-dot--unavailable" />
-                Booked
-              </span>
-            </div>
+            { speakerId !== "general" && (
+              <div className="cal__legend">
+                <span className="cal__legend-item">
+                  <span className="cal__legend-dot cal__legend-dot--available" />
+                  Likely available
+                </span>
+                <span className="cal__legend-item">
+                  <span className="cal__legend-dot cal__legend-dot--unavailable" />
+                  Booked
+                </span>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
