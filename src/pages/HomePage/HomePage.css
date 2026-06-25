@@ -64,7 +64,6 @@
 
 .social-proof {
   padding: 32px 0;
-  background: var(--color-off-white);
   border-top: 1px solid var(--color-gray-100);
   border-bottom: 1px solid var(--color-gray-100);
   overflow: hidden;
@@ -146,7 +145,6 @@
    ================================ */
 
 .ai-demo-section {
-  background: #faf8f2;
   overflow: hidden;
 }
 
@@ -715,14 +713,6 @@
 }
 
 /* ================================
-   Speakers Section
-   ================================ */
-
-.speakers-section {
-  background: var(--color-white);
-}
-
-/* ================================
    Process Section
    ================================ */
 
@@ -778,7 +768,6 @@
    ================================ */
 
 .cta-section {
-  background: #faf8f2;
   border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
@@ -1157,10 +1146,6 @@
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.04));
 }
 
-[data-theme="dark"] .ai-demo-section {
-  background: #111111;
-}
-
 [data-theme="dark"] .ai-demo-layout__text .section-label {
   background: rgba(255, 255, 255, 0.06);
 }
@@ -1221,7 +1206,6 @@
 }
 
 [data-theme="dark"] .cta-section {
-  background: #111111;
   border-top-color: rgba(255, 255, 255, 0.08);
 }
 
