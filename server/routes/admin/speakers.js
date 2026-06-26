@@ -15,6 +15,7 @@ import {
   imageUpload,
   videoUpload,
   uploadToGCS,
+  downloadVideoFromUrl,
   IMAGE_EXT_BY_MIME,
   VIDEO_EXT_BY_MIME,
   SPEAKER_ID_RE,
@@ -59,6 +60,62 @@ router.post('/uploads/photo', requireAdmin, imageUpload, async (req, res) => {
   } catch (err) {
     console.error('Staged photo upload error:', err)
     res.status(500).json({ success: false, message: 'Upload failed' })
+  }
+})
+
+// POST /api/admin/uploads/video-url — staged download from link for new-speaker flow.
+router.post('/uploads/video-url', requireAdmin, async (req, res) => {
+  const { url } = req.body
+  if (!url || typeof url !== 'string') {
+    return res.status(400).json({ success: false, message: 'url is required' })
+  }
+  try {
+    const { buffer, mimeType } = await downloadVideoFromUrl(url)
+    const ext = VIDEO_EXT_BY_MIME[mimeType]
+    const id = crypto.randomBytes(8).toString('hex')
+    const gcsPath = `speakers/staged/videos/${id}${ext}`
+    const gcsUrl = await uploadToGCS({ buffer, mimetype: mimeType }, gcsPath)
+    res.json({ success: true, videoUrl: gcsUrl })
+  } catch (err) {
+    console.error('Staged video URL download error:', err)
+    res.status(400).json({ success: false, message: err.message || 'Download failed' })
+  }
+})
+
+// POST /api/admin/uploads/video — staged upload for new-speaker flow.
+router.post('/uploads/video', requireAdmin, videoUpload, async (req, res) => {
+  if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' })
+  const ext = VIDEO_EXT_BY_MIME[req.file.mimetype]
+  if (!ext) return res.status(400).json({ success: false, message: 'Unsupported video type' })
+  try {
+    const id = crypto.randomBytes(8).toString('hex')
+    const gcsPath = `speakers/staged/videos/${id}${ext}`
+    const url = await uploadToGCS(req.file, gcsPath)
+    res.json({ success: true, videoUrl: url })
+  } catch (err) {
+    console.error('Staged video upload error:', err)
+    res.status(500).json({ success: false, message: 'Upload failed' })
+  }
+})
+
+router.post('/speakers/:id/video-url', requireAdmin, async (req, res) => {
+  if (!SPEAKER_ID_RE.test(req.params.id)) {
+    return res.status(400).json({ success: false, message: 'Invalid speaker id' })
+  }
+  const { url } = req.body
+  if (!url || typeof url !== 'string') {
+    return res.status(400).json({ success: false, message: 'url is required' })
+  }
+  try {
+    const { buffer, mimeType } = await downloadVideoFromUrl(url)
+    const ext = VIDEO_EXT_BY_MIME[mimeType]
+    const gcsPath = `speakers/videos/${req.params.id}${ext}`
+    const gcsUrl = await uploadToGCS({ buffer, mimetype: mimeType }, gcsPath)
+    await updateSpeaker(req.params.id, { videoUrl: gcsUrl })
+    res.json({ success: true, videoUrl: gcsUrl })
+  } catch (err) {
+    console.error('Video URL download error:', err)
+    res.status(400).json({ success: false, message: err.message || 'Download failed' })
   }
 })
 

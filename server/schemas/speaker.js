@@ -33,6 +33,8 @@ const baseSpeakerFields = {
   ethnicity: z.string().max(100).optional().nullable(),
   nationality: z.string().max(100).optional().nullable(),
   location: z.string().max(200).optional().nullable(),
+  heroMediaType: z.enum(['image', 'video']).optional(),
+  boostNotes: z.string().max(5000).optional().nullable(),
 }
 
 // Admin form: name/headline/photo/bio required, plus optional feeMin.

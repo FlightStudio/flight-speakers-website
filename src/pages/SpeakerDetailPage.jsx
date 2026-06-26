@@ -46,6 +46,8 @@ function VideoHero({ speaker, video, socialEntries, totalFollowing, brief, onEnq
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, ease: EASE }}
       >
+        <div className="speaker-video-hero__scrim_top" />
+
         {/* Nav buttons overlaid at top */}
         <motion.div
           className="speaker-video-hero__nav"
@@ -98,7 +100,7 @@ function VideoHero({ speaker, video, socialEntries, totalFollowing, brief, onEnq
         </motion.div>
 
         {video.type === 'direct' ? (
-          <video ref={videoRef} className="speaker-video-hero__iframe" src={video.src} autoPlay loop muted={isMuted} playsInline />
+          <video ref={videoRef} className="speaker-video-hero__iframe" src={video.src} autoPlay loop muted={isMuted} playsInline preload="metadata"  />
         ) : (
           <iframe className="speaker-video-hero__iframe" src={iframeSrc} title={`${speaker.name} Speaker Reel`} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
         )}
@@ -436,7 +438,9 @@ function SpeakerDetailPage() {
         />
       ) : (
         <section className="speaker-hero">
-          <div className="container">
+          <div className="container" style={{
+            height: "100%"
+          }}>
             <div className="speaker-hero__grid">
               <motion.div
                 className="speaker-hero__image-col"
@@ -500,14 +504,14 @@ function SpeakerDetailPage() {
                       <path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </motion.button>
-                  {speaker.videoUrl && (
+                  {/* {speaker.videoUrl && (
                     <a href="#video" className="btn btn-secondary btn-lg">
                       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                         <path d="M3 2.5V11.5L11.5 7L3 2.5Z" fill="currentColor"/>
                       </svg>
                       Watch Reel
                     </a>
-                  )}
+                  )} */}
                 </div>
               </motion.div>
             </div>

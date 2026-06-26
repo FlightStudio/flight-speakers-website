@@ -39,7 +39,7 @@ function TagInput({ label, value, onChange }) {
   )
 }
 
-function DropZone({ label, accept, preview, emptyIcon, uploadingText, idleText, dragOverClass, onUpload, progress }) {
+function DropZone({ label, accept, preview, emptyIcon, uploadingText, idleText, dragOverClass, onUpload, error }) {
   const inputRef = useRef(null)
   const [dragOver, setDragOver] = useState(false)
 
@@ -67,10 +67,8 @@ function DropZone({ label, accept, preview, emptyIcon, uploadingText, idleText, 
           onChange={(e) => onUpload(e.target.files[0])}
         />
       </div>
-      {progress > 0 && (
-        <div className="spkr-form__upload-progress">
-          <div className="spkr-form__upload-progress-bar" style={{ width: `${progress}%` }} />
-        </div>
+      {error && (
+        <small className="spkr-form__help" style={{ color: '#ef4444' }}>{error}</small>
       )}
     </div>
   )
@@ -88,51 +86,68 @@ const PLAY_ICON = (
   </svg>
 )
 
+function useVideoLinkUpload(speakerId, setFormField) {
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const upload = useCallback(async (url) => {
+    if (!url) return
+    const endpoint = speakerId
+      ? `/api/admin/speakers/${speakerId}/video-url`
+      : `/api/admin/uploads/video-url`
+    setUploading(true)
+    setError(null)
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      })
+      const result = await res.json()
+      if (!res.ok || !result.success) throw new Error(result.message || 'Download failed')
+      setFormField('videoUrl', result.videoUrl)
+    } catch (err) {
+      console.error('video link download failed:', err)
+      setError(err.message || 'Download failed')
+    } finally {
+      setUploading(false)
+    }
+  }, [speakerId, setFormField])
+
+  return { upload, uploading, error }
+}
+
 function useFileUpload(speakerId, endpoint, fieldName, formFieldKey, setFormField) {
   const [uploading, setUploading] = useState(false)
-  const [progress, setProgress] = useState(0)
+  const [error, setError] = useState(null)
 
   const upload = useCallback(async (file) => {
     if (!file) return
-    // For an existing speaker, write directly to their slot. For new speakers
-    // (no speakerId yet), use the staged-upload endpoint that returns a URL
-    // without a DB write — the URL is persisted later via the draft approval.
-    // Video upload still requires an existing speaker for now.
+    // Existing speakers write directly; new speakers use staged uploads (no DB
+    // write until draft approval). Uses fetch so installAdminFetch injects CSRF.
     const url = speakerId
       ? `/api/admin/speakers/${speakerId}/${endpoint}`
-      : endpoint === 'photo'
-        ? `/api/admin/uploads/photo`
-        : null
-    if (!url) return
+      : `/api/admin/uploads/${endpoint}`
     setUploading(true)
-    setProgress(0)
+    setError(null)
     try {
       const body = new FormData()
       body.append(fieldName, file)
-      const xhr = new XMLHttpRequest()
-      xhr.upload.addEventListener('progress', (e) => {
-        if (e.lengthComputable) setProgress(Math.round((e.loaded / e.total) * 100))
-      })
-      const result = await new Promise((resolve, reject) => {
-        xhr.onload = () => {
-          if (xhr.status >= 200 && xhr.status < 300) resolve(JSON.parse(xhr.responseText))
-          else reject(new Error('Upload failed'))
-        }
-        xhr.onerror = () => reject(new Error('Upload failed'))
-        xhr.open('POST', url)
-        xhr.withCredentials = true
-        xhr.send(body)
-      })
-      if (result.success) setFormField(formFieldKey, result[formFieldKey] || result.photo || result.videoUrl)
+      const res = await fetch(url, { method: 'POST', body })
+      const result = await res.json()
+      if (!res.ok || !result.success) {
+        throw new Error(result.message || 'Upload failed')
+      }
+      setFormField(formFieldKey, result[formFieldKey] || result.photo || result.videoUrl)
     } catch (err) {
       console.error(`${endpoint} upload failed:`, err)
+      setError(err.message || 'Upload failed')
     } finally {
       setUploading(false)
-      setProgress(0)
     }
   }, [speakerId, endpoint, fieldName, formFieldKey, setFormField])
 
-  return { upload, uploading, progress }
+  return { upload, uploading, error }
 }
 
 export default function SpeakerForm({ initialData, onSubmit, saving, portalMode = false, submitLabel, speakerId }) {
@@ -181,6 +196,12 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
 
   const photo = useFileUpload(speakerId, 'photo', 'photo', 'photo', set)
   const video = useFileUpload(speakerId, 'video', 'video', 'videoUrl', set)
+  const videoLink = useVideoLinkUpload(speakerId, set)
+
+  const [videoInputMode, setVideoInputMode] = useState('upload')
+  const [videoLinkUrl, setVideoLinkUrl] = useState('')
+  const [videoDragOver, setVideoDragOver] = useState(false)
+  const videoFileInputRef = useRef(null)
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -217,7 +238,7 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
           idleText="Click or drag to upload photo"
           dragOverClass="spkr-form__dropzone--drag"
           onUpload={photo.upload}
-          progress={photo.uploading ? photo.progress : 0}
+          error={photo.error}
         />
 
         <div className="spkr-form__field spkr-form__field--full">
@@ -258,17 +279,79 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
           </small>
         </div>
 
-        <DropZone
-          label="Sizzle Reel"
-          accept="video/*"
-          preview={form.videoUrl && <video src={form.videoUrl} className="spkr-form__dropzone-vid-preview" muted playsInline />}
-          emptyIcon={PLAY_ICON}
-          uploadingText={video.uploading ? `Uploading... ${video.progress}%` : null}
-          idleText={form.videoUrl ? 'Click or drag to replace video' : 'Click or drag to upload sizzle reel (MP4, WebM, MOV)'}
-          dragOverClass="spkr-form__dropzone--drag"
-          onUpload={video.upload}
-          progress={video.uploading ? video.progress : 0}
-        />
+        <div className="spkr-form__field spkr-form__field--full">
+          <div className="spkr-form__label-row">
+            <label className="spkr-form__label">Sizzle Reel</label>
+            <div className="spkr-form__video-tabs" role="group">
+              <button
+                type="button"
+                className={`spkr-form__video-tab${videoInputMode === 'upload' ? ' spkr-form__video-tab--active' : ''}`}
+                onClick={() => setVideoInputMode('upload')}
+              >Upload file</button>
+              <button
+                type="button"
+                className={`spkr-form__video-tab${videoInputMode === 'link' ? ' spkr-form__video-tab--active' : ''}`}
+                onClick={() => setVideoInputMode('link')}
+              >Paste link</button>
+            </div>
+          </div>
+
+          {videoInputMode === 'upload' ? (
+            <div
+              className={`spkr-form__dropzone${videoDragOver ? ' spkr-form__dropzone--drag' : ''}`}
+              onClick={() => videoFileInputRef.current?.click()}
+              onDragOver={(e) => { e.preventDefault(); setVideoDragOver(true) }}
+              onDragLeave={() => setVideoDragOver(false)}
+              onDrop={(e) => { e.preventDefault(); setVideoDragOver(false); video.upload(e.dataTransfer.files[0]) }}
+            >
+              {form.videoUrl
+                ? <video src={form.videoUrl} className="spkr-form__dropzone-vid-preview" muted playsInline />
+                : <div className="spkr-form__dropzone-empty">{PLAY_ICON}</div>
+              }
+              <div className="spkr-form__dropzone-text">
+                {video.uploading ? 'Uploading…' : (form.videoUrl ? 'Click or drag to replace video' : 'Click or drag to upload sizzle reel (MP4, WebM, MOV)')}
+              </div>
+              <input
+                ref={videoFileInputRef}
+                type="file"
+                accept="video/*"
+                style={{ display: 'none' }}
+                onChange={(e) => video.upload(e.target.files[0])}
+              />
+            </div>
+          ) : (
+            <div className="spkr-form__video-link">
+              {form.videoUrl && (
+                <video src={form.videoUrl} className="spkr-form__dropzone-vid-preview" muted playsInline />
+              )}
+              <div className="spkr-form__video-link-row">
+                <input
+                  className="spkr-form__input"
+                  type="url"
+                  value={videoLinkUrl}
+                  onChange={e => setVideoLinkUrl(e.target.value)}
+                  placeholder="https://example.com/video.mp4"
+                  disabled={videoLink.uploading}
+                />
+                <button
+                  type="button"
+                  className="spkr-form__video-link-btn"
+                  disabled={videoLink.uploading || !videoLinkUrl.trim()}
+                  onClick={() => videoLink.upload(videoLinkUrl)}
+                >
+                  {videoLink.uploading ? 'Downloading…' : 'Download & Store'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {videoInputMode === 'upload' && video.error && (
+            <small className="spkr-form__help" style={{ color: '#ef4444' }}>{video.error}</small>
+          )}
+          {videoInputMode === 'link' && videoLink.error && (
+            <small className="spkr-form__help" style={{ color: '#ef4444' }}>{videoLink.error}</small>
+          )}
+        </div>
 
         <div className="spkr-form__field spkr-form__field--full">
           <label className="spkr-form__label">Bio *</label>
@@ -358,7 +441,15 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
 
       <div className="spkr-form__actions">
         <button type="submit" className="spkr-form__submit" disabled={saving}>
-          {saving ? 'Submitting...' : submitLabel || (portalMode ? 'Submit for Review' : (initialData ? 'Submit Update' : 'Submit New Speaker'))}
+          { saving ? 'Submitting...'
+            : submitLabel || (
+              portalMode ? 'Submit for Review'
+                : (
+                  initialData ? 'Submit Update'
+                    : 'Submit New Speaker'
+                )
+            )
+          }
         </button>
       </div>
     </form>
