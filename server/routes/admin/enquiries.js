@@ -107,6 +107,7 @@ router.patch('/enquiries/:id', requireAdmin, async (req, res) => {
 
     const updated = await updateEnquiry(req.params.id, updates)
 
+    // Trigger notification (Klaviyo events for rejected/responded, log-only for accepted)
     if (status && ['accepted', 'rejected', 'responded'].includes(status)) {
       await notifyEnquiryResponse(updated, status, { response_message, rejection_reason, email_subject })
     }
