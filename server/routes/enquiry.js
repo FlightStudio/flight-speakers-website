@@ -28,21 +28,20 @@ router.post('/', async (req, res) => {
     enquiryId: enquiry.id,
   });
 
-  mailer.SEND_ENQUIRY_SUBMITTED_EMAIL(data.email, {
-    name: data.name,
-    organization: data.organization,
-    speakerName: data.speakerName,
-    eventDate: data.eventDate,
-    brief: data.brief,
-  }).catch(err => console.error(`[RESEND] enquiry email failed for ${data.email}:`, err.message))
-
+  // mailer.SEND_ENQIRY_SUBMITTED_EMAIL(data.email, {
+  //   name: data.name,
+  //   organization: data.organization,
+  //   speakerName: data.speakerName,
+  //   eventDate: data.eventDate,
+  //   brief: data.brief,
+  // }).catch(err => console.error(`[RESEND] enquiry email failed for ${data.email}:`, err.message))
 
   if (data.newsletter) {
     const [firstName, ...rest] = (data.name || '').trim().split(/\s+/)
     addResendContact(data.email, {
       firstName: firstName || '',
       lastName: rest.join(' '),
-      topicId: NEWSLETTER_TOPIC_ID,
+      topicId: undefined,
     }).catch(err => console.error(`[RESEND] add contact failed for ${data.email}:`, err.message))
   }
 })
