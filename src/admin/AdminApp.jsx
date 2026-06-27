@@ -17,7 +17,7 @@ import AdminReviewPage from './pages/AdminReviewPage'
 import AdminWaitlistPage from './pages/AdminWaitlistPage'
 import AdminArticlesPage from './pages/AdminArticlesPage'
 import AdminArticleEditPage from './pages/AdminArticleEditPage'
-import './admin.css'
+import '../admin/admin.css'
 
 export default function AdminApp() {
   const { user, isLoading, isAuthenticated, login, logout } = useAdminAuth()

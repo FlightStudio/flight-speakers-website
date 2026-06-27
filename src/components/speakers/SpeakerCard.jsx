@@ -74,7 +74,7 @@ function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScor
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M5 3V13L13 8L5 3Z" fill="currentColor"/>
               </svg>
-              <span>Preview</span>
+              <span>Playing preview...</span>
             </div>
           </motion.div>
 

@@ -113,12 +113,9 @@
 
 .speaker-hero {
   padding: 24px 0 48px;
-  height: calc(100vh - 150px);
-  min-height: 400px;
 }
 
 .speaker-hero__grid {
-  height: 100%;
   display: grid;
   grid-template-columns: 0.8fr 1.2fr;
   gap: clamp(32px, 4vw, 64px);
@@ -127,19 +124,15 @@
 
 .speaker-hero__image-col {
   position: relative;
-  height: 100%;
-  min-height: 0;
 }
 
 .speaker-hero__image-wrapper {
-  height: 100%;
   position: relative;
   aspect-ratio: 4/5;
   overflow: hidden;
   border-radius: var(--radius-2xl);
   background: var(--color-gray-100);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-  margin: 0 auto;
 }
 
 .speaker-hero__image-wrapper::after {
@@ -199,7 +192,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
   color: var(--color-text-tertiary);
   font-size: var(--text-sm);
 }
@@ -653,16 +646,11 @@
 .speaker-video-hero-section {
   padding: 0;
   background: #000;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  min-height: 70vh;
-  max-height: 95vh;
 }
 
 .speaker-video-hero {
   position: relative;
   width: 100%;
-  height: 100%;
   aspect-ratio: 16/9;
   overflow: hidden;
   background: #000;
@@ -670,7 +658,7 @@
 
 .speaker-video-hero__nav {
   position: absolute;
-  top: var(--header-height);
+  top: calc(var(--header-height) + 12px);
   left: 0;
   right: 0;
   z-index: 4;
@@ -765,17 +753,6 @@
   pointer-events: none;
 }
 
-.speaker-video-hero__scrim_top {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 60%;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.75) 0%, transparent 100%);
-  z-index: 2;
-  pointer-events: none;
-}
-
 .speaker-video-hero__overlay {
   position: absolute;
   bottom: 0;
@@ -784,7 +761,7 @@
   padding: 32px clamp(16px, 3vw, 48px);
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   z-index: 3;
 }
 
@@ -890,6 +867,7 @@
 
 .speaker-video-hero__actions {
   display: flex;
+  flex-direction: column;
   gap: 10px;
   align-items: flex-end;
 }

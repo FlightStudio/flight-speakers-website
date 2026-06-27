@@ -131,18 +131,12 @@ export default function AdminSpeakerFormPage() {
         <h1 className="admin-page__title">
           {isDeploy
             ? `Edit & Deploy: ${draftData?.name || 'Speaker'}`
-            : isEdit
-              ? `Edit ${speaker?.name || 'Speaker'}`
-              : 'Add New Speaker'
-          }
+            : isEdit ? `Edit ${speaker?.name || 'Speaker'}` : 'Add New Speaker'}
         </h1>
         <p className="admin-page__subtitle">
           {isDeploy
             ? 'Make your edits below, then deploy directly to the live site.'
-            : isEdit
-              ? 'Changes will be submitted for review before going live.'
-              : 'New speaker will be submitted for review before being published.'
-          }
+            : isEdit ? 'Changes will be submitted for review before going live.' : 'New speaker will be submitted for review before being published.'}
         </p>
 
         {displayError && (
