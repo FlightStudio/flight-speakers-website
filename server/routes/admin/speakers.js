@@ -15,10 +15,12 @@ import {
   imageUpload,
   videoUpload,
   uploadToGCS,
+  downloadVideoFromUrl,
   IMAGE_EXT_BY_MIME,
   VIDEO_EXT_BY_MIME,
   SPEAKER_ID_RE,
 } from './_uploads.js'
+import { isYouTubeUrl, probeYouTubeFormats, downloadYouTubeVideo } from './_youtube.js'
 
 const router = express.Router()
 
@@ -59,6 +61,84 @@ router.post('/uploads/photo', requireAdmin, imageUpload, async (req, res) => {
   } catch (err) {
     console.error('Staged photo upload error:', err)
     res.status(500).json({ success: false, message: 'Upload failed' })
+  }
+})
+
+// POST /api/admin/youtube/formats — lists available qualities for a YouTube URL.
+// No DB write, so the one endpoint serves both new and existing speaker flows.
+router.post('/youtube/formats', requireAdmin, async (req, res) => {
+  const { url } = req.body
+  if (!url || typeof url !== 'string' || !isYouTubeUrl(url)) {
+    return res.status(400).json({ success: false, message: 'A valid YouTube URL is required' })
+  }
+  try {
+    const { title, formats } = await probeYouTubeFormats(url)
+    res.json({ success: true, title, formats })
+  } catch (err) {
+    console.error('YouTube formats probe error:', err)
+    res.status(400).json({ success: false, message: err.message || 'Failed to read video info' })
+  }
+})
+
+// POST /api/admin/uploads/video-url — staged download from link for new-speaker flow.
+// YouTube URLs go through yt-dlp (with a chosen `quality`); everything else uses
+// the direct-file fetch path.
+router.post('/uploads/video-url', requireAdmin, async (req, res) => {
+  const { url, quality } = req.body
+  if (!url || typeof url !== 'string') {
+    return res.status(400).json({ success: false, message: 'url is required' })
+  }
+  try {
+    const { buffer, mimeType } = isYouTubeUrl(url)
+      ? await downloadYouTubeVideo(url, quality)
+      : await downloadVideoFromUrl(url)
+    const ext = VIDEO_EXT_BY_MIME[mimeType]
+    const id = crypto.randomBytes(8).toString('hex')
+    const gcsPath = `speakers/staged/videos/${id}${ext}`
+    const gcsUrl = await uploadToGCS({ buffer, mimetype: mimeType }, gcsPath)
+    res.json({ success: true, videoUrl: gcsUrl })
+  } catch (err) {
+    console.error('Staged video URL download error:', err)
+    res.status(400).json({ success: false, message: err.message || 'Download failed' })
+  }
+})
+
+// POST /api/admin/uploads/video — staged upload for new-speaker flow.
+router.post('/uploads/video', requireAdmin, videoUpload, async (req, res) => {
+  if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' })
+  const ext = VIDEO_EXT_BY_MIME[req.file.mimetype]
+  if (!ext) return res.status(400).json({ success: false, message: 'Unsupported video type' })
+  try {
+    const id = crypto.randomBytes(8).toString('hex')
+    const gcsPath = `speakers/staged/videos/${id}${ext}`
+    const url = await uploadToGCS(req.file, gcsPath)
+    res.json({ success: true, videoUrl: url })
+  } catch (err) {
+    console.error('Staged video upload error:', err)
+    res.status(500).json({ success: false, message: 'Upload failed' })
+  }
+})
+
+router.post('/speakers/:id/video-url', requireAdmin, async (req, res) => {
+  if (!SPEAKER_ID_RE.test(req.params.id)) {
+    return res.status(400).json({ success: false, message: 'Invalid speaker id' })
+  }
+  const { url, quality } = req.body
+  if (!url || typeof url !== 'string') {
+    return res.status(400).json({ success: false, message: 'url is required' })
+  }
+  try {
+    const { buffer, mimeType } = isYouTubeUrl(url)
+      ? await downloadYouTubeVideo(url, quality)
+      : await downloadVideoFromUrl(url)
+    const ext = VIDEO_EXT_BY_MIME[mimeType]
+    const gcsPath = `speakers/videos/${req.params.id}${ext}`
+    const gcsUrl = await uploadToGCS({ buffer, mimetype: mimeType }, gcsPath)
+    await updateSpeaker(req.params.id, { videoUrl: gcsUrl })
+    res.json({ success: true, videoUrl: gcsUrl })
+  } catch (err) {
+    console.error('Video URL download error:', err)
+    res.status(400).json({ success: false, message: err.message || 'Download failed' })
   }
 })
 
