@@ -5495,6 +5495,12 @@
   cursor: not-allowed;
 }
 
+.spkr-form__video-link-quality {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
 /* ================================
    Articles page (admin)
    Uses semantic tokens — adapts to dark/light theme.

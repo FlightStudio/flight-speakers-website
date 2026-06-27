@@ -3,6 +3,19 @@ import { useState, useCallback, useRef } from 'react'
 const GENDER_OPTIONS = ['', 'Male', 'Female', 'Non-binary', 'Prefer not to say']
 const SOCIAL_PLATFORMS = ['instagram', 'x', 'linkedin', 'youtube', 'tiktok']
 
+// Mirrors isYouTubeUrl in server/routes/admin/_youtube.js — decides whether the
+// link tab shows the quality picker (YouTube) or a plain download (direct file).
+function isYouTubeUrl(str) {
+  let parsed
+  try {
+    parsed = new URL(str)
+  } catch {
+    return false
+  }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return false
+  return /^(www\.|m\.|music\.)?youtube\.com$|^youtu\.be$|^(www\.)?youtube-nocookie\.com$/i.test(parsed.hostname)
+}
+
 function TagInput({ label, value, onChange }) {
   const [input, setInput] = useState('')
 
@@ -90,7 +103,7 @@ function useVideoLinkUpload(speakerId, setFormField) {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState(null)
 
-  const upload = useCallback(async (url) => {
+  const upload = useCallback(async (url, quality) => {
     if (!url) return
     const endpoint = speakerId
       ? `/api/admin/speakers/${speakerId}/video-url`
@@ -98,10 +111,12 @@ function useVideoLinkUpload(speakerId, setFormField) {
     setUploading(true)
     setError(null)
     try {
+      // quality is only sent for YouTube links; direct files ignore it.
+      const body = quality ? { url, quality } : { url }
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify(body),
       })
       const result = await res.json()
       if (!res.ok || !result.success) throw new Error(result.message || 'Download failed')
@@ -115,6 +130,47 @@ function useVideoLinkUpload(speakerId, setFormField) {
   }, [speakerId, setFormField])
 
   return { upload, uploading, error }
+}
+
+// Fetches the available qualities for a YouTube URL so the admin can pick one
+// before downloading. No DB write — the same endpoint serves new + existing
+// speakers.
+function useYouTubeProbe() {
+  const [formats, setFormats] = useState([])
+  const [title, setTitle] = useState('')
+  const [probing, setProbing] = useState(false)
+  const [error, setError] = useState(null)
+
+  const probe = useCallback(async (url) => {
+    setProbing(true)
+    setError(null)
+    setFormats([])
+    setTitle('')
+    try {
+      const res = await fetch('/api/admin/youtube/formats', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      })
+      const result = await res.json()
+      if (!res.ok || !result.success) throw new Error(result.message || 'Could not load qualities')
+      setFormats(result.formats || [])
+      setTitle(result.title || '')
+    } catch (err) {
+      console.error('youtube probe failed:', err)
+      setError(err.message || 'Could not load qualities')
+    } finally {
+      setProbing(false)
+    }
+  }, [])
+
+  const reset = useCallback(() => {
+    setFormats([])
+    setTitle('')
+    setError(null)
+  }, [])
+
+  return { probe, reset, formats, title, probing, error }
 }
 
 function useFileUpload(speakerId, endpoint, fieldName, formFieldKey, setFormField) {
@@ -197,11 +253,22 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
   const photo = useFileUpload(speakerId, 'photo', 'photo', 'photo', set)
   const video = useFileUpload(speakerId, 'video', 'video', 'videoUrl', set)
   const videoLink = useVideoLinkUpload(speakerId, set)
+  const ytProbe = useYouTubeProbe()
 
   const [videoInputMode, setVideoInputMode] = useState('upload')
   const [videoLinkUrl, setVideoLinkUrl] = useState('')
+  const [videoQuality, setVideoQuality] = useState('')
   const [videoDragOver, setVideoDragOver] = useState(false)
   const videoFileInputRef = useRef(null)
+
+  const isYouTubeLink = isYouTubeUrl(videoLinkUrl.trim())
+
+  function handleVideoLinkChange(value) {
+    setVideoLinkUrl(value)
+    // A changed URL invalidates any previously probed qualities.
+    if (ytProbe.formats.length || ytProbe.title) ytProbe.reset()
+    if (videoQuality) setVideoQuality('')
+  }
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -329,27 +396,61 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
                   className="spkr-form__input"
                   type="url"
                   value={videoLinkUrl}
-                  onChange={e => setVideoLinkUrl(e.target.value)}
-                  placeholder="https://example.com/video.mp4"
+                  onChange={e => handleVideoLinkChange(e.target.value)}
+                  placeholder="YouTube link or https://example.com/video.mp4"
                   disabled={videoLink.uploading}
                 />
-                <button
-                  type="button"
-                  className="spkr-form__video-link-btn"
-                  disabled={videoLink.uploading || !videoLinkUrl.trim()}
-                  onClick={() => videoLink.upload(videoLinkUrl)}
-                >
-                  {videoLink.uploading ? 'Downloading…' : 'Download & Store'}
-                </button>
+                {isYouTubeLink && ytProbe.formats.length === 0 ? (
+                  <button
+                    type="button"
+                    className="spkr-form__video-link-btn"
+                    disabled={ytProbe.probing || !videoLinkUrl.trim()}
+                    onClick={() => ytProbe.probe(videoLinkUrl.trim())}
+                  >
+                    {ytProbe.probing ? 'Loading…' : 'Load qualities'}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="spkr-form__video-link-btn"
+                    disabled={
+                      videoLink.uploading ||
+                      !videoLinkUrl.trim() ||
+                      (isYouTubeLink && !videoQuality)
+                    }
+                    onClick={() => videoLink.upload(videoLinkUrl.trim(), isYouTubeLink ? videoQuality : undefined)}
+                  >
+                    {videoLink.uploading ? 'Downloading…' : 'Download & Store'}
+                  </button>
+                )}
               </div>
+
+              {isYouTubeLink && ytProbe.formats.length > 0 && (
+                <div className="spkr-form__video-link-quality">
+                  {ytProbe.title && (
+                    <small className="spkr-form__help">{ytProbe.title}</small>
+                  )}
+                  <select
+                    className="spkr-form__select"
+                    value={videoQuality}
+                    onChange={e => setVideoQuality(e.target.value)}
+                    disabled={videoLink.uploading}
+                  >
+                    <option value="">Select quality…</option>
+                    {ytProbe.formats.map(f => (
+                      <option key={f.height} value={f.height}>{f.label}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
           )}
 
           {videoInputMode === 'upload' && video.error && (
             <small className="spkr-form__help" style={{ color: '#ef4444' }}>{video.error}</small>
           )}
-          {videoInputMode === 'link' && videoLink.error && (
-            <small className="spkr-form__help" style={{ color: '#ef4444' }}>{videoLink.error}</small>
+          {videoInputMode === 'link' && (videoLink.error || ytProbe.error) && (
+            <small className="spkr-form__help" style={{ color: '#ef4444' }}>{videoLink.error || ytProbe.error}</small>
           )}
         </div>
 

@@ -20,6 +20,7 @@ import {
   VIDEO_EXT_BY_MIME,
   SPEAKER_ID_RE,
 } from './_uploads.js'
+import { isYouTubeUrl, probeYouTubeFormats, downloadYouTubeVideo } from './_youtube.js'
 
 const router = express.Router()
 
@@ -63,14 +64,34 @@ router.post('/uploads/photo', requireAdmin, imageUpload, async (req, res) => {
   }
 })
 
-// POST /api/admin/uploads/video-url — staged download from link for new-speaker flow.
-router.post('/uploads/video-url', requireAdmin, async (req, res) => {
+// POST /api/admin/youtube/formats — lists available qualities for a YouTube URL.
+// No DB write, so the one endpoint serves both new and existing speaker flows.
+router.post('/youtube/formats', requireAdmin, async (req, res) => {
   const { url } = req.body
+  if (!url || typeof url !== 'string' || !isYouTubeUrl(url)) {
+    return res.status(400).json({ success: false, message: 'A valid YouTube URL is required' })
+  }
+  try {
+    const { title, formats } = await probeYouTubeFormats(url)
+    res.json({ success: true, title, formats })
+  } catch (err) {
+    console.error('YouTube formats probe error:', err)
+    res.status(400).json({ success: false, message: err.message || 'Failed to read video info' })
+  }
+})
+
+// POST /api/admin/uploads/video-url — staged download from link for new-speaker flow.
+// YouTube URLs go through yt-dlp (with a chosen `quality`); everything else uses
+// the direct-file fetch path.
+router.post('/uploads/video-url', requireAdmin, async (req, res) => {
+  const { url, quality } = req.body
   if (!url || typeof url !== 'string') {
     return res.status(400).json({ success: false, message: 'url is required' })
   }
   try {
-    const { buffer, mimeType } = await downloadVideoFromUrl(url)
+    const { buffer, mimeType } = isYouTubeUrl(url)
+      ? await downloadYouTubeVideo(url, quality)
+      : await downloadVideoFromUrl(url)
     const ext = VIDEO_EXT_BY_MIME[mimeType]
     const id = crypto.randomBytes(8).toString('hex')
     const gcsPath = `speakers/staged/videos/${id}${ext}`
@@ -102,12 +123,14 @@ router.post('/speakers/:id/video-url', requireAdmin, async (req, res) => {
   if (!SPEAKER_ID_RE.test(req.params.id)) {
     return res.status(400).json({ success: false, message: 'Invalid speaker id' })
   }
-  const { url } = req.body
+  const { url, quality } = req.body
   if (!url || typeof url !== 'string') {
     return res.status(400).json({ success: false, message: 'url is required' })
   }
   try {
-    const { buffer, mimeType } = await downloadVideoFromUrl(url)
+    const { buffer, mimeType } = isYouTubeUrl(url)
+      ? await downloadYouTubeVideo(url, quality)
+      : await downloadVideoFromUrl(url)
     const ext = VIDEO_EXT_BY_MIME[mimeType]
     const gcsPath = `speakers/videos/${req.params.id}${ext}`
     const gcsUrl = await uploadToGCS({ buffer, mimetype: mimeType }, gcsPath)
