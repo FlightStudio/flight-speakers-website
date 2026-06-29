@@ -292,14 +292,15 @@ Premium speaker booking agency. React frontend, Express backend, PostgreSQL + pg
 - `npm run db:embed` — Generate Voyage embeddings
 
 ## Deployment
-- **GCP project**: `flight-speakers` (NOT `flightstudio` — separate workspace). Account: `diana@steven.com`.
-- **Frontend**: Vercel (auto-deploys from `main`), `vercel.json` rewrites `/api/*` → Cloud Run
-- **API**: Google Cloud Run (`flight-speakers-api`, europe-west2, 512Mi, 1 CPU, 0-3 instances, port 3001). URL: `https://flight-speakers-api-516196678853.europe-west2.run.app`
-- **DB**: Google Cloud SQL (`flight-speakers-db`, PostgreSQL 16 + pgvector, `db-f1-micro`, europe-west2-a)
-- **Photos**: Google Cloud Storage bucket `flight-speakers-photos` (europe-west2, public read). URLs: `https://storage.googleapis.com/flight-speakers-photos/speakers/{id}.webp`. Uploaded via admin panel, stored directly in speaker `photo` column
-- **Secrets**: Google Secret Manager (project `flight-speakers`)
-- **Redeploy API**: `gcloud run deploy flight-speakers-api --source . --region europe-west2 --project flight-speakers --quiet`
-- **Dockerfile**: `node:20-alpine`, `npm ci --omit=dev`, copies `server/` only, `CMD node server/index.js`
+- **GCP project**: `steven-warehouse-dev` (#30219985459, owner `ziga@flightstory.com`). This is the live backend project. ⚠️ The original `flight-speakers` project (#516196678853) is INACCESSIBLE to the team and no longer used — the backend was migrated off it. Do not deploy there. (Beware the name-collision twin `fllight-speakers`, double-L, #646314909174 — empty, billing off.)
+- **Frontend**: Vercel (auto-deploys from `main`), `vercel.json` rewrites `/api/*` → Cloud Run (now points at the `...-30219985459...` URL below)
+- **API**: Google Cloud Run (`flight-speakers-api`, europe-west2, port 3001) in `steven-warehouse-dev`. URL: `https://flight-speakers-api-30219985459.europe-west2.run.app`
+- **DB**: Supabase Postgres (pooler `aws-0-eu-west-1.pooler.supabase.com:6543`, TLS via Supabase Root 2021 CA). Connection string + CA cert in Secret Manager.
+- **Photos**: Google Cloud Storage bucket `steven-warehouse-dev-flight-speakers-photos` (europe-west2, public read). Uploaded via admin panel, stored directly in speaker `photo` column
+- **Secrets**: Google Secret Manager in `steven-warehouse-dev` (labelled `app=flight-speakers`): database-url, anthropic-api-key, voyage-api-key, jwt-secret, admin-default-password, database-ca-crt
+- **Auto-deploy (CI)**: pushes to `main` that touch `server/**`, `Dockerfile`, or `package*.json` trigger GitHub Actions ([.github/workflows/deploy-api.yml](.github/workflows/deploy-api.yml)) which redeploys the API. Keyless auth via Workload Identity Federation (WIF pool `github` → SA `github-deploy@steven-warehouse-dev.iam.gserviceaccount.com`). Frontend-only pushes are handled by Vercel and skipped here.
+- **Redeploy API (manual)**: `gcloud run deploy flight-speakers-api --source . --region europe-west2 --project steven-warehouse-dev --quiet`
+- **Dockerfile**: `node:20-alpine`, installs `yt-dlp` + `ffmpeg` (sizzle-reel downloads), `npm ci --omit=dev`, copies `server/` only, `CMD node server/index.js`
 
 ## Dev Proxy (vite.config.js)
 - `/api` → `http://localhost:3001` (Express API)
