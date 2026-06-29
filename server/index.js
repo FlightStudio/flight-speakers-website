@@ -38,6 +38,7 @@ app.use(helmet({
       scriptSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "blob:", "https://storage.googleapis.com", "https://images.unsplash.com"],
+      mediaSrc: ["'self'", "blob:", "https://storage.googleapis.com"],
       fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
       connectSrc: ["'self'"],
       frameSrc: ["https://www.youtube.com", "https://www.youtube-nocookie.com"],
