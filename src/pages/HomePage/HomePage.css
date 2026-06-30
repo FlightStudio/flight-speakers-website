@@ -14,23 +14,6 @@
 }
 
 /* ================================
-   Cursor Glow Effect
-   ================================ */
-
-.cursor-glow {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(232, 93, 76, 0.08) 0%, transparent 70%);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
-  mix-blend-mode: normal;
-}
-
-/* ================================
    Floating Particles
    ================================ */
 
@@ -1104,7 +1087,6 @@
     justify-content: center;
   }
 
-  .cursor-glow,
   .floating-particles {
     display: none;
   }
@@ -1272,7 +1254,6 @@
    ================================ */
 
 @media (prefers-reduced-motion: reduce) {
-  .cursor-glow,
   .floating-particles,
   .particle,
   .social-proof__logos,
