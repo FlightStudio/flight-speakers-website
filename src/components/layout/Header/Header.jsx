@@ -87,7 +87,7 @@ function Header() {
             <div className="nav-right">
               <motion.button
                 type="submit"
-                className="hero-search__button book-a-speaker__btn"
+                className="hero-search__button book-a-speaker__btn hide-mobile"
                 whileTap={{ scale: 0.97 }}
               >
                 <svg width="18" height="18" viewBox="0 0 20.022 20.022" fill="none" aria-hidden="true">

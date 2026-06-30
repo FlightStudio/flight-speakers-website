@@ -1,7 +1,7 @@
 /* Search Bar */
 .hero-search {
   max-width: 680px;
-  margin: 0 auto 56px;
+  margin: 0 auto 24px;
   position: relative;
 }
 
@@ -37,20 +37,57 @@
   width: calc(100% - 10px);
   margin: 0 auto;
   z-index: 0;
+  position: relative;
+  overflow: visible;
 }
 
-.hero-search__container:hover {
-  border-color: rgba(0, 0, 0, 0.12);
-  box-shadow:
-    0 8px 40px rgba(0, 0, 0, 0.06),
-    0 1px 2px rgba(0, 0, 0, 0.02);
+.hero-search__container::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 4px;                 /* border thickness */
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+
+  /* head + trail: bright point fading backward around the ring */
+  background: conic-gradient(
+    from calc(var(--comet-angle, 0deg) + 45deg),
+    rgba(125, 211, 252, 0) 0deg,
+    rgba(125, 211, 252, 0) 300deg,
+    rgba(125, 211, 252, 0.3) 345deg,
+    rgba(186, 230, 253, 0.7) 358deg,
+    rgba(255, 255, 255, 0.7) 360deg
+  );
+
+  /* show gradient only on the border ring, not the fill */
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+
+  animation: comet-spin 3s linear infinite;
 }
 
-.hero-search__container--focused {
-  border-color: var(--color-charcoal);
-  box-shadow:
-    0 8px 40px rgba(0, 0, 0, 0.08),
-    0 0 0 4px rgba(26, 26, 26, 0.04);
+.hero-search__container:hover::after,
+.hero-search__container--focused::after {
+  opacity: 1;
+}
+
+@property --comet-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes comet-spin {
+  to { --comet-angle: 360deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-search__container::after { animation: none; }
 }
 
 .hero-search__input-wrapper {

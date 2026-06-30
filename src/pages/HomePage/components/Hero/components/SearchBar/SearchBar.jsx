@@ -6,40 +6,16 @@ import { motion } from 'framer-motion';
 
 import { placeholders } from './examples';
 
-import ellipsePink from '../../../../../../assets/ellipse-pink.png';
-import ellipseBlue from '../../../../../../assets/ellipse-blue.png';
-import cursorLight from '../../../../../../assets/cursor-light-purple.png';
-import star from '../../../../../../assets/star.png';
-
-const spotlightVariants = {
-  rest:    { opacity: 0,   scale: 0.85, y: '-50%' },
-  hover:   { opacity: 0.7, scale: 0.95, y: '-50%' },
-  focusIn: { opacity: 1,   scale: 1.0,  y: '-50%' },
-  breathe: {
-    opacity: [1, 0.8, 1],
-    scale: [1.0, 1.1, 1.0],
-    y: '-50%',
-    transition: {
-      duration: 2,
-      repeat: Infinity,
-      repeatType: 'mirror',
-      ease: 'easeInOut'
-    },
-  },
-};
+import cursorLight from "../../../../../../assets/cursor-light-purple.png";
+import star from "../../../../../../assets/star.png";
 
 function SearchBar() {
   const navigate = useNavigate()
 
 	const [searchQuery, setSearchQuery] = useState('');
 	const [isFocused, setIsFocused] = useState(false);
-	const [isHovered, setIsHovered] = useState(false);
   const [typingText, setTypingText] = useState('')
   const [breathing, setBreathing] = useState(false);
-
-  const spotlightState = isFocused
-    ? (breathing ? 'breathe' : 'focusIn')
-    : isHovered ? 'hover' : 'rest';
 
   const SPARKS = [
     { x: 7,  y: 52, s: 2, d: 3.0, delay: 0 },
@@ -99,28 +75,10 @@ function SearchBar() {
 		<motion.form
       className={"hero-search"}
 			onSubmit={handleSearch}
-			onMouseEnter={() => setIsHovered(true)}
-			onMouseLeave={() => setIsHovered(false)}
 			initial={{ opacity: 0, y: 30 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.6, delay: 0.7 }}
 		>
-      <motion.img
-        src={ellipseBlue}
-        alt="spotlight-blue"
-        className="hero-search__spotlight left hide-mobile"
-        variants={spotlightVariants}
-        animate={spotlightState}
-        transition={{
-          duration: 0.4,
-          ease: 'easeInOut'
-        }}
-        onAnimationComplete={(def) => {
-          if (def === 'focusIn')
-            setBreathing(true);
-          }
-        }
-      />
 			<div className={`hero-search__container ${isFocused ? 'hero-search__container--focused' : ''}`}>
 				<div className="hero-search__input-wrapper">
 					<input
@@ -208,22 +166,6 @@ function SearchBar() {
 					<span>Find Speakers</span>
 				</motion.button>
 			</div>
-      <motion.img
-        src={ellipsePink}
-        alt="spotlight-pink"
-        className="hero-search__spotlight right hide-mobile"
-        variants={spotlightVariants}
-        animate={spotlightState}
-        transition={{
-          duration: 0.4,
-          ease: 'easeInOut'
-        }}
-        onAnimationComplete={(def) => {
-          if (def === 'focusIn')
-            setBreathing(true);
-          }
-        }
-      />
 		</motion.form>
 	);
 }
