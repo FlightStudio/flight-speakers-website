@@ -21,12 +21,12 @@ function Cursor() {
     const handleMouseMove = (e) => {
       if (prev.current === null) {
         // first placement: jump instantly, no spring travel
-        x.jump(e.clientX - 11)
-        y.jump(e.clientY - 24)
-        sx.jump(e.clientX - 11)
-        sy.jump(e.clientY - 24)
+        x.jump(e.clientX - 13.5)
+        y.jump(e.clientY - 24.3)
+        sx.jump(e.clientX - 13.5)
+        sy.jump(e.clientY - 24.3)
         prev.current = { x: e.clientX, y: e.clientY }
-        opacity.set(0.8)
+        opacity.set(1)
         return
       }
       const dx = e.clientX - prev.current.x
@@ -38,8 +38,8 @@ function Cursor() {
         rotate.set(angleRef.current)
       }
       prev.current = { x: e.clientX, y: e.clientY }
-      x.set(e.clientX - 11)
-      y.set(e.clientY - 24)
+      x.set(e.clientX - 13.5)
+      y.set(e.clientY - 24.3)
       opacity.set(0.8)
     }
     window.addEventListener('mousemove', handleMouseMove)

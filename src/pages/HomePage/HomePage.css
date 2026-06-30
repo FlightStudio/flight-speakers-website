@@ -7,6 +7,13 @@
   padding-top: 0 !important;
 }
 
+.home-page,
+.home-page *,
+:has(.home-page),
+:has(.home-page) * {
+  cursor: none !important;
+}
+
 .home-page {
   min-height: 100vh;
   background: var(--color-white);

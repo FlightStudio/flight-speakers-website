@@ -53,25 +53,24 @@ function Hero() {
         style={{ opacity: heroOpacity, y: springY }}
       >
         <div className="container">
-          {/* Title with reveal animation */}
+          {/* Title with reveal animation — copy from home.html */}
           <h1 className="hero__title">
             <span className="hero__title-line">
-              <RevealText delay={0.3}>Find the voice that</RevealText>
+              <RevealText delay={0.3}>Bring the bold voice</RevealText>
             </span>
             <span className="hero__title-line">
-              <RevealText delay={0.4}>transforms your event</RevealText>
+              <RevealText delay={0.4}>to your stage.</RevealText>
             </span>
           </h1>
 
-          {/* Subtitle */}
+          {/* Cue line — leads into the search bar */}
           <motion.p
-            className="hero__subtitle"
+            className="hero__cue"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
           >
-            Describe your event in natural language. Our AI matches you with
-            world-class speakers who will captivate your audience.
+            Type it in.
           </motion.p>
 
           {/* Search Bar */}
