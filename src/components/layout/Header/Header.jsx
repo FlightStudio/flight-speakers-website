@@ -51,8 +51,9 @@ function Header() {
   }, [])
 
   const navItems = [
-    { path: '/speakers', label: 'Speakers' },
-    { path: '/about', label: 'About' },
+    { path: '/', label: 'HOME' },
+    { path: '/speakers', label: 'SPEAKERS' },
+    { path: '/about', label: 'ABOUT' },
   ]
 
   return (
@@ -63,7 +64,9 @@ function Header() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: EASE }}
       >
-        <div className="container">
+        <div className="container" style={{
+          maxWidth: "unset",
+        }}>
           <nav className="nav">
             <Link to="/" className="logo">
               <img style={{ width: "150px" }} src={logo} alt="logo" />
@@ -82,16 +85,15 @@ function Header() {
             </div>
 
             <div className="nav-right">
-              <img src={ellipse} alt="" className="hide-mobile" style={{
-                position:'absolute'
-              }} />
               <motion.button
-                className="btn hide-mobile book-speaker"
-                onClick={() => navigate('/book')}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                type="submit"
+                className="comet-search__btn book-a-speaker__btn"
+                whileTap={{ scale: 0.97 }}
               >
-                Book a Speaker
+                <svg width="18" height="18" viewBox="0 0 20.022 20.022" fill="none" aria-hidden="true">
+                  <path d="M 9.451 1.29 C 9.664 0.8 10.358 0.8 10.571 1.29 L 12.945 6.76 C 13.006 6.902 13.119 7.015 13.261 7.077 L 18.732 9.451 C 19.221 9.664 19.221 10.358 18.732 10.571 L 13.261 12.945 C 13.119 13.006 13.006 13.119 12.945 13.261 L 10.571 18.732 C 10.358 19.221 9.664 19.221 9.451 18.732 L 7.077 13.261 C 7.015 13.119 6.902 13.006 6.76 12.945 L 1.29 10.571 C 0.8 10.358 0.8 9.664 1.29 9.451 L 6.76 7.077 C 6.902 7.015 7.015 6.902 7.077 6.76 L 9.451 1.29 Z" fill="currentColor" />
+                </svg>
+                <span className="comet-search__btn-label">Book a speaker</span>
               </motion.button>
 
               {/* <motion.button
