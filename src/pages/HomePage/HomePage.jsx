@@ -12,6 +12,7 @@ import Hero from './components/Hero/Hero'
 import Cursor from './components/Cursor/Cursor'
 import HowItWorks from './components/HowItWorks/HowItWorks'
 import OurSpeakers from './components/OurSpeakers/OurSpeakers'
+import SocialProof from './components/SocialProof/SocialProof'
 
 // Magnetic button wrapper
 function MagneticButton({ children, className, ...props }) {
@@ -100,36 +101,6 @@ function CtaSpeakerPreview({ speakers, isHovered }) {
   )
 }
 
-// Animated counter with spring physics
-function AnimatedCounter({ value, suffix = '' }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true })
-  const [count, setCount] = useState(0)
-
-  useEffect(() => {
-    if (!isInView) return
-
-    const numericValue = parseInt(value.replace(/\D/g, ''))
-    const duration = 2000
-    const startTime = Date.now()
-
-    const animate = () => {
-      const elapsed = Date.now() - startTime
-      const progress = Math.min(elapsed / duration, 1)
-      const eased = 1 - Math.pow(1 - progress, 4)
-      setCount(Math.floor(numericValue * eased))
-
-      if (progress < 1) {
-        requestAnimationFrame(animate)
-      }
-    }
-
-    requestAnimationFrame(animate)
-  }, [isInView, value])
-
-  return <span ref={ref}>{count}{suffix}</span>
-}
-
 // Floating particles
 function FloatingParticles() {
   const particles = useMemo(() =>
@@ -166,52 +137,6 @@ function FloatingParticles() {
           }}
         />
       ))}
-    </div>
-  )
-}
-
-// Social Proof Bar Component
-function SocialProofBar() {
-  const logos = [
-    'Adobe', 'Spotify', 'Google', 'LinkedIn', 'Meta',
-    'Microsoft', 'PwC', 'Deloitte', 'Mastercard', 'Revolut'
-  ]
-
-  const stats = [
-    { value: '260', suffix: 'K+', label: 'People Reached' },
-    { value: '98', suffix: '%', label: 'Satisfaction' },
-    { value: '176', suffix: '', label: 'Speaking Engagements' },
-  ]
-
-  return (
-    <div className="social-proof">
-      <div className="social-proof__metrics">
-        {stats.map((stat, i) => (
-          <div key={i} className="social-proof__metric">
-            <span className="social-proof__metric-value">
-              <AnimatedCounter value={stat.value} suffix={stat.suffix} />
-            </span>
-            <span className="social-proof__metric-label">{stat.label}</span>
-          </div>
-        ))}
-      </div>
-      <div className="social-proof__label">Trusted by leading organizations</div>
-      <div className="social-proof__track">
-        <motion.div
-          className="social-proof__logos"
-          animate={{ x: ['0%', '-50%'] }}
-          transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
-        >
-          {[...logos, ...logos].map((logo, i) => (
-            <div key={i} className="social-proof__logo">
-              {/* Grey placeholder box for logo */}
-              <div className="social-proof__logo-placeholder">
-                <span>{logo}</span>
-              </div>
-            </div>
-          ))}
-        </motion.div>
-      </div>
     </div>
   )
 }
@@ -304,8 +229,6 @@ function HomePage() {
       .catch(err => console.error('Failed to load speakers:', err))
   }, [])
 
-
-
   return (
     <div className="home-page">
       <Cursor />
@@ -318,8 +241,7 @@ function HomePage() {
 
       <OurSpeakers speakers={speakers} />
 
-      {/* ========== TRUSTED BY ========== */}
-      <SocialProofBar />
+      <SocialProof />
 
       {/* ========== CTA ========== */}
       <CtaSection speakers={speakers} />

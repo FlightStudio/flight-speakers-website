@@ -49,88 +49,6 @@
 }
 
 /* ================================
-   Social Proof Bar
-   ================================ */
-
-.social-proof {
-  padding: 32px 0;
-  border-top: 1px solid var(--color-gray-100);
-  border-bottom: 1px solid var(--color-gray-100);
-  overflow: hidden;
-}
-
-.social-proof__metrics {
-  display: flex;
-  justify-content: center;
-  gap: 64px;
-  margin-bottom: 32px;
-}
-
-.social-proof__metric {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.social-proof__metric-value {
-  font-size: 32px;
-  font-weight: 600;
-  color: var(--color-gray-900);
-  letter-spacing: -0.02em;
-  line-height: 1;
-}
-
-.social-proof__metric-label {
-  font-size: 13px;
-  color: var(--color-gray-500);
-  font-weight: 450;
-}
-
-.social-proof__label {
-  text-align: center;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-gray-400);
-  margin-bottom: 24px;
-}
-
-.social-proof__track {
-  width: 100%;
-  overflow: hidden;
-  mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
-}
-
-.social-proof__logos {
-  display: flex;
-  gap: 64px;
-  width: max-content;
-}
-
-.social-proof__logo {
-  flex-shrink: 0;
-}
-
-.social-proof__logo-placeholder {
-  width: 120px;
-  height: 40px;
-  background: var(--color-gray-200);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.social-proof__logo-placeholder span {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--color-gray-500);
-}
-
-/* ================================
    Speaker Carousel
    ================================ */
 
@@ -203,6 +121,7 @@
 
 .section .container {
   flex: 1;
+  min-width: 0;
 }
 
 .section-left {

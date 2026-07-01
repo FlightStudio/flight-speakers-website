@@ -1,0 +1,107 @@
+.social-proof {
+  padding: 32px 0;
+  border-top: 1px solid var(--color-gray-100);
+  border-bottom: 1px solid var(--color-gray-100);
+  overflow: hidden;
+}
+
+.social-proof__track {
+  width: 100%;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+  margin-bottom: 28px;
+}
+
+.social-proof__logos {
+  display: flex;
+  gap: 64px;
+  width: max-content;
+}
+
+.social-proof__logo {
+  flex-shrink: 0;
+}
+
+.social-proof__logo-placeholder {
+  width: 120px;
+  height: 40px;
+  background: var(--color-gray-200);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.social-proof__logo-placeholder span {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-gray-500);
+}
+
+.social-proof__metrics {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  height: 500px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.social-proof__metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.social-proof__metric .metric-container {
+  flex: 1;
+  border: 1px solid;
+  width: 100%;
+  position: relative;
+  border-radius: 20px;
+}
+
+.social-proof__metric-value {
+  font-size: 4rem;
+  font-weight: 400;
+  color: var(--color-gray-900);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  position: absolute;
+  top: 15px;
+  left: 15px;
+
+  background: linear-gradient(to right, #8F8F8F, #F5F5F5);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.social-proof__metric-label {
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--color-gray-500);
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+
+  background: linear-gradient(to right, #8F8F8F, #F5F5F5);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.social-proof__label {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-gray-400);
+  margin-bottom: 24px;
+}
