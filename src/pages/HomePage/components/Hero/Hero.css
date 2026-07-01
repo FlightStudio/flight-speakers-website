@@ -99,9 +99,8 @@
 
 /* Title */
 .hero__title {
-  font-size: 5.5rem;
-  font-weight: 400;
-  letter-spacing: -0.04em;
+  font-size: 6.5rem;
+  font-weight: 350;
   /* line-height: 1.05; */
   color: var(--color-charcoal);
   margin: 0 0 28px;
@@ -120,6 +119,7 @@
   margin: 0 auto;
   font-size: 0.8rem;
   color: #D9D9D9;
+  opacity: 0.8;
 }
 
 .hero__title-line {
