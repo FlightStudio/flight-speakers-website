@@ -1,0 +1,107 @@
+/* ================================
+   AI Demo — Window Layout + Pipeline
+   ================================ */
+
+.ai-demo-section {
+  overflow: hidden;
+}
+
+/* Two-column: text left, window right */
+.ai-demo-layout {
+  align-items: center;
+}
+
+.ai-demo-layout__text {
+  padding-top: 8px;
+}
+
+.ai-demo-layout__text .section-label {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.ai-demo-layout__text .section-subtitle {
+  margin-bottom: 28px;
+}
+
+/* Inline steps on the left */
+.ai-demo-layout__steps {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.ai-demo-layout__step {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px;
+  cursor: default;
+}
+.ai-demo-layout__step:not(:last-child) {
+  border-right: 1px solid #D9D9D9;
+}
+
+.ai-demo-layout__step-num {
+  font-size: 3rem;
+  font-weight: 300;
+  color: #D9D9D9;
+}
+
+.ai-demo-layout__step-title {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: #D9D9D9;
+  margin-bottom: 2px;
+}
+
+.ai-demo-layout__step-desc p {
+  font-size: 12px;
+  color: #D9D9D9;
+  line-height: 1;
+}
+
+/* App window container */
+.ai-demo-layout__window {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.06),
+    0 1px 2px rgba(0, 0, 0, 0.04);
+  background: #f5f1ea;
+}
+
+.ai-window__bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: #eee9df;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.ai-window__dots {
+  display: flex;
+  gap: 5px;
+}
+
+.ai-window__dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.ai-window__dots span:nth-child(1) { background: #ff5f57; }
+.ai-window__dots span:nth-child(2) { background: #febc2e; }
+.ai-window__dots span:nth-child(3) { background: #28c840; }
+
+.ai-window__title {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-gray-500);
+  letter-spacing: 0.01em;
+}
+
+.ai-window__body {
+  padding: clamp(12px, 2vw, 20px);
+}

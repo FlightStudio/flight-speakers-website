@@ -1,0 +1,254 @@
+/* ——— Pipeline inside window ——— */
+.ai-pipe {
+  display: flex;
+  flex-direction: column;
+  /* Treat the mock-browser frame as a sizing container, then drive a SINGLE
+     base font-size from container width. Every nested element uses em units,
+     so the whole pipeline (search, pills, lines, orb, results) scales as one
+     unit. No element shrinks faster than another, no pills wrap to a second
+     row at narrow widths. */
+  container-type: inline-size;
+  container-name: ai-pipe;
+  font-size: clamp(8.5px, 1.65cqw, 13px);
+}
+
+/* Search bar — top of window */
+.ai-pipe__search {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  padding: 0.7em 1em;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.75em;
+}
+
+.ai-pipe__search-icon {
+  flex-shrink: 0;
+  color: var(--color-gray-400);
+}
+
+.ai-pipe__search-text {
+  flex: 1;
+  font-size: 1em;
+  color: var(--color-charcoal);
+  line-height: 1.5;
+  min-height: 1.4em;
+}
+
+.ai-pipe__placeholder {
+  color: var(--color-gray-400);
+}
+
+.ai-pipe__cursor {
+  display: inline-block;
+  width: 1.5px;
+  height: 14px;
+  background: var(--color-charcoal);
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  animation: pipe-blink 0.8s step-end infinite;
+}
+
+@keyframes pipe-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Visualization area — expands from the search bar */
+.ai-pipe__viz {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 16px;
+  overflow: hidden;
+  min-height: 300px;
+  overflow: hidden;
+}
+
+/* Token pills — guaranteed single row. Grid (5 explicit columns with
+   minmax(0,auto)) is more bulletproof than flex-wrap: nowrap because there's
+   literally no second-row track to drop into. Each pill sits in its own
+   centered column and scales with the inherited base font-size. */
+.ai-pipe__token-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, auto));
+  justify-content: center;
+  gap: 0.55em;
+  width: 100%;
+}
+
+.ai-pipe__token {
+  padding: 0.45em 1.15em;
+  font-size: 0.95em;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--tk);
+  background: color-mix(in srgb, var(--tk) 8%, #f5f1ea);
+  border: 1px solid color-mix(in srgb, var(--tk) 18%, transparent);
+  border-radius: 100px;
+  /* min-width: 0 + overflow + ellipsis is the safety net for very narrow
+     containers — pills truncate gracefully instead of overflowing the grid. */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* SVG paths area — wrap is sized by CSS, SVG uses pixel coords inside.
+   Dropping viewBox + preserveAspectRatio means curves track the pills
+   exactly during resize instead of warping with the aspect ratio. */
+.ai-pipe__paths-wrap {
+  width: 100%;
+  height: 11em;
+  position: relative;
+}
+
+.ai-pipe__paths {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+/* Analyzing orb at convergence */
+.ai-pipe__orb {
+  position: relative;
+  width: 2.6em;
+  height: 2.6em;
+  margin: -2px 0 1em;
+}
+
+.ai-pipe__orb-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+}
+
+.ai-pipe__orb-ring--outer {
+  border-top-color: var(--color-text-primary);
+  border-right-color: color-mix(in srgb, var(--color-text-primary) 15%, transparent);
+}
+
+.ai-pipe__orb-ring--inner {
+  inset: 6px;
+  border-bottom-color: var(--color-accent);
+  border-left-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+.ai-pipe__orb-core {
+  position: absolute;
+  inset: 11px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-text-primary) 0%, color-mix(in srgb, var(--color-text-primary) 50%, transparent) 100%);
+}
+
+/* Results */
+.ai-pipe__results {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45em;
+  width: 100%;
+}
+
+.ai-pipe__result {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  padding: 0.7em 0.9em;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 0.75em;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ai-pipe__result:hover {
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.ai-pipe__result-av {
+  width: 2.4em;
+  height: 2.4em;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e0e7ff, #ddd6fe);
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.ai-pipe__result-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ai-pipe__result-name {
+  display: block;
+  font-size: 1em;
+  font-weight: 600;
+  color: var(--color-charcoal);
+}
+
+.ai-pipe__result-topic {
+  display: block;
+  font-size: 0.85em;
+  color: var(--color-gray-500);
+}
+
+.ai-pipe__result-score {
+  flex-shrink: 0;
+  padding: 0.2em 0.55em;
+  font-size: 0.85em;
+  font-weight: 700;
+  color: #14b8a6;
+  background: rgba(20, 184, 166, 0.12);
+  border-radius: 0.4em;
+}
+
+/* Footer CTA */
+.ai-pipe__footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 14px;
+}
+
+.ai-pipe__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--color-charcoal);
+  border-radius: 100px;
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ai-pipe__cta:hover {
+  background: var(--color-black);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.ai-pipe__cta svg {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ai-pipe__cta:hover svg {
+  transform: translateX(2px);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .ai-demo-layout {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+/* 
+  .ai-demo-layout__text .section-title {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+  } */
+}
