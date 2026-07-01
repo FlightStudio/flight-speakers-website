@@ -153,7 +153,7 @@ function EnhancedAIDemo({ speakers: allSpeakers = [] }) {
       // Star pulses when dots start traveling
       t.push(setTimeout(() => setPhase(3), phase2At + DOTS_START * 1000))
       // Results appear right after last dot arrives
-      t.push(setTimeout(() => setPhase(4), phase2At + LAST_DOT_DONE * 1000 + 200))
+      t.push(setTimeout(() => setPhase(4), phase2At + LAST_DOT_DONE * 1000 - 2500))
       timersRef.current = t
     } else {
       timersRef.current.forEach(clearTimeout)

@@ -1,15 +1,17 @@
-import { useState, useMemo, useRef, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence, useInView } from 'framer-motion'
+import './HomePage.css'
+
+import { useState, useMemo, useRef, useEffect } from 'react'
+import { motion, useInView } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
-import SpeakerCard from '../../components/speakers/SpeakerCard'
 import { useSmoothScroll } from '../../hooks/useSmoothScroll'
 import { useMagneticEffect } from '../../hooks/useMagneticEffect'
 import { EASE } from '../../constants/animation'
 import { sessionShuffle } from '../../utils/shuffle'
-import './HomePage.css'
+
 import Hero from './components/Hero/Hero'
 import Cursor from './components/Cursor/Cursor'
 import HowItWorks from './components/HowItWorks/HowItWorks'
+import OurSpeakers from './components/OurSpeakers/OurSpeakers'
 
 // Magnetic button wrapper
 function MagneticButton({ children, className, ...props }) {
@@ -287,7 +289,6 @@ function HomePage() {
   useSmoothScroll()
 
   const navigate = useNavigate()
-  const [activeFilter, setActiveFilter] = useState('all')
   const inputRef = useRef(null)
 
   const [speakers, setSpeakers] = useState([])
@@ -303,14 +304,7 @@ function HomePage() {
       .catch(err => console.error('Failed to load speakers:', err))
   }, [])
 
-  const filterOptions = ['all', 'leadership', 'entrepreneurship', 'performance', 'wellness']
 
-  const filteredSpeakers = useMemo(() => {
-    if (activeFilter === 'all') return speakers
-    return speakers.filter(s =>
-      s.topics?.some(t => t.toLowerCase().includes(activeFilter.toLowerCase()))
-    )
-  }, [speakers, activeFilter])
 
   return (
     <div className="home-page">
@@ -322,100 +316,7 @@ function HomePage() {
 
       <HowItWorks speakers={speakers} />
 
-      {/* ========== SPEAKER CATALOGUE ========== */}
-      <section className="section speakers-section">
-        <div className="container">
-          <motion.div
-            className="section-header"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.6 }}
-          >
-            <span className="section-label">Our Speakers</span>
-            <h2 className="section-title">Exceptional talent, vetted for excellence</h2>
-            <p className="section-subtitle">
-              Each speaker is personally selected for their ability to captivate and inspire.
-            </p>
-          </motion.div>
-
-          {/* Filter Chips */}
-          <motion.div
-            className="filter-chips"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            {filterOptions.map((filter) => (
-              <button
-                key={filter}
-                className={`filter-chip ${activeFilter === filter ? 'filter-chip--active' : ''}`}
-                onClick={() => setActiveFilter(filter)}
-              >
-                {filter.charAt(0).toUpperCase() + filter.slice(1)}
-              </button>
-            ))}
-          </motion.div>
-
-          {/* Speaker Carousel */}
-          <div className="speakers-carousel">
-            <button
-              className="speakers-carousel__arrow speakers-carousel__arrow--left"
-              onClick={() => {
-                const track = document.querySelector('.speakers-carousel__track')
-                if (track) track.scrollBy({ left: -track.offsetWidth * 0.75, behavior: 'smooth' })
-              }}
-              aria-label="Previous speakers"
-            >
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <path d="M11 4L6 9L11 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-            <div className="speakers-carousel__track">
-              {filteredSpeakers.map((speaker, i) => (
-                <motion.div
-                  key={speaker.id}
-                  className="speakers-carousel__item"
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-50px' }}
-                  transition={{ duration: 0.4, delay: i * 0.06 }}
-                >
-                  <SpeakerCard speaker={speaker} />
-                </motion.div>
-              ))}
-            </div>
-            <button
-              className="speakers-carousel__arrow speakers-carousel__arrow--right"
-              onClick={() => {
-                const track = document.querySelector('.speakers-carousel__track')
-                if (track) track.scrollBy({ left: track.offsetWidth * 0.75, behavior: 'smooth' })
-              }}
-              aria-label="Next speakers"
-            >
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <path d="M7 4L12 9L7 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-          </div>
-
-          <motion.div
-            className="section-cta"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-          >
-            <Link to="/speakers" className="btn btn-secondary btn-lg">
-              Explore All Speakers
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </Link>
-          </motion.div>
-        </div>
-      </section>
+      <OurSpeakers speakers={speakers} />
 
       {/* ========== TRUSTED BY ========== */}
       <SocialProofBar />

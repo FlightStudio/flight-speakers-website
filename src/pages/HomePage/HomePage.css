@@ -131,45 +131,6 @@
 }
 
 /* ================================
-   Filter Chips
-   ================================ */
-
-.filter-chips {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 24px;
-}
-
-.filter-chip {
-  padding: 10px 20px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--color-gray-600);
-  background: var(--color-white);
-  border: 1px solid var(--color-gray-200);
-  border-radius: 100px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.filter-chip:hover {
-  border-color: var(--color-gray-300);
-  background: var(--color-gray-50);
-}
-
-.filter-chip--active {
-  background: var(--color-charcoal);
-  color: var(--color-white);
-  border-color: var(--color-charcoal);
-}
-
-.filter-chip--active:hover {
-  background: var(--color-black);
-  border-color: var(--color-black);
-}
-
-/* ================================
    Speaker Carousel
    ================================ */
 
@@ -240,8 +201,13 @@
   display: flex;
 }
 
+.section .container {
+  flex: 1;
+}
+
 .section-left {
   width: 300px;
+  min-width: 300px;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -703,18 +669,6 @@
 
   .floating-particles {
     display: none;
-  }
-
-  .filter-chips {
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    padding-bottom: 8px;
-    margin-bottom: 32px;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .filter-chip {
-    flex-shrink: 0;
   }
 
   .social-proof {
