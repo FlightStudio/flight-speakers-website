@@ -7,27 +7,17 @@
   padding-top: 0 !important;
 }
 
+.home-page,
+.home-page *,
+:has(.home-page),
+:has(.home-page) * {
+  cursor: none !important;
+}
+
 .home-page {
   min-height: 100vh;
   background: var(--color-white);
   overflow-x: hidden;
-}
-
-/* ================================
-   Cursor Glow Effect
-   ================================ */
-
-.cursor-glow {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(232, 93, 76, 0.08) 0%, transparent 70%);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
-  mix-blend-mode: normal;
 }
 
 /* ================================
@@ -1104,7 +1094,6 @@
     justify-content: center;
   }
 
-  .cursor-glow,
   .floating-particles {
     display: none;
   }
@@ -1272,7 +1261,6 @@
    ================================ */
 
 @media (prefers-reduced-motion: reduce) {
-  .cursor-glow,
   .floating-particles,
   .particle,
   .social-proof__logos,

@@ -3,12 +3,12 @@ import "./Hero.css";
 import { useRef } from 'react'
 import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-motion'
 
-import GradientMesh from '../../../../components/effects/GradientMesh'
 import { EASE } from '../../../../constants/animation'
 
 import SearchBar from './components/SearchBar/SearchBar'
 
 import heroBgTop from '../../../../assets/hero-bg-top.png';
+import spotlightRed from '../../../../assets/red-spotlight.png';
 import heroBgBottom from '../../../../assets/hero-bg-bottom.png';
 
 // Animated text reveal
@@ -43,9 +43,7 @@ function Hero() {
     <section className="hero" ref={heroRef}>
 
       <div className="hero__background">
-        <img className="hero__spotlight top" src={heroBgTop} alt="hero-bg-top" />
-        <GradientMesh />
-        <img className="hero__spotlight bottom" src={heroBgBottom} alt="hero-bg-bottom" />
+        <img className="hero__spotlight top" src={spotlightRed} alt="hero-bg-top" />
       </div>
 
       <motion.div
@@ -53,29 +51,27 @@ function Hero() {
         style={{ opacity: heroOpacity, y: springY }}
       >
         <div className="container">
-          {/* Title with reveal animation */}
+          {/* Title with reveal animation — copy from home.html */}
           <h1 className="hero__title">
             <span className="hero__title-line">
-              <RevealText delay={0.3}>Find the voice that</RevealText>
+              <RevealText delay={0.3}>Bring the bold voice</RevealText>
             </span>
             <span className="hero__title-line">
-              <RevealText delay={0.4}>transforms your event</RevealText>
+              <RevealText delay={0.4}>to your stage.</RevealText>
             </span>
           </h1>
 
-          {/* Subtitle */}
+          {/* Search Bar */}
+          <SearchBar />
+
           <motion.p
-            className="hero__subtitle"
+            className="hero__cue"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
           >
-            Describe your event in natural language. Our AI matches you with
-            world-class speakers who will captivate your audience.
+            Describe your event in natural language. Our AI matches you with world-class speakers who will captivate your audience.
           </motion.p>
-
-          {/* Search Bar */}
-          <SearchBar />
 
           {/* Example Queries */}
           {/* <motion.div

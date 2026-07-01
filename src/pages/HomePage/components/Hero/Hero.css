@@ -5,10 +5,17 @@
 .reveal-text {
   display: inline-block;
   overflow: hidden;
+  width: 100%;
 }
 
 .reveal-text > span {
+  width: 100%;
   display: inline-block;
+  background: linear-gradient(to right, #8F8F8F, #F5F5F5);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 
 /* ================================
@@ -23,7 +30,8 @@
   justify-content: center;
   overflow: hidden;
   padding-top: var(--header-height);
-  height: 100vh;
+  min-height: 100vh;
+  overflow: visible;
 }
 
 .hero__background {
@@ -34,31 +42,15 @@
 
 .hero__spotlight {
   position: absolute;
-  max-height: 50vh;
   left: 0;
   right: 0;
   margin: 0 auto;
   opacity: 0.8;
-}
-.hero__spotlight.top {
   top: 0;
   animation: spotlight-drift-right 20s ease-in-out infinite;
-}
-.hero__spotlight.bottom {
-  bottom: 0;
-  animation: spotlight-drift-left 20s ease-in-out infinite;
-}
-
-@keyframes spotlight-drift-left {
-  0%   { transform: translateX(0); }
-  50%  { transform: translateX(-15%); }
-  100% { transform: translateX(0); }
-}
-
-@keyframes spotlight-drift-right {
-  0%   { transform: translateX(0); }
-  50%  { transform: translateX(15%); }
-  100% { transform: translateX(0); }
+  transform: translateY(-35%) !important;
+  width: 90vw;
+  opacity: 0.4;
 }
 
 .hero__background .gradient-mesh {
@@ -107,12 +99,27 @@
 
 /* Title */
 .hero__title {
-  font-size: clamp(3rem, 8vw, 5.5rem);
-  font-weight: 600;
+  font-size: 5.5rem;
+  font-weight: 400;
   letter-spacing: -0.04em;
-  line-height: 1.05;
+  /* line-height: 1.05; */
   color: var(--color-charcoal);
   margin: 0 0 28px;
+/* 
+  background: linear-gradient(to right, #8F8F8F, #F5F5F5);
+  -webkit-background-clip: text;
+  background-clip: text; */
+  /* -webkit-text-fill-color: transparent;
+  color: transparent; */
+
+  display: inline-block;
+}
+
+.hero__cue {
+  width: 500px;
+  margin: 0 auto;
+  font-size: 0.8rem;
+  color: #D9D9D9;
 }
 
 .hero__title-line {
