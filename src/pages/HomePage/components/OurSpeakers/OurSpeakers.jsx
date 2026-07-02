@@ -47,7 +47,7 @@ function OurSpeakers({ speakers }) {
 
         {/* Speaker Carousel */}
         <div className="speakers-carousel">
-          <div className="speakers-carousel__track" data-lenis-prevent>
+          <div className="speakers-carousel__track">
             {filteredSpeakers.map((speaker, i) => (
               <motion.div
                 key={speaker.id}
