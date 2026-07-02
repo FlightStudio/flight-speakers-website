@@ -60,7 +60,6 @@ function SocialProof() {
               </span>
               <span className="social-proof__metric-label">{stats[0].label}</span>
               <motion.img
-                // src={spotlight}
                 alt="spotlight"
                 className="social-proof__spotlight green"
                 style={{
@@ -68,7 +67,8 @@ function SocialProof() {
                   WebkitMaskImage: `url(${spotlight})`,
                   maskImage: `url(${spotlight})`,
                 }}
-              />            </div>
+              />
+            </div>
           </div>
           <div className="social-proof__metric right">
             <div className="metric-container" style={{

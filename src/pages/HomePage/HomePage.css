@@ -63,7 +63,7 @@
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-  padding: 4px 0 12px;
+  padding: 14px 12px;
 }
 
 .speakers-carousel__track::-webkit-scrollbar {
@@ -74,6 +74,8 @@
   flex: 0 0 clamp(180px, 15vw, 230px);
   scroll-snap-align: start;
   will-change: transform;
+  height: 400px;
+  min-width: 230px;
 }
 
 .speakers-carousel__arrow {
