@@ -62,16 +62,11 @@ function Cursor() {
   }, [])
 
   return (
-    <motion.div
-      id="cursor-glow"
-      style={{
-        x: sx,
-        y: sy,
-        rotate: sRotate,
-        opacity: sOpacity
-      }}
-    />
-  )
+    <motion.div id="cursor-wrap" style={{ x: sx, y: sy, rotate: sRotate }}>
+      <motion.div id="cursor-glow" style={{ opacity: sOpacity }} />
+      <motion.div id="cursor-invert" style={{ opacity: sOpacity }} />
+    </motion.div>
+  );
 }
 
 export default Cursor;

@@ -59,8 +59,16 @@ function SocialProof() {
                 <AnimatedCounter value={stats[0].value} suffix={stats[0].suffix} />
               </span>
               <span className="social-proof__metric-label">{stats[0].label}</span>
-              {/* spotlight */}
-            </div>
+              <motion.img
+                // src={spotlight}
+                alt="spotlight"
+                className="social-proof__spotlight green"
+                style={{
+                  backgroundColor: "#2CC56D",
+                  WebkitMaskImage: `url(${spotlight})`,
+                  maskImage: `url(${spotlight})`,
+                }}
+              />            </div>
           </div>
           <div className="social-proof__metric right">
             <div className="metric-container" style={{
@@ -70,6 +78,16 @@ function SocialProof() {
                 <AnimatedCounter value={stats[1].value} suffix={stats[1].suffix} />
               </span>
               <span className="social-proof__metric-label">{stats[1].label}</span>
+              <motion.img
+                // src={spotlight}
+                alt="spotlight"
+                className="social-proof__spotlight yellow"
+                style={{
+                  backgroundColor: "#FFCD37",
+                  WebkitMaskImage: `url(${spotlight})`,
+                  maskImage: `url(${spotlight})`,
+                }}
+              />
             </div>
             <div className="metric-container" style={{
               border: "1px solid #519BFF"
@@ -78,6 +96,16 @@ function SocialProof() {
                 <AnimatedCounter value={stats[2].value} suffix={stats[2].suffix} />
               </span>
               <span className="social-proof__metric-label">{stats[2].label}</span>
+              <motion.img
+                // src={spotlight}
+                alt="spotlight"
+                className="social-proof__spotlight blue"
+                style={{
+                  backgroundColor: "#519BFF",
+                  WebkitMaskImage: `url(${spotlight})`,
+                  maskImage: `url(${spotlight})`,
+                }}
+              />
             </div>
           </div>
         </div>

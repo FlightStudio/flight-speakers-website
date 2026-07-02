@@ -20,14 +20,14 @@
 }
 
 .ai-demo-layout__text .section-subtitle {
-  margin-bottom: 28px;
+  margin-bottom: 56px;
 }
 
 /* Inline steps on the left */
 .ai-demo-layout__steps {
   display: flex;
   gap: 16px;
-  margin-bottom: 28px;
+  margin-bottom: 46px;
 }
 
 .ai-demo-layout__step {

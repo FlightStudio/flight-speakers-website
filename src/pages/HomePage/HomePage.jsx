@@ -243,7 +243,6 @@ function HomePage() {
 
       <SocialProof />
 
-      {/* ========== CTA ========== */}
       <CtaSection speakers={speakers} />
     </div>
   )
