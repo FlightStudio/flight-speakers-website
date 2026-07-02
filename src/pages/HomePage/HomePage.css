@@ -59,7 +59,8 @@
 .speakers-carousel__track {
   display: flex;
   gap: 16px;
-  overflow-x: auto;
+  overflow-x: scroll;
+  overflow-y: hidden;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
