@@ -1,5 +1,8 @@
-import { Link } from 'react-router-dom'
 import './Footer.css'
+
+import { Link } from 'react-router-dom'
+
+import logo from "../../assets/logo.png";
 
 function Footer() {
   return (
@@ -8,11 +11,10 @@ function Footer() {
         <div className="footer-content">
           <div className="footer-brand">
             <Link to="/" className="footer-logo">
-              <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="footer-logo-icon">
-                <path d="M8 24L16 6L24 24L16 18L8 24Z" fill="currentColor" fillOpacity="0.9"/>
-                <circle cx="16" cy="12" r="3" fill="#6366f1"/>
-              </svg>
-              <span>Flight Speakers</span>
+              <img src={logo} alt="logo" style={{
+                maxHeight: "40px"
+              }}
+              />
             </Link>
             <p className="footer-tagline">
               Curated talent meets AI-powered matching. Find the perfect speaker for your next event.

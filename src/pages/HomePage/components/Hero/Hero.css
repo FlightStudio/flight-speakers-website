@@ -6,6 +6,7 @@
   display: inline-block;
   overflow: hidden;
   width: 100%;
+  line-height: 1;
 }
 
 .reveal-text > span {
@@ -103,7 +104,7 @@
   font-weight: 350;
   /* line-height: 1.05; */
   color: var(--color-charcoal);
-  margin: 0 0 28px;
+  margin: 0 0 56px;
 /* 
   background: linear-gradient(to right, #8F8F8F, #F5F5F5);
   -webkit-background-clip: text;
@@ -124,6 +125,7 @@
 
 .hero__title-line {
   display: block;
+  line-height: 0;
 }
 
 /* Subtitle */

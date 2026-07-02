@@ -47,18 +47,6 @@ function OurSpeakers({ speakers }) {
 
         {/* Speaker Carousel */}
         <div className="speakers-carousel">
-          <button
-            className="speakers-carousel__arrow speakers-carousel__arrow--left"
-            onClick={() => {
-              const track = document.querySelector('.speakers-carousel__track')
-              if (track) track.scrollBy({ left: -track.offsetWidth * 0.75, behavior: 'smooth' })
-            }}
-            aria-label="Previous speakers"
-          >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <path d="M11 4L6 9L11 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
           <div className="speakers-carousel__track">
             {filteredSpeakers.map((speaker, i) => (
               <motion.div
@@ -69,22 +57,10 @@ function OurSpeakers({ speakers }) {
                 viewport={{ once: true, margin: '-50px' }}
                 transition={{ duration: 0.4, delay: i * 0.06 }}
               >
-                <SpeakerCard speaker={speaker} />
+                <SpeakerCard speaker={speaker} index={i} />
               </motion.div>
             ))}
           </div>
-          <button
-            className="speakers-carousel__arrow speakers-carousel__arrow--right"
-            onClick={() => {
-              const track = document.querySelector('.speakers-carousel__track')
-              if (track) track.scrollBy({ left: track.offsetWidth * 0.75, behavior: 'smooth' })
-            }}
-            aria-label="Next speakers"
-          >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <path d="M7 4L12 9L7 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
         </div>
 
         <motion.div

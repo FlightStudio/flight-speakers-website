@@ -36,10 +36,10 @@ function HowItWorks({ speakers }) {
                 <motion.div
                   key={i}
                   className="ai-demo-layout__step"
-                  initial={{ opacity: 0, x: -16 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: 0.2 + i * 0.1, duration: 0.4, ease: EASE }}
+                  transition={{ delay: 0.2 + i * 0.1, duration: 0.6, ease: EASE }}
                   layout
                 >
                   <span className="ai-demo-layout__step-num">{s.num}</span>
