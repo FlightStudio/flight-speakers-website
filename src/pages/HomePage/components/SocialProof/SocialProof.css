@@ -58,12 +58,17 @@
 
 .social-proof__metric .metric-container {
   flex: 1;
-  border: 1px solid;
   width: 100%;
   position: relative;
   border-radius: 20px;
   overflow: hidden;
+  /* border: 1px solid var(--accent); */
+  border: 1px solid var(--wash, var(--accent));
+  transition: border-color 0.8s ease;
 }
+.metric-container.green  { --accent: #2CC56D; }
+.metric-container.yellow { --accent: #FFCD37; }
+.metric-container.blue   { --accent: #519BFF; }
 
 .social-proof__metric-value {
   font-size: 4rem;
@@ -122,6 +127,8 @@
 
   opacity: 0.9;
 
+  background-color: var(--wash, var(--accent));
+  transition: background-color 0.8s ease, opacity 0.8s ease;
 }
 .social-proof__spotlight.green {
   top: auto;
@@ -143,4 +150,19 @@
   right: -90px;
   left: auto;
   transform: rotate(135deg);
+}
+
+.social-proof__metrics:has(.metric-container:hover)
+  .metric-container:not(:hover) {
+  --wash: #ffffff;
+}
+
+.social-proof__metrics:has(.metric-container:hover)
+  .metric-container:not(:hover) .social-proof__spotlight {
+  opacity: 0.35;
+}
+
+.social-proof__metrics:has(.metric-container:hover)
+  .metric-container:not(:hover) {
+  border-color: rgba(0, 0, 0, 0);
 }
