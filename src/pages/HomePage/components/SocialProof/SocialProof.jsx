@@ -52,8 +52,8 @@ function SocialProof() {
 
         <div className="social-proof__metrics">
           <div className="social-proof__metric left">
-            <div className="metric-container" style={{
-              border: "1px solid #2CC56D"
+            <div className="metric-container green" style={{
+              '--accent': '#2CC56D'
             }}>
               <span className="social-proof__metric-value">
                 <AnimatedCounter value={stats[0].value} suffix={stats[0].suffix} />
@@ -63,7 +63,6 @@ function SocialProof() {
                 alt="spotlight"
                 className="social-proof__spotlight green"
                 style={{
-                  backgroundColor: "#2CC56D",
                   WebkitMaskImage: `url(${spotlight})`,
                   maskImage: `url(${spotlight})`,
                 }}
@@ -71,8 +70,8 @@ function SocialProof() {
             </div>
           </div>
           <div className="social-proof__metric right">
-            <div className="metric-container" style={{
-              border: "1px solid #FFCD37"
+            <div className="metric-container yellow" style={{
+              '--accent': "#FFCD37"
             }}>
               <span className="social-proof__metric-value">
                 <AnimatedCounter value={stats[1].value} suffix={stats[1].suffix} />
@@ -83,14 +82,13 @@ function SocialProof() {
                 alt="spotlight"
                 className="social-proof__spotlight yellow"
                 style={{
-                  backgroundColor: "#FFCD37",
                   WebkitMaskImage: `url(${spotlight})`,
                   maskImage: `url(${spotlight})`,
                 }}
               />
             </div>
-            <div className="metric-container" style={{
-              border: "1px solid #519BFF"
+            <div className="metric-container blue" style={{
+              '--accent': "#519BFF"
             }}>
               <span className="social-proof__metric-value">
                 <AnimatedCounter value={stats[2].value} suffix={stats[2].suffix} />
@@ -101,7 +99,6 @@ function SocialProof() {
                 alt="spotlight"
                 className="social-proof__spotlight blue"
                 style={{
-                  backgroundColor: "#519BFF",
                   WebkitMaskImage: `url(${spotlight})`,
                   maskImage: `url(${spotlight})`,
                 }}
