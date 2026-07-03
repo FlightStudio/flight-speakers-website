@@ -161,7 +161,7 @@
   display: inline-block;
   font-size: 4.5rem;
   font-weight: 400;
-  line-height: 1;
+  line-height: 0.9;
   color: var(--color-charcoal);
   margin: 0 0 24px;
 

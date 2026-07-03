@@ -99,14 +99,18 @@ function SearchBar() {
             <span className="hero-search__placeholder" style={{
               overflow: 'visible'
             }}>
-              <span
+              {/* <span
                 className={isFocused ? "hide-mobile" : ""}
                 style={{ opacity: '0.8' }}
               >{ isFocused
                 ? "Describe your event and ideal speaker..."
                 : typingText
-              }</span>
-							{ !isFocused && (
+              }</span> */}
+              <span
+                className={isFocused ? "hide-mobile" : ""}
+                style={{ opacity: '0.7' }}
+              >Describe your event and ideal speaker...</span>
+							{/* { !isFocused && (
                 <span className="hero-search__caret" style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -151,7 +155,7 @@ function SearchBar() {
                     </ul>
                   </span>
                 </span>
-              )}
+              )} */}
 						</span>
 					)}
 				</div>

@@ -70,7 +70,7 @@ function OurSpeakers({ speakers }) {
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
           style={{
-            margin: "0 auto"
+            margin: "10px auto 0 0"
           }}
         >
           <svg width="18" height="18" viewBox="0 0 20.022 20.022" fill="none" aria-hidden="true">
