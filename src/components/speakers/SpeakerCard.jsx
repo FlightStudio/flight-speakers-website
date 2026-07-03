@@ -119,11 +119,11 @@ function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScor
               key={idx}
               className="speaker-card__topic"
               animate={{
-                backgroundColor: isHovered ? 'rgba(0, 0, 0, 0.06)' : 'rgba(0, 0, 0, 0.03)',
+                backgroundColor: isHovered ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.1)',
               }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.4 }}
             >
-              {topic}
+              <span>{topic}</span>
             </motion.span>
           ))}
           {speaker.topics.length > 2 && (

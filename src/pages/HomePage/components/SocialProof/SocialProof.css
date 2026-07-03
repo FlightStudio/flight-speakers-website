@@ -44,7 +44,6 @@
   justify-content: center;
   gap: 8px;
   height: 500px;
-  max-width: 700px;
   margin: 0 auto;
 }
 
@@ -128,28 +127,46 @@
   opacity: 0.9;
 
   background-color: var(--wash, var(--accent));
-  transition: background-color 0.8s ease, opacity 0.8s ease;
+  transition:
+    transform 0.8s ease,
+    background-color 0.8s ease,
+    opacity 0.8s ease;
 }
 .social-proof__spotlight.green {
-  top: auto;
-  bottom: -60px;
-  right: -50px;
-  left: auto;
-  transform: rotate(225deg);
+  transform:
+    translate(20px, 60px)
+    rotate(225deg)
+    scale(1);
+}
+.metric-container:hover .social-proof__spotlight.green {
+  transform:
+    translate(-50px, 0px)
+    rotate(270deg)
+    scale(2);
 }
 .social-proof__spotlight.yellow {
-  top: auto;
-  bottom: -30px;
-  right: -90px;
-  left: auto;
-  transform: rotate(225deg);
+  transform:
+    translate(110px, 40px)
+    rotate(225deg)
+    scale(1);
+}
+.metric-container:hover .social-proof__spotlight.yellow {
+  transform:
+    translate(50px, 20px)
+    rotate(270deg)
+    scale(2);
 }
 .social-proof__spotlight.blue {
-  top: -50px;
-  bottom: auto;
-  right: -90px;
-  left: auto;
-  transform: rotate(135deg);
+  transform:
+    translate(100px, -60px)
+    rotate(135deg)
+    scale(1);
+}
+.metric-container:hover .social-proof__spotlight.blue {
+  transform:
+    translate(50px, 20px)
+    rotate(180deg)
+    scale(2);
 }
 
 .social-proof__metrics:has(.metric-container:hover)

@@ -53,7 +53,7 @@ function SocialProof() {
         <div className="social-proof__metrics">
           <div className="social-proof__metric left">
             <div className="metric-container green" style={{
-              '--accent': '#2CC56D'
+              '--accent': '#D24BFF'
             }}>
               <span className="social-proof__metric-value">
                 <AnimatedCounter value={stats[0].value} suffix={stats[0].suffix} />
@@ -71,7 +71,7 @@ function SocialProof() {
           </div>
           <div className="social-proof__metric right">
             <div className="metric-container yellow" style={{
-              '--accent': "#FFCD37"
+              '--accent': "#FF234B"
             }}>
               <span className="social-proof__metric-value">
                 <AnimatedCounter value={stats[1].value} suffix={stats[1].suffix} />

@@ -46,8 +46,7 @@ function HowItWorks({ speakers }) {
                   <div>
                     <span className="ai-demo-layout__step-title">{s.title}</span>
                     <div className="ai-demo-layout__step-desc">
-                      <p>{s.desc}</p>
-                      <p>{s.detail}</p>
+                      <p>{s.desc} {s.detail}</p>
                     </div>
                   </div>
                 </motion.div>

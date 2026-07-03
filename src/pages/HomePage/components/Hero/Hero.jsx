@@ -12,7 +12,7 @@ import spotlightRed from '../../../../assets/red-spotlight.png';
 import heroBgBottom from '../../../../assets/hero-bg-bottom.png';
 
 // Animated text reveal
-function RevealText({ children, delay = 0 }) {
+function RevealText({ children, delay = 0, y = 0 }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
@@ -20,7 +20,7 @@ function RevealText({ children, delay = 0 }) {
     <span ref={ref} className="reveal-text">
       <motion.span
         initial={{ y: '100%' }}
-        animate={isInView ? { y: 0 } : { y: '100%' }}
+        animate={isInView ? { y } : { y: '100%' }}
         transition={{ duration: 0.8, delay, ease: EASE }}
       >
         {children}
@@ -57,21 +57,21 @@ function Hero() {
               <RevealText delay={0.3}>Bring the bold voice</RevealText>
             </span>
             <span className="hero__title-line">
-              <RevealText delay={0.4}>to your stage.</RevealText>
+              <RevealText delay={0.4} y={-10}>to your stage.</RevealText>
             </span>
           </h1>
-
-          {/* Search Bar */}
-          <SearchBar />
 
           <motion.p
             className="hero__cue"
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 0.8, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
           >
-            Describe your event in natural language. Our AI matches you with world-class speakers who will captivate your audience.
+            Describe your event in natural language. Our AI matches you with world-class speakers who will captivate your audience. The more information you give, the better match you'll find.
           </motion.p>
+
+          {/* Search Bar */}
+          <SearchBar />
 
           {/* Example Queries */}
           {/* <motion.div
