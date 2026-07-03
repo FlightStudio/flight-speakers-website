@@ -164,6 +164,7 @@
   line-height: 0.9;
   color: var(--color-charcoal);
   margin: 0 0 24px;
+  padding-bottom: 5px;
 
   background: linear-gradient(to right, #8F8F8F, #F5F5F5);
   -webkit-background-clip: text;

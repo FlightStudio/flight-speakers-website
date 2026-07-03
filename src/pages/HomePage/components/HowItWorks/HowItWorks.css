@@ -27,7 +27,7 @@
 .ai-demo-layout__steps {
   display: flex;
   margin-bottom: 46px;
-  justify-content: space-between;
+  justify-content: center;
 }
 
 .ai-demo-layout__step {
