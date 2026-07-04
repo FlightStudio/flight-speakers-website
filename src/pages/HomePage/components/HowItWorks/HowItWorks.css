@@ -2,10 +2,6 @@
    AI Demo — Window Layout + Pipeline
    ================================ */
 
-.ai-demo-section {
-  overflow: hidden;
-}
-
 /* Two-column: text left, window right */
 .ai-demo-layout {
   align-items: center;
