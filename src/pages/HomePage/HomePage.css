@@ -17,7 +17,7 @@
 .home-page {
   min-height: 100vh;
   background: #101010;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* ================================
@@ -147,6 +147,8 @@
   background: #1B1B1B;
   border-radius: 100px;
   white-space: nowrap;
+  position: sticky;
+  top: calc(var(--header-height) + 10px);
 }
 
 .section-header {
