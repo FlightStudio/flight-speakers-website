@@ -1,0 +1,9 @@
+.our-speakers__button {
+    margin: 10px auto 0 0;
+}
+
+@media (max-width: 768px) {
+  .our-speakers__button {
+    margin: 10px auto 0;
+  }
+}

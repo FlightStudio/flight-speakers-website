@@ -162,7 +162,7 @@ function SearchBar() {
 
 				<motion.button
 					type="submit"
-					className="hero-search__button"
+					className="hero-search__button hide-mobile"
 					disabled={!searchQuery.trim()}
 					whileTap={{ scale: 0.98 }}
 				>
@@ -170,6 +170,18 @@ function SearchBar() {
 					<span>Find Speakers</span>
 				</motion.button>
 			</div>
+      <motion.button
+        type="submit"
+        className="hero-search__button hide-desktop"
+        disabled={!searchQuery.trim()}
+        whileTap={{ scale: 0.98 }}
+        style={{
+          marginTop: "12px"
+        }}
+      >
+        <img src={star} alt="star" />
+        <span>Find Speakers</span>
+      </motion.button>
 		</motion.form>
 	);
 }

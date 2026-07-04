@@ -114,3 +114,21 @@
 .ai-window__body {
   padding: clamp(12px, 2vw, 20px);
 }
+
+@media (max-width: 1024px) {
+  .ai-demo-layout__step {
+    padding: 0 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .ai-demo-layout__steps {
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  .ai-demo-layout__step {
+    border-left: 1px solid rgba(217, 217, 217, 0.6);
+  }
+
+}
