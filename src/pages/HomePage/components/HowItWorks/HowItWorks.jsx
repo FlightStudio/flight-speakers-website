@@ -13,7 +13,9 @@ import { steps } from "./config";
 
 function HowItWorks({ speakers }) {
   return (
-    <section className="section ai-demo-section">
+    <section className="section ai-demo-section" style={{
+      paddingTop: "0 !important"
+    }}>
       <div className="section-left">
         <span className="section-label">How It Works</span>
       </div>
@@ -36,10 +38,10 @@ function HowItWorks({ speakers }) {
                 <motion.div
                   key={i}
                   className="ai-demo-layout__step"
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 32 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: 0.2 + i * 0.1, duration: 0.6, ease: EASE }}
+                  transition={{ delay: 0.2 + i * 0.1, duration: 1.6, ease: EASE }}
                   layout
                 >
                   <span className="ai-demo-layout__step-num">{s.num}</span>

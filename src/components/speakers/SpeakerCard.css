@@ -160,7 +160,6 @@
 .speaker-card__topics {
   z-index: 1;
   display: flex;
-  flex-wrap: wrap;
   gap: 6px;
 }
 
@@ -173,6 +172,7 @@
   color: white;
   border-radius: 100px;
   border: 0.1px solid rgba(217, 217, 217, 0.5);
+  white-space: nowrap;
 }
 
 .speaker-card__more {

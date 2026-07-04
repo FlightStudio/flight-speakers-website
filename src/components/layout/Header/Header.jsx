@@ -164,14 +164,6 @@ function Header() {
               transition={{ duration: 0.4, ease: EASE }}
             >
               <div className="mobile-menu-header">
-                <Link to="/" className="logo" onClick={() => setMobileMenuOpen(false)}>
-                  <div className="logo-mark">
-                    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M8 24L16 6L24 24L16 18L8 24Z" fill="currentColor"/>
-                    </svg>
-                  </div>
-                  <span className="logo-text">Flight Speakers</span>
-                </Link>
               </div>
 
               <div className="mobile-menu-nav">

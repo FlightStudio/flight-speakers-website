@@ -4,8 +4,8 @@ import { useState, useMemo, useRef, useEffect } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 
-import findSpeakers from "../../../../assets/find-speakers.png";
-import browseSpeakers from "../../../../assets/browse-speakers.png";
+import findSpeakers from "../../assets/find-speakers.png";
+import browseSpeakers from "../../assets/browse-speakers.png";
 
 function CTA({ speakers }) {
   const navigate = useNavigate()
@@ -24,7 +24,7 @@ function CTA({ speakers }) {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="section-title">Ready to find your perfect speaker?</h2>
+          <h2 className="section-title">Ready to find your<br />perfect speaker?</h2>
           <p className="section-subtitle">
             Use our AI for instant recommendations, or submit a brief for personalized service within 24 hours.
           </p>

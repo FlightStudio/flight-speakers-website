@@ -284,9 +284,9 @@
 }
 
 .mobile-menu-header {
-  padding-bottom: var(--space-8);
   border-bottom: 1px solid var(--color-border);
   margin-bottom: var(--space-6);
+  height: calc(var(--header-height) - var(--space-6));
 }
 
 .mobile-menu-nav {
