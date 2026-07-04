@@ -7,7 +7,7 @@ export const steps = [
   },
   {
     num: '02',
-    title: 'Exctract',
+    title: 'Extract',
     desc: 'AI identifies key themes and requirements', detail: 'Our AI pulls out key themes (topics, tone, budget range, audience level) to build a smart search profile'
   },
   {

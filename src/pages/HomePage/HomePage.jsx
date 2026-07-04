@@ -9,11 +9,11 @@ import { EASE } from '../../constants/animation'
 import { sessionShuffle } from '../../utils/shuffle'
 
 import Hero from './components/Hero/Hero'
-import Cursor from './components/Cursor/Cursor'
+import Cursor from '../../components/Cursor/Cursor'
 import HowItWorks from './components/HowItWorks/HowItWorks'
 import OurSpeakers from './components/OurSpeakers/OurSpeakers'
 import SocialProof from './components/SocialProof/SocialProof'
-import CTA from './components/CTA/CTA'
+import CTA from '../../components/CTA/CTA'
 
 // Magnetic button wrapper
 function MagneticButton({ children, className, ...props }) {

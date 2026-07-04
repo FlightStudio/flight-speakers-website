@@ -26,14 +26,14 @@
 /* Inline steps on the left */
 .ai-demo-layout__steps {
   display: flex;
-  margin-bottom: 46px;
+  margin: 46px 0;
   justify-content: center;
 }
 
 .ai-demo-layout__step {
   display: flex;
   flex-direction: column;
-  padding: 0 24px;
+  padding: 0 72px 0 24px;
   cursor: default;
   position: relative;
 }
@@ -64,7 +64,8 @@
 .ai-demo-layout__step-desc p {
   font-size: 1rem;
   color: #D9D9D9;
-  line-height: 1;
+  line-height: 1.1;
+  letter-spacing: 0.1px;
   font-weight: 300;
 }
 
