@@ -21,7 +21,13 @@ function SocialProof() {
   return (
     <div className="section">
       <div className="section-left">
-        <div className="section-label">Our Reach</div>
+        <motion.span
+          className="section-label"
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >How It Works</motion.span>
       </div>
       <div className="container">
         <motion.div

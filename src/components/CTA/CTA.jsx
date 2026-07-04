@@ -14,31 +14,52 @@ function CTA({ speakers }) {
   return (
     <section className="section cta-section">
       <div className="section-left">
-        <span className="section-label">Get Started</span>
+        <motion.span
+          className="section-label"
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >Get Started</motion.span>
       </div>
       <div className="container">
         <motion.div
           className="cta-content"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
         >
-          <h2 className="section-title">Ready to find your<br />perfect speaker?</h2>
-          <p className="section-subtitle">
+          <motion.h2
+            className="section-title"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >Ready to find your<br />perfect speaker?</motion.h2>
+          <motion.p
+            className="section-subtitle"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
             Use our AI for instant recommendations, or submit a brief for personalized service within 24 hours.
-          </p>
+          </motion.p>
           <div className="cta-cards">
             <motion.div
               className="cta-card cta-card--ai"
               whileHover={{ y: -6 }}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
               onClick={() => navigate('/search')}
             >
               <h3 className="cta-card__title">AI-Powered Search</h3>
               <p className="cta-card__subtitle">
                 Describe your event and let our AI<br />find the perfect match
               </p>
-              <div style={{ height: "120px" }}></div>
+              <div style={{
+                minHeight: "120px",
+                flex: "1"
+              }}></div>
               <img src={findSpeakers} alt=""
                 style={{
                   position: "absolute",
@@ -68,15 +89,20 @@ function CTA({ speakers }) {
             <motion.div
               className="cta-card cta-card--browse"
               whileHover={{ y: -6 }}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
               onClick={() => navigate('/speakers')}
-              onHoverStart={() => setBrowseHovered(true)}
-              onHoverEnd={() => setBrowseHovered(false)}
             >
               <h3 className="cta-card__title">Browse Speakers</h3>
               <p className="cta-card__subtitle">
                 Explore our full roster and<br/>discover the perfect fit
               </p>
-              <div style={{ height: "120px" }}></div>
+              <div style={{
+                minHeight: "120px",
+                flex: "1"
+              }}></div>
 
               <img src={browseSpeakers} alt=""
                 style={{

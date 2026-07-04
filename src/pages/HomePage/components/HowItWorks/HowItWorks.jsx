@@ -17,7 +17,13 @@ function HowItWorks({ speakers }) {
       paddingTop: "0 !important"
     }}>
       <div className="section-left">
-        <span className="section-label">How It Works</span>
+        <motion.span
+          className="section-label"
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >How It Works</motion.span>
       </div>
       <div className="container">
         <div className="ai-demo-layout">
