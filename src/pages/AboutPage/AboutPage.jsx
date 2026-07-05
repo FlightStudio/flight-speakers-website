@@ -1,10 +1,14 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import './AboutPage.css'
 import { COMPARE_ROWS } from './config'
 
-import { motion } from 'framer-motion';
+import { useRef, useState, useEffect } from 'react';
+import { motion, AnimatePresence, useInView, useScroll, useTransform, useSpring } from 'framer-motion';
+import { useSmoothScroll } from '../../hooks/useSmoothScroll';
+import { EASE } from '../../constants/animation';
 
 import browseSpeakers from "../../assets/browse-speakers.png";
+import temp from "../../assets/temp.png";
 
 import star from "../../assets/star.png";
 import clockIcon from "../../assets/clock-icon.png";
@@ -18,7 +22,50 @@ import spotlight from "../../assets/white-spotlight.png";
 import Cursor from '../../components/Cursor/Cursor';
 import CTA from '../../components/CTA/CTA';
 
+// Animated text reveal
+function RevealText({ children, delay = 0, y = 0 }) {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
+
+  return (
+    <span ref={ref} className="reveal-text">
+      <motion.span
+        initial={{ y: '100%' }}
+        animate={isInView ? { y } : { y: '100%' }}
+        transition={{ duration: 0.8, delay, ease: EASE }}
+      >
+        {children}
+      </motion.span>
+    </span>
+  );
+}
+
+const sliderSpeakers = [temp, temp, temp, temp];
+const SLIDE_INTERVAL = 4000;
+
 function AboutPage() {
+  const navigate = useNavigate();
+
+  // Hero speaker slider — cycles through sliderSpeakers, wrapping at the end
+  const [currentSpeaker, setCurrentSpeaker] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSpeaker((i) => (i + 1) % sliderSpeakers.length);
+    }, SLIDE_INTERVAL);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Initialize smooth scrolling
+  useSmoothScroll()
+
+  // Parallax scrolling
+  const { scrollYProgress } = useScroll()
+  const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -100])
+  const springY = useSpring(heroY, { stiffness: 100, damping: 30 })
+
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0])
+
   return (
     <div className="about-page">
       <Cursor />
@@ -31,12 +78,14 @@ function AboutPage() {
           display: "flex",
           height: "100%"
         }}> */}
-          <div className="about-hero__content" style={{
+          <motion.div className="about-hero__content" style={{
             flex: "1",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
-            gap: "36px"
+            gap: "36px",
+            opacity: heroOpacity,
+            y: springY,
           }}>
             <div>
               <h1 className="about-hero__title" style={{
@@ -45,61 +94,131 @@ function AboutPage() {
                 textAlign: "left",
                 lineHeight: "0.9",
               }}>
-                We're rethinking the speaker bureau
+                <span style={{ display: "block" }}>
+                  <RevealText delay={0.3}>We're rethinking</RevealText>
+                </span>
+                <span style={{ display: "block" }}>
+                  <RevealText delay={0.4} y={-10}>the speaker bureau</RevealText>
+                </span>
               </h1>
             </div>
-            <p className="about-hero__subtitle" style={{
-              textAlign: "left",
-              color: "#C2C2C2",
-              fontSize: "1.2rem",
-              width: "350px",
-            }}>
+            <motion.p
+              className="about-hero__subtitle"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+              style={{
+                textAlign: "left",
+                color: "#C2C2C2",
+                fontSize: "1.2rem",
+                width: "350px",
+              }}
+            >
               Flight Speakers combines curated talent with AI-powered matching
               to help you find the perfect voice for your event.
-            </p>
+            </motion.p>
             <motion.button
               type="submit"
-              className="hero-search__button"
+              className="hero-search__button book-a-speaker__btn"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              whileHover={{ scale: 1.02, y: -1 }}
               whileTap={{ scale: 0.98 }}
               style={{
                 marginRight: "auto"
+              }}
+              onClick={() => {
+                console.log("click")
+                navigate('/speakers')
               }}
             >
               <img src={star} alt="star" />
               <span>Explore All Speakers</span>
             </motion.button>
-          </div>
-          <div className="speakers-slider" style={{
+          </motion.div>
+          <motion.div className="speakers-slider" style={{
             flex: 1,
-            position: "relative"
+            position: "relative",
+            opacity: heroOpacity,
+            y: springY,
+            maxWidth: "800px",
+            zIndex: "2",
           }}>
-            <img src={browseSpeakers} alt="" style={{
-              height: "100%",
-              position: "relative",
-              right: "0",
-              left: "auto",
-              marginLeft: "auto",
-            }} />
-          </div>
+            <AnimatePresence>
+              <motion.img
+                key={currentSpeaker}
+                src={sliderSpeakers[currentSpeaker]}
+                alt=""
+                initial={{ opacity: 0, x: 60 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{
+                  x: 60,
+                  opacity: "0",
+                  transition: { duration: 2, ease: EASE } }}
+                transition={{ duration: 2, delay: 1, ease: EASE }}
+                style={{
+                  height: "100%",
+                  position: "absolute",
+                  top: "0",
+                  right: "0",
+                  left: "auto",
+                  zIndex: "1",
+                }}
+              />
+            </AnimatePresence>
+            <motion.img
+              // src={spotlight}
+              alt=""
+              className='hero-spotlight'
+              initial={{ opacity: 0, x: 60 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.4, ease: EASE }}
+              style={{
+                WebkitMaskImage: `url(${spotlight})`,
+                maskImage: `url(${spotlight})`,
+                width: "100%",
+                scale: "1.5",
+              }}
+            />
+          </motion.div>
         {/* </div> */}
       </section>
 
       {/* Comparison: how Flight Speakers differs from traditional bureaus. */}
       <section className="section about-compare">
         <div className="section-left">
-            <span className="section-label">Why Flight Speakers</span>
+            <motion.span
+              className="section-label"
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >Why Flight Speakers</motion.span>
         </div>
         <div className="container">
-          <div className="section-header about-compare__header">
+          <motion.div
+            className="section-header about-compare__header"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            transition={{ duration: 0.6 }}
+          >
             <h2 className="section-title about-compare__title">
               Built for how brands actually book speakers today.
             </h2>
             <p className="section-subtitle">
               Most bureaus run on rolodexes, gut feel, and PDF one-sheets. We don't. Here's the difference.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="compare-table-wrap">
+          <motion.div
+            className="compare-table-wrap"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            transition={{ duration: 0.6, delay: 0.15, ease: EASE }}
+          >
             <table className="compare-table" aria-label="Flight Speakers vs traditional bureaus">
               <thead>
                 <tr>
@@ -150,24 +269,44 @@ function AboutPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Differentiators Section */}
       <section className="section">
         <div className="section-left">
-          <div className="section-label">THE DIFFERENCE</div>
+          <motion.div
+            className="section-label"
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >THE DIFFERENCE</motion.div>
         </div>
         <div className="container">
-          <h2 className="section-title">Not just another bureau.<br />A performance partner.</h2>
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="section-title">Not just another bureau.<br />A performance partner.</h2>
+          </motion.div>
 
           <div className="social-proof__metrics">
             <div className="social-proof__metric left">
-              <div className="metric-container red" style={{
-                '--accent': "#FF234B"
-              }}>
-                <img src={starsIcon} alt="" class="metric-icon" />
+              <motion.div
+                className="metric-container red"
+                initial={{ opacity: 0, y: 32 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
+                style={{
+                  '--accent': "#FF234B"
+                }}
+              >
+                <img src={starsIcon} alt="" className="metric-icon" />
                 <span className="social-proof__metric-value">
                   AI-Powered Matching
                 </span>
@@ -181,11 +320,18 @@ function AboutPage() {
                     maskImage: `url(${spotlight})`,
                   }}
                 />
-              </div>
-              <div className="metric-container blue" style={{
-                '--accent': "#519BFF"
-              }}>
-                <img src={playIcon} alt="" class="metric-icon" />
+              </motion.div>
+              <motion.div
+                className="metric-container blue"
+                initial={{ opacity: 0, y: 32 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.6, delay: 0.2, ease: EASE }}
+                style={{
+                  '--accent': "#519BFF"
+                }}
+              >
+                <img src={playIcon} alt="" className="metric-icon" />
                 <span className="social-proof__metric-value">Video-First Profiles</span>
                 <span className="social-proof__metric-label">See speakers in action before you book. Every profile includes
                 video so you know exactly what you're getting.</span>
@@ -198,13 +344,20 @@ function AboutPage() {
                     maskImage: `url(${spotlight})`,
                   }}
                 />
-              </div>
+              </motion.div>
             </div>
             <div className="social-proof__metric right">
-              <div className="metric-container yellow" style={{
-                '--accent': '#FFCD37'
-              }}>
-                <img src={clockIcon} alt="" class="metric-icon" />
+              <motion.div
+                className="metric-container yellow"
+                initial={{ opacity: 0, y: 32 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.6, delay: 0.15, ease: EASE }}
+                style={{
+                  '--accent': '#FFCD37'
+                }}
+              >
+                <img src={clockIcon} alt="" className="metric-icon" />
                 <span className="social-proof__metric-value">
                   24-Hour Response
                 </span>
@@ -217,11 +370,18 @@ function AboutPage() {
                     maskImage: `url(${spotlight})`,
                   }}
                 />
-              </div>
-              <div className="metric-container purple" style={{
-                '--accent': '#D24BFF'
-              }}>
-                <img src={checkIcon} alt="" class="metric-icon" />
+              </motion.div>
+              <motion.div
+                className="metric-container purple"
+                initial={{ opacity: 0, y: 32 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.6, delay: 0.25, ease: EASE }}
+                style={{
+                  '--accent': '#D24BFF'
+                }}
+              >
+                <img src={checkIcon} alt="" className="metric-icon" />
                 <span className="social-proof__metric-value">Quality Guarantee</span>
                 <span className="social-proof__metric-label">If a speaker doesn't deliver, we make it right. Our reputation depends on every engagement being exceptional.</span>
                 <motion.img
@@ -232,7 +392,7 @@ function AboutPage() {
                     maskImage: `url(${spotlight})`,
                   }}
                 />
-              </div>
+              </motion.div>
             </div>
           </div>
         </div>
@@ -241,33 +401,68 @@ function AboutPage() {
       {/* Story Section */}
       <section className="section">
         <div className="section-left">
-          <div className="section-label">About Us</div>
+          <motion.div
+            className="section-label"
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >About Us</motion.div>
         </div>
         <div className="container">
-          <h2 class="section-title">Built by Flight Story</h2>
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="section-title">Built by Flight Story</h2>
+          </motion.div>
           <div className="about-story__content">
-            <p>
+            <motion.p
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-100px' }}
+              transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
+            >
               Flight Story is a communications agency that works with the world's
               most ambitious leaders and companies. We've spent years understanding
               what makes a great speaker, and what makes a great event.
-            </p>
-            <p>
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-100px' }}
+              transition={{ duration: 0.6, delay: 0.2, ease: EASE }}
+            >
               We built Flight Speakers because we saw a gap: traditional
               speaker bureaus are slow, opaque, and built for volume over quality.
               We wanted something better.
-            </p>
-            <p>
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-100px' }}
+              transition={{ duration: 0.6, delay: 0.3, ease: EASE }}
+            >
               Our roster is intentionally small. Every speaker is someone we'd
               personally recommend. And our AI-powered matching ensures you find
               the right fit for your specific audience and objectives.
-            </p>
+            </motion.p>
           </div>
           <div className="social-proof__metrics">
             <div className="social-proof__metric left">
-              <div className="metric-container red" style={{
-                '--accent': "#FF234B"
-              }}>
-                <img src={starIcon} alt="" class="metric-icon" />
+              <motion.div
+                className="metric-container red"
+                initial={{ opacity: 0, y: 32 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
+                style={{
+                  '--accent': "#FF234B"
+                }}
+              >
+                <img src={starIcon} alt="" className="metric-icon" />
                 <span className="social-proof__metric-value">
                   Curated, Not Catalogued
                 </span>
@@ -281,13 +476,20 @@ function AboutPage() {
                     maskImage: `url(${spotlight})`,
                   }}
                 />
-              </div>
+              </motion.div>
             </div>
             <div className="social-proof__metric right">
-              <div className="metric-container yellow" style={{
-                '--accent': '#FFCD37'
-              }}>
-                <img src={lightningIcon} alt="" class="metric-icon" />
+              <motion.div
+                className="metric-container yellow"
+                initial={{ opacity: 0, y: 32 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.6, delay: 0.15, ease: EASE }}
+                style={{
+                  '--accent': '#FFCD37'
+                }}
+              >
+                <img src={lightningIcon} alt="" className="metric-icon" />
                 <span className="social-proof__metric-value">
                   Transparent & Fast
                 </span>
@@ -300,11 +502,18 @@ function AboutPage() {
                     maskImage: `url(${spotlight})`,
                   }}
                 />
-              </div>
-              <div className="metric-container purple" style={{
-                '--accent': '#D24BFF'
-              }}>
-                <img src={targetIcon} alt="" class="metric-icon" />
+              </motion.div>
+              <motion.div
+                className="metric-container purple"
+                initial={{ opacity: 0, y: 32 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.6, delay: 0.25, ease: EASE }}
+                style={{
+                  '--accent': '#D24BFF'
+                }}
+              >
+                <img src={targetIcon} alt="" className="metric-icon" />
                 <span className="social-proof__metric-value">Impact-Focused</span>
                 <span className="social-proof__metric-label">We measure success by the impact our speakers have on your audience  .</span>
                 <motion.img
@@ -315,7 +524,7 @@ function AboutPage() {
                     maskImage: `url(${spotlight})`,
                   }}
                 />
-              </div>
+              </motion.div>
             </div>
           </div>
 
