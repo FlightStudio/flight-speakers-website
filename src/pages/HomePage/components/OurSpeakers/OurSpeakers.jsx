@@ -24,7 +24,13 @@ function OurSpeakers({ speakers }) {
   return (
     <section className="section speakers-section">
       <div className="section-left">
-          <span className="section-label">Our Speakers</span>
+        <motion.span
+          className="section-label"
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >Our Speakers</motion.span>
       </div>
       <div className="container" style={{
         display: "flex",
