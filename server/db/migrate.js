@@ -166,6 +166,19 @@ async function applyMigrations() {
       CHECK (type IN ('new', 'update', 'availability'));
     ALTER TABLE speaker_tokens ADD COLUMN IF NOT EXISTS revoked_at TIMESTAMPTZ;
   `)
+
+  // Log of transactional emails sent per enquiry
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS sent_emails (
+      id SERIAL PRIMARY KEY,
+      enquiry_id TEXT REFERENCES enquiries(id) ON DELETE CASCADE,
+      template_key TEXT NOT NULL,
+      recipient TEXT NOT NULL,
+      resend_id TEXT,
+      sent_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_sent_emails_enquiry ON sent_emails(enquiry_id);
+  `)
 }
 
 // Retry with backoff. Cloud SQL on Cloud Run can take >5s to accept the

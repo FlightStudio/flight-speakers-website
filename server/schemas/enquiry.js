@@ -5,6 +5,7 @@ import {
   HAS_BUDGET_OPTIONS,
   CURRENCY_CODES,
   ENQUIRY_STATUSES,
+  EMAIL_TEMPLATES,
 } from '../constants/enums.js'
 
 const recommendationSchema = z.object({
@@ -53,4 +54,5 @@ export const enquiryUpdateSchema = z.object({
   response_message: z.string().max(20000).optional().nullable(),
   rejection_reason: z.string().max(200).optional().nullable(),
   email_subject: z.string().max(300).optional().nullable(),
+  email_template: z.enum(EMAIL_TEMPLATES).optional().nullable(),
 })

@@ -8,7 +8,7 @@ import { EASE } from '../../constants/animation'
 
 export default function AdminEnquiryDetailPage() {
   const { id } = useParams()
-  const { enquiry, speakers, isLoading, updateEnquiry } = useEnquiry(id)
+  const { enquiry, speakers, sentEmails, isLoading, updateEnquiry } = useEnquiry(id)
 
   if (isLoading) {
     return (
@@ -45,7 +45,7 @@ export default function AdminEnquiryDetailPage() {
 
       <div className="admin-detail__columns">
         <div className="admin-detail__left">
-          <EnquiryDetail enquiry={enquiry} additionalSpeakers={speakers.additional || []} />
+          <EnquiryDetail enquiry={enquiry} additionalSpeakers={speakers.additional || []} sentEmails={sentEmails} />
           <EnquiryActions enquiry={enquiry} onUpdate={updateEnquiry} />
         </div>
 

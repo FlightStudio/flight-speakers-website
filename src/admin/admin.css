@@ -825,6 +825,30 @@
   border-left: 3px solid #1a1a1a;
 }
 
+/* Sent emails log */
+.enquiry-detail__emails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.enquiry-detail__email-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #fafaf8;
+  border: 1px solid #e8e8e6;
+  border-radius: 10px;
+}
+
+.enquiry-detail__email-time {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
 /* Badges */
 .enquiry-detail__badge {
   font-size: 0.65rem;
