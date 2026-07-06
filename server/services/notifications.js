@@ -1,8 +1,57 @@
 import { createMondayItem } from './monday.js'
-import { mailer } from './resend/index.js'
+import { mailer, commonEmailVariables } from './resend/index.js'
+import { logSentEmail } from '../db/email-queries.js'
 
-export async function notifyEnquiryResponse(enquiry, responseType, { response_message, rejection_reason } = {}) {
-  console.log(`[NOTIFY] Enquiry ${enquiry.id} — ${responseType}`)
+const TEMPLATE_SENDERS = {
+  enquiry_received: mailer.SEND_ENQUIRY_RECEIVED,
+  enquiry_processing: mailer.SEND_ENQUIRY_PROCESSING,
+  exclusivity: mailer.SEND_EXCLUSIVITY,
+  match_expired: mailer.SEND_MATCH_EXPIRED,
+  post_event_feedback: mailer.SEND_POST_EVENT_FEEDBACK,
+  pro_bono: mailer.SEND_PRO_BONO,
+  reengagement: mailer.SEND_REENGAGEMENT,
+  no_availability: mailer.SEND_NO_AVAILABILITY,
+}
+
+// Handles pipe-delimited date ranges: "2025-03-15|2025-03-20"
+function formatEventDate(dateStr) {
+  if (!dateStr) return ''
+  return dateStr.split('|').map(part => {
+    const d = new Date(part)
+    return isNaN(d.getTime()) ? part : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+  }).join(' – ')
+}
+
+export async function sendEnquiryEmail(enquiry, templateKey) {
+  const send = TEMPLATE_SENDERS[templateKey]
+  if (!send) throw new Error(`Unknown email template "${templateKey}"`)
+
+  const baseUrl = process.env.APP_URL || 'http://localhost:3000'
+
+  const result = await send(enquiry.email, {
+    ...commonEmailVariables(),
+    name: enquiry.name,
+    speaker_name: enquiry.speaker_name || 'the speaker',
+    event_date: formatEventDate(enquiry.event_date) || 'your event',
+    feedback_url: `${baseUrl}/feedback`,
+  })
+
+  try {
+    await logSentEmail({
+      enquiryId: enquiry.id,
+      templateKey,
+      recipient: enquiry.email,
+      resendId: result?.id,
+    })
+  } catch (err) {
+    console.error(`[NOTIFY] failed to log sent email for ${enquiry.id}:`, err.message)
+  }
+
+  return result
+}
+
+export async function notifyEnquiryResponse(enquiry, responseType, { email_template } = {}) {
+  console.log(`[NOTIFY] Enquiry ${enquiry.id} — ${responseType || 'no status change'}${email_template ? `, email: ${email_template}` : ''}`)
 
   // Create Monday.com item when enquiry is accepted (fire-and-forget)
   if (responseType === 'accepted') {
@@ -11,40 +60,14 @@ export async function notifyEnquiryResponse(enquiry, responseType, { response_me
     })
   }
 
-  try {
-    await mailer.SEND_TEST_EMAIL(enquiry.email, {
-      name: enquiry.name
-    })
-    // todo
-    // if (responseType === 'accepted') {
-    //   await mailer.sendEnquiryAccepted(enquiry.email, {
-    //     name: enquiry.name,
-    //     organization: enquiry.organization || '',
-    //     speaker_name: enquiry.speaker_name || '',
-    //     event_date: enquiry.event_date || '',
-    //     event_location: enquiry.event_location || '',
-    //     response_message: response_message || '',
-    //   });
-    // } else if (responseType === 'rejected') {
-    //   await mailer.sendEnquiryRejected(enquiry.email, {
-    //     name: enquiry.name,
-    //     speaker_name: enquiry.speaker_name || '',
-    //     rejection_reason: rejection_reason || '',
-    //   });
-    // } else if (responseType === 'responded') {
-    //   await mailer.sendEnquiryRejected(enquiry.email, {
-    //     name: enquiry.name,
-    //     speaker_name: enquiry.speaker_name || '',
-    //     rejection_reason: rejection_reason || '',
-    //   });
-    // } else {
-    //   console.error(`[NOTIFY] Unknown responseType "${responseType}" for ${enquiry.id}, no email sent`)
-    //   return false
-    // }
-    console.log(`[NOTIFY] Resend '${responseType}' email sent for ${enquiry.email}`)
-  } catch (err) {
-    console.error(`[NOTIFY] Resend email send failed for ${enquiry.id}:`, err.message)
-  }
+  if (!email_template) return { emailSent: undefined }
 
-  return true
+  try {
+    await sendEnquiryEmail(enquiry, email_template)
+    console.log(`[NOTIFY] Resend '${email_template}' email sent to ${enquiry.email}`)
+    return { emailSent: true }
+  } catch (err) {
+    console.error(`[NOTIFY] Resend '${email_template}' email failed for ${enquiry.id}:`, err.message)
+    return { emailSent: false }
+  }
 }

@@ -36,7 +36,7 @@ function SocialProof() {
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="section-title">Trusted by leading,<br />organizations</h2>
+          <h2 className="section-title">Trusted by leading<br />organizations</h2>
         </motion.div>
 
         <div className="social-proof__track">

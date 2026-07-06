@@ -1,7 +1,8 @@
 import express from 'express'
 import { createEnquiry } from '../db/enquiry-queries.js'
 import { validate, enquirySchema } from '../schemas/index.js'
-import { addResendContact, mailer } from '../services/resend/index.js'
+import { addResendContact } from '../services/resend/index.js'
+import { sendEnquiryEmail } from '../services/notifications.js'
 
 const router = express.Router()
 
@@ -28,21 +29,17 @@ router.post('/', async (req, res) => {
     enquiryId: enquiry.id,
   });
 
-  // mailer.SEND_ENQIRY_SUBMITTED_EMAIL(data.email, {
-  //   name: data.name,
-  //   organization: data.organization,
-  //   speakerName: data.speakerName,
-  //   eventDate: data.eventDate,
-  //   brief: data.brief,
-  // }).catch(err => console.error(`[RESEND] enquiry email failed for ${data.email}:`, err.message))
+  sendEnquiryEmail(enquiry, 'enquiry_received')
+    .catch(err => console.error(`[RESEND] enquiry received email failed for ${data.email}:`, err.message))
 
   if (data.newsletter) {
     const [firstName, ...rest] = (data.name || '').trim().split(/\s+/)
-    addResendContact(data.email, {
-      firstName: firstName || '',
-      lastName: rest.join(' '),
-      topicId: undefined,
-    }).catch(err => console.error(`[RESEND] add contact failed for ${data.email}:`, err.message))
+    // TODO
+    // addResendContact(data.email, {
+    //   firstName: firstName || '',
+    //   lastName: rest.join(' '),
+    //   topicId: undefined,
+    // }).catch(err => console.error(`[RESEND] add contact failed for ${data.email}:`, err.message))
   }
 })
 

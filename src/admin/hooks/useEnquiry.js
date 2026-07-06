@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 export function useEnquiry(id) {
   const [enquiry, setEnquiry] = useState(null)
   const [speakers, setSpeakers] = useState({ requested: null, related: [], semantic: [], additional: [] })
+  const [sentEmails, setSentEmails] = useState([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -16,6 +17,7 @@ export function useEnquiry(id) {
         if (data.success) {
           setEnquiry(data.enquiry)
           setSpeakers(data.speakers)
+          setSentEmails(data.sentEmails || [])
         }
       } catch (err) {
         console.error('Failed to fetch enquiry:', err)
@@ -38,7 +40,8 @@ export function useEnquiry(id) {
       const data = await res.json()
       if (data.success) {
         setEnquiry(data.enquiry)
-        return { success: true }
+        if (data.sentEmails) setSentEmails(data.sentEmails)
+        return { success: true, emailSent: data.emailSent }
       }
       return { success: false, message: data.message }
     } catch {
@@ -46,5 +49,5 @@ export function useEnquiry(id) {
     }
   }, [id])
 
-  return { enquiry, speakers, isLoading, updateEnquiry }
+  return { enquiry, speakers, sentEmails, isLoading, updateEnquiry }
 }

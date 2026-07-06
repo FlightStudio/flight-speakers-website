@@ -11,6 +11,23 @@ const REJECTION_LABELS = {
   exclusivity: 'Exclusivity',
 }
 
+const EMAIL_LABELS = {
+  enquiry_received: 'Enquiry Received',
+  enquiry_processing: 'Enquiry Processing',
+  exclusivity: 'Exclusivity',
+  match_expired: 'Match Expired',
+  post_event_feedback: 'Post Event Feedback',
+  pro_bono: 'Pro Bono',
+  reengagement: 'Reengagement',
+  no_availability: 'No Availability',
+}
+
+function formatSentAt(ts) {
+  const d = new Date(ts)
+  if (isNaN(d.getTime())) return ts
+  return d.toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
+
 function formatEventDate(dateStr) {
   if (!dateStr) return null
   function fmt(s) {
@@ -35,7 +52,7 @@ function formatBudget(budgetRange, currency) {
   return budgetRange
 }
 
-export default function EnquiryDetail({ enquiry, additionalSpeakers = [] }) {
+export default function EnquiryDetail({ enquiry, additionalSpeakers = [], sentEmails = [] }) {
   const [showRecs, setShowRecs] = useState(false)
 
   if (!enquiry) return null
@@ -119,6 +136,29 @@ export default function EnquiryDetail({ enquiry, additionalSpeakers = [] }) {
                   <div className="enquiry-detail__label" style={{ marginBottom: 0 }}>{s.headline}</div>
                 </div>
                 <span className="enquiry-detail__badge enquiry-detail__badge--added">Added</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {sentEmails.length > 0 && (
+        <div className="enquiry-detail__speaker-section">
+          <div className="enquiry-detail__section-title">
+            Emails Sent ({sentEmails.length})
+          </div>
+          <div className="enquiry-detail__emails">
+            {sentEmails.map(e => (
+              <div key={e.id} className="enquiry-detail__email-row">
+                <div className="enquiry-detail__email-info">
+                  <div className="enquiry-detail__value">
+                    {EMAIL_LABELS[e.template_key] || e.template_key}
+                  </div>
+                  <div className="enquiry-detail__label" style={{ marginBottom: 0 }}>
+                    To {e.recipient}
+                  </div>
+                </div>
+                <div className="enquiry-detail__email-time">{formatSentAt(e.sent_at)}</div>
               </div>
             ))}
           </div>

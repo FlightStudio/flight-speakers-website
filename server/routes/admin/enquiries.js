@@ -1,6 +1,7 @@
 import express from 'express'
 import { requireAdmin } from '../../middleware/auth.js'
 import { getEnquiries, getEnquiryById, updateEnquiry } from '../../db/enquiry-queries.js'
+import { getSentEmailsByEnquiryId } from '../../db/email-queries.js'
 import { getSpeakerById, getRelatedSpeakers } from '../../db/queries.js'
 import { semanticSearch } from '../../services/claude/claude.js'
 import { notifyEnquiryResponse } from '../../services/notifications.js'
@@ -73,9 +74,15 @@ router.get('/enquiries/:id', requireAdmin, async (req, res) => {
       } catch (err) { console.warn('[admin enquiry detail] additional-speaker lookup failed:', err.message) }
     }
 
+    let sentEmails = []
+    try {
+      sentEmails = await getSentEmailsByEnquiryId(enquiry.id)
+    } catch (err) { console.warn('[admin enquiry detail] sent-emails lookup failed:', err.message) }
+
     res.json({
       success: true,
       enquiry,
+      sentEmails,
       speakers: {
         requested: requestedSpeaker,
         related: relatedSpeakers,
@@ -98,7 +105,7 @@ router.patch('/enquiries/:id', requireAdmin, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Enquiry not found' })
     }
 
-    const { status, admin_notes, response_message, rejection_reason, email_subject } = data
+    const { status, admin_notes, response_message, rejection_reason, email_template } = data
     const updates = {}
     if (status) updates.status = status
     if (admin_notes !== undefined) updates.admin_notes = admin_notes
@@ -107,11 +114,17 @@ router.patch('/enquiries/:id', requireAdmin, async (req, res) => {
 
     const updated = await updateEnquiry(req.params.id, updates)
 
-    if (status && ['accepted', 'rejected', 'responded'].includes(status)) {
-      await notifyEnquiryResponse(updated, status, { response_message, rejection_reason, email_subject })
+    let emailSent
+    if (email_template || (status && ['accepted', 'rejected', 'responded'].includes(status))) {
+      ({ emailSent } = await notifyEnquiryResponse(updated, status, { email_template }))
     }
 
-    res.json({ success: true, enquiry: updated })
+    let sentEmails = []
+    try {
+      sentEmails = await getSentEmailsByEnquiryId(updated.id)
+    } catch (err) { console.warn('[admin enquiry update] sent-emails lookup failed:', err.message) }
+
+    res.json({ success: true, enquiry: updated, sentEmails, ...(emailSent !== undefined && { emailSent }) })
   } catch (err) {
     console.error('Enquiry update error:', err)
     res.status(500).json({ success: false, message: 'Failed to update enquiry' })

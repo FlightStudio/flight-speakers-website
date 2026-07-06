@@ -221,3 +221,14 @@ CREATE TABLE IF NOT EXISTS articles (
 );
 CREATE INDEX IF NOT EXISTS idx_articles_status ON articles(status);
 CREATE INDEX IF NOT EXISTS idx_articles_published ON articles(published_at DESC) WHERE status = 'published';
+
+-- Log of transactional emails sent per enquiry
+CREATE TABLE IF NOT EXISTS sent_emails (
+  id SERIAL PRIMARY KEY,
+  enquiry_id TEXT REFERENCES enquiries(id) ON DELETE CASCADE,
+  template_key TEXT NOT NULL,
+  recipient TEXT NOT NULL,
+  resend_id TEXT,
+  sent_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_sent_emails_enquiry ON sent_emails(enquiry_id);

@@ -23,5 +23,15 @@ export const CURRENCY_CODES = ['USD', 'GBP', 'EUR']
 
 export const ENQUIRY_STATUSES = ['new', 'reviewed', 'accepted', 'rejected', 'responded']
 
+export const EMAIL_TEMPLATES = [
+  'enquiry_processing',
+  'exclusivity',
+  'match_expired',
+  'post_event_feedback',
+  'pro_bono',
+  'reengagement',
+  'no_availability',
+]
+
 export const DRAFT_TYPES = ['new', 'update']
 export const DRAFT_STATUSES = ['pending', 'approved', 'rejected']

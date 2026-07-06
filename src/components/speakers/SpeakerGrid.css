@@ -4,7 +4,7 @@
 
 .speaker-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(clamp(160px, 13vw, 220px), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(clamp(260px, 15vw, 320px), 1fr));
   gap: clamp(12px, 1vw, 18px);
 }
 

@@ -7,14 +7,14 @@ const CURRENCY_SYMBOLS = { USD: '$', GBP: '£', EUR: '€' }
 
 const REJECTION_COLORS = {
   pro_bono: '#d97706',
-  no_availability: '#2563eb',
   exclusivity: '#dc2626',
+  no_availability: '#7c3aed',
 }
 
 const REJECTION_LABELS = {
   pro_bono: 'Pro Bono',
-  no_availability: 'No Availability',
   exclusivity: 'Exclusivity',
+  no_availability: 'No Availability',
 }
 
 function formatCurrency(value, currency) {
