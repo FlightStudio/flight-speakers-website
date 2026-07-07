@@ -70,7 +70,7 @@
 .metric-container.blue   { --accent: #519BFF; }
 
 .social-proof__metric-value {
-  font-size: 4rem;
+  font-size: 6rem;
   font-weight: 400;
   color: var(--color-gray-900);
   letter-spacing: -0.02em;
@@ -87,7 +87,7 @@
 }
 
 .social-proof__metric-label {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 400;
   color: var(--color-gray-500);
   position: absolute;

@@ -353,7 +353,7 @@
 
   .section .section-left {
     width: 100%;
-    margin-bottom: 10px;
+    margin-bottom: var(--space-6);
   }
 
   .section-header {
@@ -362,6 +362,10 @@
 
   .speakers-carousel__item {
     flex: 0 0 clamp(140px, 40vw, 180px);
+  }
+
+  .section .section-label {
+    margin: 0 auto 0 var(--space-8);
   }
 
   .speakers-carousel__arrow {
@@ -433,7 +437,11 @@
   }
 
   .social-proof__metric-value {
-    font-size: 28px;
+    font-size: 3rem !important;
+  }
+
+  .social-proof__metric-label {
+    font-size: 1rem !important;
   }
 }
 
@@ -443,7 +451,7 @@
   }
 
   .section-left {
-    margin-bottom: 15px;
+    margin-bottom: 16px;
   }
   
   .section .section-title {

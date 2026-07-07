@@ -23,7 +23,7 @@
 .ai-demo-layout__steps {
   display: flex;
   margin: 46px 0;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .ai-demo-layout__step {
@@ -58,10 +58,10 @@
 }
 
 .ai-demo-layout__step-desc p {
-  font-size: 1rem;
+  font-size: 1.2rem;
   color: #D9D9D9;
-  line-height: 1.1;
-  letter-spacing: 0.1px;
+  line-height: 1.15;
+  letter-spacing: 0.5px;
   font-weight: 300;
 }
 
