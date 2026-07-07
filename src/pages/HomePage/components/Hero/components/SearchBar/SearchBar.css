@@ -173,8 +173,12 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.35s ease-in-out;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  img, svg {
+    transition: all 0.35s ease-in-out;
+  }
 }
 .hero-search__button::before {
   content: "";
@@ -204,6 +208,17 @@
   opacity: 0.4;
   cursor: default;
   /* box-shadow: none; */
+}
+.hero-search__button:hover:not(:disabled) {
+  background: white;
+  color: black;
+
+  img {
+    filter: invert(1);
+  }
+  svg {
+    color: black
+  }
 }
 .hero-search__button img {
   height: 1em;

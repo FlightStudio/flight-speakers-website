@@ -160,6 +160,17 @@
     cursor: default;
     /* box-shadow: none; */
   }
+  .hero-search__button:hover:not(:disabled) {
+    background: white;
+    color: black;
+
+    img {
+      filter: invert(1);
+    }
+    svg {
+      color: black
+    }
+  }
   .hero-search__button img {
     height: 1em;
     filter: invert(var(--reverse-invert));

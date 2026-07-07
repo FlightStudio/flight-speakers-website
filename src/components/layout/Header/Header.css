@@ -380,7 +380,17 @@
           mask-composite: exclude;
   pointer-events: none;
 }
+.book-a-speaker__btn:hover:not(:disabled) {
+    background: white;
+    color: black;
 
+    img {
+      filter: invert(1);
+    }
+    svg {
+      color: black
+    }
+}
 
 @media (max-width: 768px) {
   .mobile-menu-content {
