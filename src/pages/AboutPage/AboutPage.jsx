@@ -41,7 +41,7 @@ function RevealText({ children, delay = 0, y = 0 }) {
 }
 
 const sliderSpeakers = [temp, temp, temp, temp];
-const SLIDE_INTERVAL = 4000;
+const SLIDE_INTERVAL = 4_000;
 
 function AboutPage() {
   const navigate = useNavigate();
@@ -79,21 +79,11 @@ function AboutPage() {
           height: "100%"
         }}> */}
           <motion.div className="about-hero__content" style={{
-            flex: "1",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            gap: "36px",
             opacity: heroOpacity,
             y: springY,
           }}>
             <div>
-              <h1 className="about-hero__title" style={{
-                fontSize: "5rem",
-                fontWeight: "400",
-                textAlign: "left",
-                lineHeight: "0.9",
-              }}>
+              <h1 className="about-hero__title">
                 <span style={{ display: "block" }}>
                   <RevealText delay={0.3}>We're rethinking</RevealText>
                 </span>
@@ -122,7 +112,7 @@ function AboutPage() {
               className="hero-search__button book-a-speaker__btn"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.6, delay: 0.9 }}
               whileHover={{ scale: 1.02, y: -1 }}
               whileTap={{ scale: 0.98 }}
               style={{
@@ -144,11 +134,15 @@ function AboutPage() {
             y: springY,
             maxWidth: "800px",
             zIndex: "2",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-end",
           }}>
             <AnimatePresence>
               <motion.img
                 key={currentSpeaker}
                 src={sliderSpeakers[currentSpeaker]}
+                // src={temp}
                 alt=""
                 initial={{ opacity: 0, x: 60 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -156,28 +150,29 @@ function AboutPage() {
                   x: 60,
                   opacity: "0",
                   transition: { duration: 2, ease: EASE } }}
-                transition={{ duration: 2, delay: 1, ease: EASE }}
+                transition={{ duration: 2, delay: 1.4, ease: EASE }}
                 style={{
+                  width: "100%",
                   height: "100%",
+                  objectFit: "contain",
+                  objectPosition: "right center",
                   position: "absolute",
-                  top: "0",
-                  right: "0",
-                  left: "auto",
-                  zIndex: "1",
+                  inset: 0,
+                  margin: "auto",
+                  zIndex: 1,
                 }}
               />
             </AnimatePresence>
             <motion.img
-              // src={spotlight}
+              src={null}
               alt=""
               className='hero-spotlight'
               initial={{ opacity: 0, x: 60 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.4, ease: EASE }}
+              transition={{ duration: 0.8, delay: 1.2, ease: EASE }}
               style={{
                 WebkitMaskImage: `url(${spotlight})`,
                 maskImage: `url(${spotlight})`,
-                width: "100%",
                 scale: "1.5",
               }}
             />
@@ -294,8 +289,8 @@ function AboutPage() {
             <h2 className="section-title">Not just another bureau.<br />A performance partner.</h2>
           </motion.div>
 
-          <div className="social-proof__metrics">
-            <div className="social-proof__metric left">
+          <div className="about-page__metrics">
+            <div className="about-page__metric left">
               <motion.div
                 className="metric-container red"
                 initial={{ opacity: 0, y: 32 }}
@@ -307,14 +302,14 @@ function AboutPage() {
                 }}
               >
                 <img src={starsIcon} alt="" className="metric-icon" />
-                <span className="social-proof__metric-value">
+                <span className="about-page__metric-value">
                   AI-Powered Matching
                 </span>
-                <span className="social-proof__metric-label">Describe your event in natural language and our AI surfaces speakers who actually fit. Not just keyword matches, but genuine alignment.</span>
+                <span className="about-page__metric-label">Describe your event in natural language and our AI surfaces speakers who actually fit. Not just keyword matches, but genuine alignment.</span>
                 <motion.img
                   // src={spotlight}
                   alt="spotlight"
-                  className="social-proof__spotlight red"
+                  className="about-page__spotlight red"
                   style={{
                     WebkitMaskImage: `url(${spotlight})`,
                     maskImage: `url(${spotlight})`,
@@ -332,13 +327,13 @@ function AboutPage() {
                 }}
               >
                 <img src={playIcon} alt="" className="metric-icon" />
-                <span className="social-proof__metric-value">Video-First Profiles</span>
-                <span className="social-proof__metric-label">See speakers in action before you book. Every profile includes
+                <span className="about-page__metric-value">Video-First Profiles</span>
+                <span className="about-page__metric-label">See speakers in action before you book. Every profile includes
                 video so you know exactly what you're getting.</span>
                 <motion.img
                   // src={spotlight}
                   alt="spotlight"
-                  className="social-proof__spotlight blue"
+                  className="about-page__spotlight blue"
                   style={{
                     WebkitMaskImage: `url(${spotlight})`,
                     maskImage: `url(${spotlight})`,
@@ -346,7 +341,7 @@ function AboutPage() {
                 />
               </motion.div>
             </div>
-            <div className="social-proof__metric right">
+            <div className="about-page__metric right">
               <motion.div
                 className="metric-container yellow"
                 initial={{ opacity: 0, y: 32 }}
@@ -358,13 +353,13 @@ function AboutPage() {
                 }}
               >
                 <img src={clockIcon} alt="" className="metric-icon" />
-                <span className="social-proof__metric-value">
+                <span className="about-page__metric-value">
                   24-Hour Response
                 </span>
-                <span className="social-proof__metric-label">Every enquiry gets a human response within 24 hours. No waiting, no chasing, no endless email chains.</span>
+                <span className="about-page__metric-label">Every enquiry gets a human response within 24 hours. No waiting, no chasing, no endless email chains.</span>
                 <motion.img
                   alt="spotlight"
-                  className="social-proof__spotlight yellow"
+                  className="about-page__spotlight yellow"
                   style={{
                     WebkitMaskImage: `url(${spotlight})`,
                     maskImage: `url(${spotlight})`,
@@ -382,11 +377,11 @@ function AboutPage() {
                 }}
               >
                 <img src={checkIcon} alt="" className="metric-icon" />
-                <span className="social-proof__metric-value">Quality Guarantee</span>
-                <span className="social-proof__metric-label">If a speaker doesn't deliver, we make it right. Our reputation depends on every engagement being exceptional.</span>
+                <span className="about-page__metric-value">Quality Guarantee</span>
+                <span className="about-page__metric-label">If a speaker doesn't deliver, we make it right. Our reputation depends on every engagement being exceptional.</span>
                 <motion.img
                   alt="spotlight"
-                  className="social-proof__spotlight purple"
+                  className="about-page__spotlight purple"
                   style={{
                     WebkitMaskImage: `url(${spotlight})`,
                     maskImage: `url(${spotlight})`,
@@ -450,8 +445,8 @@ function AboutPage() {
               the right fit for your specific audience and objectives.
             </motion.p>
           </div>
-          <div className="social-proof__metrics">
-            <div className="social-proof__metric left">
+          <div className="about-page__metrics">
+            <div className="about-page__metric left">
               <motion.div
                 className="metric-container red"
                 initial={{ opacity: 0, y: 32 }}
@@ -463,14 +458,14 @@ function AboutPage() {
                 }}
               >
                 <img src={starIcon} alt="" className="metric-icon" />
-                <span className="social-proof__metric-value">
+                <span className="about-page__metric-value">
                   Curated, Not Catalogued
                 </span>
-                <span className="social-proof__metric-label">We say no to most speakers so we can say yes to the exceptional ones.</span>
+                <span className="about-page__metric-label">We say no to most speakers so we can say yes to the exceptional ones.</span>
                 <motion.img
                   // src={spotlight}
                   alt="spotlight"
-                  className="social-proof__spotlight red"
+                  className="about-page__spotlight red"
                   style={{
                     WebkitMaskImage: `url(${spotlight})`,
                     maskImage: `url(${spotlight})`,
@@ -478,7 +473,7 @@ function AboutPage() {
                 />
               </motion.div>
             </div>
-            <div className="social-proof__metric right">
+            <div className="about-page__metric right flex2">
               <motion.div
                 className="metric-container yellow"
                 initial={{ opacity: 0, y: 32 }}
@@ -490,13 +485,13 @@ function AboutPage() {
                 }}
               >
                 <img src={lightningIcon} alt="" className="metric-icon" />
-                <span className="social-proof__metric-value">
+                <span className="about-page__metric-value">
                   Transparent & Fast
                 </span>
-                <span className="social-proof__metric-label">No black boxes. Clear pricing, quick responses, honest advice.</span>
+                <span className="about-page__metric-label">No black boxes. Clear pricing, quick responses, honest advice.</span>
                 <motion.img
                   alt="spotlight"
-                  className="social-proof__spotlight yellow"
+                  className="about-page__spotlight yellow"
                   style={{
                     WebkitMaskImage: `url(${spotlight})`,
                     maskImage: `url(${spotlight})`,
@@ -514,11 +509,11 @@ function AboutPage() {
                 }}
               >
                 <img src={targetIcon} alt="" className="metric-icon" />
-                <span className="social-proof__metric-value">Impact-Focused</span>
-                <span className="social-proof__metric-label">We measure success by the impact our speakers have on your audience  .</span>
+                <span className="about-page__metric-value">Impact-Focused</span>
+                <span className="about-page__metric-label">We measure success by the impact our speakers have on your audience  .</span>
                 <motion.img
                   alt="spotlight"
-                  className="social-proof__spotlight purple"
+                  className="about-page__spotlight purple"
                   style={{
                     WebkitMaskImage: `url(${spotlight})`,
                     maskImage: `url(${spotlight})`,

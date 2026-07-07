@@ -1,6 +1,6 @@
 import "./Hero.css";
 
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-motion'
 
 import { EASE } from '../../../../constants/animation'
@@ -31,6 +31,9 @@ function RevealText({ children, delay = 0, y = 0 }) {
 
 function Hero() {
   const heroRef = useRef(null)
+
+  const inputRef = useRef(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Parallax scrolling
   const { scrollYProgress } = useScroll()
@@ -71,16 +74,19 @@ function Hero() {
           </motion.p>
 
           {/* Search Bar */}
-          <SearchBar />
+          <SearchBar
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            inputRef={inputRef}
+          />
 
           {/* Example Queries */}
-          {/* <motion.div
+          <motion.div
             className="hero-examples"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.9 }}
           >
-            <span className="hero-examples__label">Try an example:</span>
             <div className="hero-examples__list">
               {[
                 'Women in business conference for 500 attendees',
@@ -93,15 +99,15 @@ function Hero() {
                   type="button"
                   className="hero-examples__item"
                   onClick={() => {
-                    setSearchQuery(example)
-                    // inputRef.current?.focus()
+                    setSearchQuery(example);
+                    inputRef.current?.focus();
                   }}
                 >
                   {example}
                 </button>
               ))}
             </div>
-          </motion.div> */}
+          </motion.div>
 
         </div>
       </motion.div>

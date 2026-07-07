@@ -1,9 +1,9 @@
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
-import SpeakerGrid from '../components/speakers/SpeakerGrid'
-import { prefetchSpeaker, prefetchParseBrief } from '../utils/prefetch'
-import { EASE } from '../constants/animation'
+import SpeakerGrid from '../../components/speakers/SpeakerGrid'
+import { prefetchSpeaker, prefetchParseBrief } from '../../utils/prefetch'
+import { EASE } from '../../constants/animation'
 import './SpeakerDetailPage.css'
 
 const YOUTUBE_EMBED_RE = /\/embed\/([^?&#]+)/

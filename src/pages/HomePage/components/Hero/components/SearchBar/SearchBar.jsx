@@ -9,13 +9,22 @@ import { placeholders } from './examples';
 import cursorLight from "../../../../../../assets/cursor-light-purple.png";
 import star from "../../../../../../assets/star.png";
 
-function SearchBar() {
+const autoResize = (el) => {
+  if (!el) return
+  el.style.height = 'auto'
+  el.style.height = `${el.scrollHeight}px`
+}
+
+function SearchBar({ searchQuery, setSearchQuery, inputRef }) {
   const navigate = useNavigate()
 
-	const [searchQuery, setSearchQuery] = useState('');
 	const [isFocused, setIsFocused] = useState(false);
   const [typingText, setTypingText] = useState('')
   const [breathing, setBreathing] = useState(false);
+
+  useEffect(() => {
+    autoResize(inputRef.current)
+  }, [searchQuery, inputRef])
 
   const SPARKS = [
     { x: 7,  y: 52, s: 2, d: 3.0, delay: 0 },
@@ -80,97 +89,103 @@ function SearchBar() {
 			transition={{ duration: 0.6, delay: 0.7 }}
 		>
 			<div className={`hero-search__container ${isFocused ? 'hero-search__container--focused' : ''}`}>
-				<div className="hero-search__input-wrapper">
-					<input
-            id="search"
-						// ref={inputRef}
-						type="text"
-						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => {
-              setIsFocused(false);
-              setBreathing(false);
-            }}
-						className="hero-search__input"
-						placeholder=""
-					/>
-					{!searchQuery && (
-            <span className="hero-search__placeholder" style={{
-              overflow: 'visible'
-            }}>
-              {/* <span
-                className={isFocused ? "hide-mobile" : ""}
-                style={{ opacity: '0.8' }}
-              >{ isFocused
-                ? "Describe your event and ideal speaker..."
-                : typingText
-              }</span> */}
-              <span
-                className={isFocused ? "hide-mobile" : ""}
-                style={{ opacity: '0.7' }}
-              >Describe your event and ideal speaker...</span>
-							{/* { !isFocused && (
-                <span className="hero-search__caret" style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  verticalAlign: 'middle'
-                }}>
-                  <span className="hero-search__cursor">|</span>
-                  <span style={{ position: 'relative', display: 'inline-flex' }}>
-                    <img
-                      className="cursor-light"
-                      src={cursorLight}
-                      alt=""
-                      style={{ height: '4em', width: 'auto', transform: 'translateX(-2px)' }}
-                    />
+        <textarea
+          data-lenis-prevent
+          id="search"
+          ref={inputRef}
+          rows={1}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onInput={(e) => autoResize(e.target)}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => { setIsFocused(false); setBreathing(false) }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault()
+              handleSearch(e)
+            }
+          }}
+          className="hero-search__input"
+          placeholder="Describe your event and ideal speaker..."
+        />
+        {!searchQuery && (
+          <span className="hero-search__placeholder" style={{
+            overflow: 'visible'
+          }}>
+            {/* <span
+              className={isFocused ? "hide-mobile" : ""}
+              style={{ opacity: '0.8' }}
+            >{ isFocused
+              ? "Describe your event and ideal speaker..."
+              : typingText
+            }</span> */}
+            {/* <span
+              className={isFocused ? "hide-mobile" : ""}
+              style={{ opacity: '0.7' }}
+            >Describe your event and ideal speaker...</span> */}
+            {/* { !isFocused && (
+              <span className="hero-search__caret" style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                verticalAlign: 'middle'
+              }}>
+                <span className="hero-search__cursor">|</span>
+                <span style={{ position: 'relative', display: 'inline-flex' }}>
+                  <img
+                    className="cursor-light"
+                    src={cursorLight}
+                    alt=""
+                    style={{ height: '4em', width: 'auto', transform: 'translateX(-2px)' }}
+                  />
 
-                    <ul className="sparks" style={{
-                      position: 'absolute',
-                      inset: '-30px -15px -30px 0px',
-                      margin: 0,
-                      padding: 0,
-                      listStyle: 'none',
-                      pointerEvents: 'none',
-                    }}>
-                      {SPARKS.map((p, i) => (
-                        <li key={i} style={{
-                          position: 'absolute',
-                          left: `${p.x}%`,
-                          top: `${p.y}%`,
-                          transform: 'translate(-50%, -50%)',
-                        }}>
-                          <span style={{
-                            display: 'block',
-                            width: p.s,
-                            height: p.s,
-                            borderRadius: '50%',
-                            background: 'rgba(255, 240, 226, 0.95)',
-                            boxShadow: `0 0 ${p.s * 1.6}px rgba(255, 220, 196, 0.9)`,
-                            mixBlendMode: 'screen',
-                            animation: `twinkle ${p.d}s ease-in-out ${p.delay}s infinite alternate backwards`,
-                          }} />
-                        </li>
-                      ))}
-                    </ul>
-                  </span>
+                  <ul className="sparks" style={{
+                    position: 'absolute',
+                    inset: '-30px -15px -30px 0px',
+                    margin: 0,
+                    padding: 0,
+                    listStyle: 'none',
+                    pointerEvents: 'none',
+                  }}>
+                    {SPARKS.map((p, i) => (
+                      <li key={i} style={{
+                        position: 'absolute',
+                        left: `${p.x}%`,
+                        top: `${p.y}%`,
+                        transform: 'translate(-50%, -50%)',
+                      }}>
+                        <span style={{
+                          display: 'block',
+                          width: p.s,
+                          height: p.s,
+                          borderRadius: '50%',
+                          background: 'rgba(255, 240, 226, 0.95)',
+                          boxShadow: `0 0 ${p.s * 1.6}px rgba(255, 220, 196, 0.9)`,
+                          mixBlendMode: 'screen',
+                          animation: `twinkle ${p.d}s ease-in-out ${p.delay}s infinite alternate backwards`,
+                        }} />
+                      </li>
+                    ))}
+                  </ul>
                 </span>
-              )} */}
-						</span>
-					)}
-				</div>
+              </span>
+            )} */}
+          </span>
+        )}
 
 				<motion.button
 					type="submit"
-					className="hero-search__button hide-mobile"
+					className="hero-search__button"
 					disabled={!searchQuery.trim()}
 					whileTap={{ scale: 0.98 }}
+          style={{
+            margin: "8px"
+          }}
 				>
           <img src={star} alt="star" />
 					<span>Find Speakers</span>
 				</motion.button>
 			</div>
-      <motion.button
+      {/* <motion.button
         type="submit"
         className="hero-search__button hide-desktop"
         disabled={!searchQuery.trim()}
@@ -181,7 +196,7 @@ function SearchBar() {
       >
         <img src={star} alt="star" />
         <span>Find Speakers</span>
-      </motion.button>
+      </motion.button> */}
 		</motion.form>
 	);
 }

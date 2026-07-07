@@ -7,6 +7,7 @@
   height: var(--header-height);
   background: transparent;
   z-index: 1000;
+  max-width: 100vw;
 }
 
 /* Glass layer sits behind content, fades in on scroll */
@@ -379,7 +380,17 @@
           mask-composite: exclude;
   pointer-events: none;
 }
+.book-a-speaker__btn:hover:not(:disabled) {
+    background: white;
+    color: black;
 
+    img {
+      filter: invert(1);
+    }
+    svg {
+      color: black
+    }
+}
 
 @media (max-width: 768px) {
   .mobile-menu-content {
