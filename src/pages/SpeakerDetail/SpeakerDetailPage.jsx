@@ -1,10 +1,19 @@
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
-import SpeakerGrid from '../../components/speakers/SpeakerGrid'
 import { prefetchSpeaker, prefetchParseBrief } from '../../utils/prefetch'
 import { EASE } from '../../constants/animation'
 import './SpeakerDetailPage.css'
+import SimilarSpeakers from './components/SimilarSpeakers/SimilarSpeakers'
+import VideoHero from './components/VideoHero/VideoHero'
+import useSmoothScroll from '../../hooks/useSmoothScroll'
+import Cursor from '../../components/Cursor/Cursor'
+
+import temp from "../../assets/temp.png";
+import spotlight from "../../assets/white-spotlight.png";
+import keyIcon from "../../assets/key-icon.png";
+import targetIcon from "../../assets/target-icon.png";
+import audienceIcon from "../../assets/audience-icon.png";
 
 const YOUTUBE_EMBED_RE = /\/embed\/([^?&#]+)/
 const DIRECT_VIDEO_RE = /\.(mp4|webm|mov)(\?|$)/i
@@ -17,174 +26,164 @@ function getVideoType(url) {
   return { type: 'none' }
 }
 
-function LocationLine({ location, className }) {
-  if (!location) return null
-  return (
-    <p className={className}>
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-        <path d="M6 1.5C4.07 1.5 2.5 3.07 2.5 5C2.5 7.5 6 10.5 6 10.5S9.5 7.5 9.5 5C9.5 3.07 7.93 1.5 6 1.5Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/>
-        <circle cx="6" cy="5" r="1.3" fill="currentColor"/>
-      </svg>
-      {location}
-    </p>
-  )
+function animateScrollTo(targetY, duration = 1100) {
+  const startY = window.scrollY
+  const diff = targetY - startY
+  let start
+
+  return new Promise((resolve) => {
+    function step(timestamp) {
+      if (!start) start = timestamp
+      const t = Math.min((timestamp - start) / duration, 1)
+      // easeOutExpo — instant response, long glide
+      const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t)
+      window.scrollTo({ top: startY + diff * eased, behavior: 'instant' })
+      if (t < 1) requestAnimationFrame(step)
+      else resolve()
+    }
+    requestAnimationFrame(step)
+  })
 }
 
-function VideoHero({ speaker, video, socialEntries, totalFollowing, brief, onEnquire, onEnquireHover, id, isSelected, setIsSelected, handleSelectAndBack }) {
-  const [isMuted, setIsMuted] = useState(true)
-  const videoRef = useRef(null)
+function useSectionSnap(enabled = true) {
+  const s = useRef({
+    raf: 0,
+    target: null,
+    cooldownUntil: 0,
+    brakeUntil: 0,
+    acc: 0,
+    accAt: 0,
+    lastDeepAt: 0,
+  })
 
-  const iframeSrc = video.type === 'youtube'
-    ? `https://www.youtube.com/embed/${video.id}?autoplay=1&mute=${isMuted ? 1 : 0}&loop=1&playlist=${video.id}&controls=0&modestbranding=1&rel=0`
-    : null
+  useEffect(() => {
+    if (!enabled) return
+    const state = s.current
+    const THRESHOLD = 24
+    const COOLDOWN = 400
+    const BRAKE = 450
+    const DURATION = 1100
 
-  return (
-    <section className="speaker-video-hero-section">
-      <motion.div
-        className="speaker-video-hero"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, ease: EASE }}
-      >
-        <div className="speaker-video-hero__scrim_top" />
+    const cancelAnim = () => {
+      if (state.raf) cancelAnimationFrame(state.raf)
+      state.raf = 0
+      state.target = null
+    }
 
-        {/* Nav buttons overlaid at top */}
-        <motion.div
-          className="speaker-video-hero__nav"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
-          <Link
-            to={brief ? `/search?q=${encodeURIComponent(brief)}` : '/speakers'}
-            className="speaker-video-hero__back"
-          >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            {brief ? 'Back to Results' : 'All Speakers'}
-          </Link>
-          {brief && (
-            <button
-              className={`speaker-video-hero__select-btn ${isSelected ? 'speaker-video-hero__select-btn--selected' : ''}`}
-              onClick={() => {
-                if (isSelected) {
-                  try {
-                    const stored = sessionStorage.getItem('selectedSpeakerIds')
-                    const ids = stored ? JSON.parse(stored) : []
-                    sessionStorage.setItem('selectedSpeakerIds', JSON.stringify(ids.filter(i => i !== id)))
-                  } catch {}
-                  setIsSelected(false)
-                } else {
-                  handleSelectAndBack()
-                }
-              }}
-            >
-              {isSelected ? (
-                <>
-                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-                    <path d="M2.5 7L5.5 10L11.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  Selected
-                </>
-              ) : (
-                <>
-                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-                    <path d="M7 2.5V11.5M2.5 7H11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  Select Speaker
-                </>
-              )}
-            </button>
-          )}
-        </motion.div>
+    const snap = (to, duration = DURATION) => {
+      cancelAnim()
+      state.target = to
+      state.acc = 0
+      const startY = window.scrollY
+      const diff = to - startY
+      let start
 
-        {video.type === 'direct' ? (
-          <video ref={videoRef} className="speaker-video-hero__iframe" src={video.src} autoPlay loop muted={isMuted} playsInline preload="metadata"  />
-        ) : (
-          <iframe className="speaker-video-hero__iframe" src={iframeSrc} title={`${speaker.name} Speaker Reel`} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
-        )}
-        <div className="speaker-video-hero__scrim" />
-        <div className="speaker-video-hero__overlay">
-          <div className="speaker-video-hero__info">
-            <div className="speaker-video-hero__identity">
-              <img
-                src={speaker.photo}
-                alt={speaker.name}
-                className="speaker-video-hero__photo"
-              />
-              <div>
-                <h1 className="speaker-video-hero__name">{speaker.name}</h1>
-                <p className="speaker-video-hero__headline">
-                  {speaker.headline}
-                  {totalFollowing > 0 && (
-                    <span className="speaker-video-hero__following"> · {formatFollowers(totalFollowing)} following</span>
-                  )}
-                </p>
-                <LocationLine location={speaker.location} className="speaker-video-hero__location" />
-              </div>
-            </div>
-            {socialEntries.length > 0 && (
-              <div className="speaker-video-hero__social-pills">
-                {socialEntries.map(({ platform, count, url }, i) => (
-                  <motion.a
-                    key={platform}
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`speaker-video-hero__social-pill speaker-video-hero__social-pill--${platform}`}
-                    initial={{ opacity: 0, scale: 0.85 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.35, delay: 0.5 + i * 0.08, ease: EASE }}
-                  >
-                    {platformIcons[platform]}
-                    {formatFollowers(count)}
-                  </motion.a>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="speaker-video-hero__actions">
-            <motion.button
-              onClick={onEnquire}
-              onMouseEnter={onEnquireHover}
-              className="speaker-video-hero__enquire-btn"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              Enquire Now
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </motion.button>
-            <button
-              className="speaker-video-hero__sound-btn"
-              onClick={() => {
-                setIsMuted(m => {
-                  const next = !m
-                  if (videoRef.current) videoRef.current.muted = next
-                  return next
-                })
-              }}
-              title={isMuted ? 'Unmute' : 'Mute'}
-            >
-              {isMuted ? (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                  <line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
-                </svg>
-              ) : (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
-                </svg>
-              )}
-            </button>
-          </div>
-        </div>
-      </motion.div>
-    </section>
-  )
+      const step = (timestamp) => {
+        if (!start) start = timestamp
+        const t = Math.min((timestamp - start) / duration, 1)
+        const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t)
+        window.scrollTo({ top: startY + diff * eased, behavior: 'instant' })
+        if (t < 1) {
+          state.raf = requestAnimationFrame(step)
+        } else {
+          state.raf = 0
+          state.target = null
+          state.cooldownUntil = performance.now() + COOLDOWN
+        }
+      }
+      state.raf = requestAnimationFrame(step)
+    }
+
+    const onWheel = (e) => {
+      const now = performance.now()
+      const y = window.scrollY
+      const h = window.innerHeight
+      const goingDown = e.deltaY > 0
+
+      if (state.raf) {
+        const snappingDown = state.target === h
+
+        if (snappingDown && goingDown) {
+          cancelAnim()
+          window.scrollTo({ top: h, behavior: 'instant' })
+          state.cooldownUntil = 0
+          return
+        }
+        if (!snappingDown && !goingDown) {
+          e.preventDefault()
+          return
+        }
+        e.preventDefault()
+        cancelAnim()
+        snap(goingDown ? h : 0, 800)
+        return
+      }
+
+      const atContentTop = y <= h + 2
+      const insideHero = y < h - 2
+
+      // Deep in content: free scroll, but remember we were here so a fast
+      // upward fling brakes at the boundary instead of entering the hero.
+      if (!atContentTop && !insideHero) {
+        state.lastDeepAt = now
+        // Fling about to cross the boundary this event: pin to boundary.
+        if (!goingDown && y + e.deltaY < h) {
+          e.preventDefault()
+          window.scrollTo({ top: h, behavior: 'instant' })
+          state.brakeUntil = now + BRAKE
+          state.acc = 0
+        }
+        return
+      }
+
+      // Just arrived at the boundary carried by momentum from below: brake.
+      if (!goingDown && now - state.lastDeepAt < 120 && state.brakeUntil < now) {
+        e.preventDefault()
+        window.scrollTo({ top: h, behavior: 'instant' })
+        state.brakeUntil = now + BRAKE
+        state.acc = 0
+        return
+      }
+
+      // While braking, swallow trailing upward inertia and hold position.
+      if (now < state.brakeUntil) {
+        if (!goingDown || insideHero) {
+          e.preventDefault()
+          if (insideHero) window.scrollTo({ top: h, behavior: 'instant' })
+        }
+        return
+      }
+
+      if (now < state.cooldownUntil) {
+        if (insideHero || (atContentTop && !goingDown)) e.preventDefault()
+        return
+      }
+
+      if (insideHero && goingDown) {
+        e.preventDefault()
+        if (now - state.accAt > 200) state.acc = 0
+        state.acc += e.deltaY
+        state.accAt = now
+        if (state.acc > THRESHOLD) snap(h)
+        return
+      }
+
+      if (!goingDown && (insideHero || atContentTop)) {
+        e.preventDefault()
+        if (now - state.accAt > 200) state.acc = 0
+        state.acc += e.deltaY
+        state.accAt = now
+        if (state.acc < -THRESHOLD) snap(0)
+        return
+      }
+    }
+
+    window.addEventListener('wheel', onWheel, { passive: false })
+    return () => {
+      cancelAnim()
+      window.removeEventListener('wheel', onWheel)
+    }
+  }, [enabled])
 }
 
 function formatFollowers(n) {
@@ -225,6 +224,8 @@ const platformIcons = {
 }
 
 function SpeakerDetailPage() {
+  useSmoothScroll();
+
   const { id } = useParams()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -257,6 +258,7 @@ function SpeakerDetailPage() {
     } catch {}
     navigate(`/search?q=${encodeURIComponent(brief)}`)
   }, [id, brief, navigate])
+
   const bodyRef = useRef(null)
   const { scrollYProgress } = useScroll({ target: bodyRef, offset: ['start start', 'end start'] })
   const bioScale = useTransform(scrollYProgress, [0, 0.4], [1, 0.82])
@@ -308,6 +310,16 @@ function SpeakerDetailPage() {
     navigate(enquiryPath, { state: { speaker } })
   }, [navigate, enquiryPath, speaker])
 
+  // Hero detection + section snap — MUST run before any early return so the
+  // hook order stays stable across loading / loaded renders. speaker is null
+  // during loading, so optional-chain it; snap is simply disabled until video exists.
+  const video = speaker?.heroMediaType === 'video'
+    ? getVideoType(speaker.videoUrl)
+    : { type: 'none' }
+  const hasVideo = video.type !== 'none'
+
+  // useSectionSnap(hasVideo)
+
   if (loading) {
     return (
       <div className="speaker-detail-page">
@@ -355,74 +367,11 @@ function SpeakerDetailPage() {
 
   const totalFollowing = socialEntries.reduce((sum, e) => sum + e.count, 0)
 
-  // Hero media is admin-controlled. If admin chose 'image' explicitly, render
-  // the photo hero even when a videoUrl exists. Falls back to image if 'video'
-  // is selected but no videoUrl is set.
-  const wantsVideoHero = speaker.heroMediaType === 'video'
-  const video = wantsVideoHero ? getVideoType(speaker.videoUrl) : { type: 'none' }
-  const hasVideo = video.type !== 'none'
-
   return (
     <div className="speaker-detail-page">
-      {/* Back nav — only for photo hero; video hero has its own overlay nav */}
-      {!hasVideo && (
-        <motion.div
-          className="speaker-nav"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          <div className="container">
-            <div className="speaker-nav__row">
-              <Link
-                to={brief ? `/search?q=${encodeURIComponent(brief)}` : '/speakers'}
-                className="speaker-nav__back"
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                {brief ? 'Back to Results' : 'All Speakers'}
-              </Link>
-              {brief && (
-                <button
-                  className={`speaker-nav__select-btn ${isSelected ? 'speaker-nav__select-btn--selected' : ''}`}
-                  onClick={() => {
-                    if (isSelected) {
-                      try {
-                        const stored = sessionStorage.getItem('selectedSpeakerIds')
-                        const ids = stored ? JSON.parse(stored) : []
-                        sessionStorage.setItem('selectedSpeakerIds', JSON.stringify(ids.filter(i => i !== id)))
-                      } catch {}
-                      setIsSelected(false)
-                    } else {
-                      handleSelectAndBack()
-                    }
-                  }}
-                >
-                  {isSelected ? (
-                    <>
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <path d="M2.5 7L5.5 10L11.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      Selected
-                    </>
-                  ) : (
-                    <>
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <path d="M7 2.5V11.5M2.5 7H11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      Select Speaker
-                    </>
-                  )}
-                </button>
-              )}
-            </div>
-          </div>
-        </motion.div>
-      )}
+      <Cursor />
 
-      {/* ========== ROW 1: Hero ========== */}
-      {hasVideo ? (
+      {hasVideo && (
         <VideoHero
           speaker={speaker}
           video={video}
@@ -436,33 +385,115 @@ function SpeakerDetailPage() {
           setIsSelected={setIsSelected}
           handleSelectAndBack={handleSelectAndBack}
         />
-      ) : (
-        <section className="speaker-hero">
-          <div className="container" style={{
-            height: "100%"
-          }}>
-            <div className="speaker-hero__grid">
-              <motion.div
-                className="speaker-hero__image-col"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: EASE }}
-              >
-                <div className="speaker-hero__image-wrapper">
-                  <img src={speaker.photo} alt={speaker.name} className="speaker-hero__image" />
+      )}
+
+      <section className="speaker-hero"
+        style={{
+          paddingTop: !hasVideo && "var(--header-height)"
+        }}
+      >
+        <div className="container" style={{
+          height: "100%"
+        }}>
+          <div className="speaker-hero__grid">
+            <motion.div
+              className="speaker-hero__image-col"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: EASE }}
+            >
+              <div className="speaker-hero__image-wrapper">
+                <motion.img
+                  src={null}
+                  alt="spotlight"
+                  className="speaker-detail-page__spotlight"
+                  style={{
+                    WebkitMaskImage: `url(${spotlight})`,
+                    maskImage: `url(${spotlight})`,
+                  }}
+                />
+
+                {/* <img src={speaker.photo} alt={speaker.name} className="speaker-hero__image" /> */}
+                <img src={temp} alt={speaker.name} className="speaker-hero__image" />
+
+                <div className="speaker-hero__bottom">
+                  <div className="left">
+                    <h1 className="speaker-hero__title">{speaker.name}</h1>
+                    <span className="speaker-hero__description">{speaker.headline}</span>
+                  </div>
+                  <div className="right">
+                    <motion.button
+                      onClick={handleEnquireClick}
+                      onMouseEnter={handleEnquireHover}
+                      className="btn btn-primary btn-md"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      Enquire Now
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </motion.button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="speaker-hero__content"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
+            >
+              <motion.div style={{
+                marginBottom: "16px"
+              }}>
+                <div style={{
+                  display: "flex",
+                  justifyContent: "flex-start",
+                  alignItems: "center",
+                  gap: "16px",
+                  marginBottom: "16px"
+                }}>
+                  <img src={keyIcon} alt="key-icon" style={{
+                    width: "30px",
+                    height: "30px",
+                  }}/>
+                  <h2 className="speaker-body__bio-title">About {speaker.name}</h2>
+                </div>
+                <div className="speaker-body__bio">
+                  {speaker.bio.split('\n\n').map((paragraph, index) => (
+                    <p key={index}>{paragraph}</p>
+                  ))}
                 </div>
               </motion.div>
 
-              <motion.div
-                className="speaker-hero__content"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
-              >
-                <span className="speaker-hero__label">Speaker Profile</span>
-                <h1 className="speaker-hero__name">{speaker.name}</h1>
-                <p className="speaker-hero__headline">{speaker.headline}</p>
-                <LocationLine location={speaker.location} className="speaker-hero__location" />
+              <div style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px"
+              }}>
+                <div style={{
+                  display: "flex",
+                }}>
+                  <div style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignContent: "flex-start"
+                  }}>
+                    <span style={{
+                      fontWeight: "500",
+                      fontSize: "1.2rem"
+                    }}>Location</span>
+                    <span>{speaker.location}</span>
+                  </div>
+                </div>
+                {/* <LocationLine location={speaker.location} className="speaker-hero__location" /> */}
+
+                <div style={{
+                  flex: "1",
+                  borderBottom: "1px solid #ffffff"
+                }}></div>
 
                 {socialEntries.length > 0 && (
                   <div className="speaker-hero__social">
@@ -490,312 +521,181 @@ function SpeakerDetailPage() {
                     </div>
                   </div>
                 )}
+              </div>
 
-                <div className="speaker-hero__actions">
-                  <motion.button
-                    onClick={handleEnquireClick}
-                    onMouseEnter={handleEnquireHover}
-                    className="btn btn-primary btn-lg"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+              <div>
+                <div className="speaker-body__right">
+                  {/* AI Reasoning — animated gradient border */}
+                  {briefReasoning && (
+                    <motion.div
+                      className="speaker-block speaker-block--reasoning speaker-block--glow"
+                      initial={{ opacity: 0, y: 24, scale: 0.97 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ delay: 0.1, duration: 0.5, ease: EASE }}
+                      whileHover={{ y: -2 }}
+                    >
+                      <div className="speaker-block__header">
+                        <svg width="14" height="14" viewBox="0 0 12 12" fill="currentColor" style={{ color: '#22c55e' }}>
+                          <path d="M6 0L7.76 3.58L11.71 4.15L8.85 6.95L9.53 10.88L6 9.02L2.47 10.88L3.15 6.95L0.29 4.15L4.24 3.58L6 0Z"/>
+                        </svg>
+                        <span>Why {speaker.name} matches your brief</span>
+                        {briefScore != null && (
+                          <span className="speaker-block__score">{briefScore}% match</span>
+                        )}
+                      </div>
+                      <p className="speaker-block__text">{briefReasoning}</p>
+                    </motion.div>
+                  )}
+
+                  {/* Key Topics — expandable on hover */}
+                  <motion.div
+                    className="speaker-block speaker-block--glow"
+                    initial={{ opacity: 0, y: 24, scale: 0.97 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.15, duration: 0.5, ease: EASE }}
+                    whileHover={{ y: -2 }}
                   >
-                    Enquire Now
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </motion.button>
-                  {/* {speaker.videoUrl && (
-                    <a href="#video" className="btn btn-secondary btn-lg">
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <path d="M3 2.5V11.5L11.5 7L3 2.5Z" fill="currentColor"/>
-                      </svg>
-                      Watch Reel
-                    </a>
-                  )} */}
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ========== ROW 2: Bio (left) + Topics/Reasoning (right) ========== */}
-      <section className="speaker-body" ref={bodyRef}>
-        <div className="container">
-          <div className="speaker-body__grid">
-            {/* Left — Bio (scroll-fade) + Book shelf (unaffected by fade) */}
-            <div className="speaker-body__left">
-              <motion.div style={{ scale: bioScale, opacity: bioOpacity }}>
-                <motion.div
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, ease: EASE }}
-                >
-                  <h2 className="speaker-body__bio-title">About {speaker.name}</h2>
-                  <div className="speaker-body__bio">
-                    {speaker.bio.split('\n\n').map((paragraph, index) => (
-                      <p key={index}>{paragraph}</p>
-                    ))}
-                  </div>
-                </motion.div>
-              </motion.div>
-
-              {speaker.books?.length > 0 && (
-                <motion.div
-                  className="book-shelf"
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-80px' }}
-                  transition={{ duration: 0.6, ease: EASE }}
-                >
-                  <h3 className="book-shelf__title">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                    </svg>
-                    Books by {speaker.name}
-                  </h3>
-
-                  <div className="book-shelf__stage">
-                    <div className="book-shelf__books">
-                      {speaker.books.map((book, i) => (
-                        <div
-                          key={i}
-                          className="book"
-                          aria-label={`${book.title} by ${speaker.name}`}
-                        >
-                          <div className="book__stage">
-                            <img
-                              className="book__front"
-                              src={book.coverUrl}
-                              alt=""
-                              loading="lazy"
-                            />
-                            <div
-                              className="book__spine"
-                              aria-hidden="true"
-                            >
-                              <span className="book__spine-text">{book.spineTitle || book.title}</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                    <div style={{
+                      marginBottom: "14px",
+                      display: "flex",
+                      justifyContent: "flex-start",
+                      alignContent: "center",
+                      gap: "16px"
+                    }}>
+                      <img src={targetIcon} alt="target-icon" style={{
+                        width: "30px",
+                        height: "30px"
+                      }} />
+                      <h3 className="speaker-block__title">Key Topics</h3>
                     </div>
-                    <div className="book-shelf__board" aria-hidden="true" />
-                    <div className="book-shelf__board-shadow" aria-hidden="true" />
-                  </div>
-                </motion.div>
-              )}
-            </div>
-
-            {/* Right — Dynamic content */}
-            <div className="speaker-body__right">
-              {/* AI Reasoning — animated gradient border */}
-              {briefReasoning && (
-                <motion.div
-                  className="speaker-block speaker-block--reasoning speaker-block--glow"
-                  initial={{ opacity: 0, y: 24, scale: 0.97 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ delay: 0.1, duration: 0.5, ease: EASE }}
-                  whileHover={{ y: -2 }}
-                >
-                  <div className="speaker-block__header">
-                    <svg width="14" height="14" viewBox="0 0 12 12" fill="currentColor" style={{ color: '#22c55e' }}>
-                      <path d="M6 0L7.76 3.58L11.71 4.15L8.85 6.95L9.53 10.88L6 9.02L2.47 10.88L3.15 6.95L0.29 4.15L4.24 3.58L6 0Z"/>
-                    </svg>
-                    <span>Why {speaker.name} matches your brief</span>
-                    {briefScore != null && (
-                      <span className="speaker-block__score">{briefScore}% match</span>
-                    )}
-                  </div>
-                  <p className="speaker-block__text">{briefReasoning}</p>
-                </motion.div>
-              )}
-
-              {/* Key Topics — expandable on hover */}
-              <motion.div
-                className="speaker-block speaker-block--glow"
-                initial={{ opacity: 0, y: 24, scale: 0.97 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.15, duration: 0.5, ease: EASE }}
-                whileHover={{ y: -2 }}
-              >
-                <h3 className="speaker-block__title">Key Topics</h3>
-                <div className="speaker-topics-list">
-                  {speaker.topics.map((topic, index) => {
-                    const isHovered = hoveredTopic === index
-                    return (
-                      <motion.div
-                        key={index}
-                        className={`speaker-topic-row${isHovered ? ' speaker-topic-row--active' : ''}`}
-                        onHoverStart={() => setHoveredTopic(index)}
-                        onHoverEnd={() => setHoveredTopic(null)}
-                        initial={{ opacity: 0, x: -8 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.2 + index * 0.06, duration: 0.35, ease: EASE }}
-                        layout
-                      >
-                        <div className="speaker-topic-row__header">
-                          <span className="speaker-topic-row__counter">{String(index + 1).padStart(2, '0')}</span>
-                          <span className="speaker-topic-row__label">{topic}</span>
-                          <motion.svg
-                            className="speaker-topic-row__arrow"
-                            width="14" height="14" viewBox="0 0 14 14" fill="none"
-                            animate={{ rotate: isHovered ? 180 : 0 }}
-                            transition={{ duration: 0.25, ease: EASE }}
+                    <div className="speaker-topics-list">
+                      {speaker.topics.map((topic, index) => {
+                        const isHovered = hoveredTopic === index
+                        return (
+                          <motion.div
+                            key={index}
+                            className={`speaker-topic-row${isHovered ? ' speaker-topic-row--active' : ''}`}
+                            onHoverStart={() => setHoveredTopic(index)}
+                            onHoverEnd={() => setHoveredTopic(null)}
+                            initial={{ opacity: 0, x: -8 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.2 + index * 0.06, duration: 0.35, ease: EASE }}
+                            layout
                           >
-                            <path d="M3.5 5.5L7 9L10.5 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          </motion.svg>
-                        </div>
-                        <AnimatePresence>
-                          {isHovered && (
-                            <motion.div
-                              className="speaker-topic-row__detail"
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: 'auto', opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.25, ease: EASE }}
-                            >
-                              <p>
-                                {briefReasoning && briefReasoning.toLowerCase().includes(topic.toLowerCase().split(' ')[0])
-                                  ? `Directly relevant to your brief. ${speaker.name}'s work in ${topic.toLowerCase()} addresses the themes and outcomes you're looking for.`
-                                  : `A core area of ${speaker.name}'s expertise, delivering practical frameworks and proven strategies in ${topic.toLowerCase()}.`
-                                }
-                              </p>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </motion.div>
-                    )
-                  })}
-                </div>
-              </motion.div>
-
-              {/* Ideal Audiences — interactive hover rows */}
-              {speaker.audiences && speaker.audiences.length > 0 && (
-                <motion.div
-                  className="speaker-block speaker-block--glow"
-                  initial={{ opacity: 0, y: 24, scale: 0.97 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, ease: EASE }}
-                  whileHover={{ y: -2 }}
-                >
-                  <h3 className="speaker-block__title">Ideal Audiences</h3>
-                  <div className="speaker-audiences-list">
-                    {speaker.audiences.map((audience, index) => {
-                      const isActive = hoveredAudience === index
-                      return (
-                        <motion.div
-                          key={index}
-                          className={`speaker-audience-row${isActive ? ' speaker-audience-row--active' : ''}`}
-                          onHoverStart={() => setHoveredAudience(index)}
-                          onHoverEnd={() => setHoveredAudience(null)}
-                          initial={{ opacity: 0, x: -8 }}
-                          whileInView={{ opacity: 1, x: 0 }}
-                          viewport={{ once: true }}
-                          transition={{ delay: 0.1 + index * 0.06, duration: 0.35, ease: EASE }}
-                          layout
-                        >
-                          <div className="speaker-audience-row__header">
-                            <motion.span
-                              className="speaker-audience-row__check"
-                              animate={{ scale: isActive ? 1.15 : 1 }}
-                              transition={{ duration: 0.2, ease: EASE }}
-                            >
-                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                <path d="M3 7L6 10L11 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
-                            </motion.span>
-                            <span className="speaker-audience-row__label">{audience}</span>
-                          </div>
-                          <AnimatePresence>
-                            {isActive && (
-                              <motion.div
-                                className="speaker-audience-row__detail"
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
+                            <div className="speaker-topic-row__header">
+                              <span className="speaker-topic-row__label">{topic}</span>
+                              <motion.svg
+                                className="speaker-topic-row__arrow"
+                                width="14" height="14" viewBox="0 0 14 14" fill="none"
+                                animate={{ rotate: isHovered ? 180 : 0 }}
                                 transition={{ duration: 0.25, ease: EASE }}
                               >
-                                <p>
-                                  {briefReasoning
-                                    ? `Recommended for your event. ${speaker.name} has a proven track record engaging ${audience.toLowerCase()} with content tailored to their needs.`
-                                    : `${speaker.name} adapts their delivery and content to resonate deeply with ${audience.toLowerCase()}, ensuring maximum engagement and lasting impact.`
-                                  }
-                                </p>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </motion.div>
-                      )
-                    })}
-                  </div>
-                </motion.div>
-              )}
+                                <path d="M3.5 5.5L7 9L10.5 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              </motion.svg>
+                            </div>
+                            <AnimatePresence>
+                              {isHovered && (
+                                <motion.div
+                                  className="speaker-topic-row__detail"
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: 'auto', opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  transition={{ duration: 0.25, ease: EASE }}
+                                >
+                                  <p>
+                                    {briefReasoning && briefReasoning.toLowerCase().includes(topic.toLowerCase().split(' ')[0])
+                                      ? `Directly relevant to your brief. ${speaker.name}'s work in ${topic.toLowerCase()} addresses the themes and outcomes you're looking for.`
+                                      : `A core area of ${speaker.name}'s expertise, delivering practical frameworks and proven strategies in ${topic.toLowerCase()}.`
+                                    }
+                                  </p>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </motion.div>
+                        )
+                      })}
+                    </div>
+                  </motion.div>
 
-              {/* CTA card — animated gradient */}
-              <motion.div
-                className="speaker-block speaker-block--cta"
-                initial={{ opacity: 0, y: 24, scale: 0.97 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, ease: EASE }}
-              >
-                <div className="speaker-block--cta__glow" />
-                <h3>Ready to book {speaker.name}?</h3>
-                <p>Submit an enquiry and we'll get back to you within 24 hours.</p>
-                <motion.button
-                  onClick={handleEnquireClick}
-                  onMouseEnter={handleEnquireHover}
-                  className="btn btn-primary"
-                  whileHover={{ scale: 1.04, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  Start Your Enquiry
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M2.5 7H11.5M11.5 7L7 2.5M11.5 7L7 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </motion.button>
-              </motion.div>
-            </div>
+                  {/* Ideal Audiences — interactive hover rows */}
+                  {speaker.audiences && speaker.audiences.length > 0 && (
+                    <motion.div
+                      className="speaker-block speaker-block--glow"
+                      initial={{ opacity: 0, y: 24, scale: 0.97 }}
+                      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, ease: EASE }}
+                      whileHover={{ y: -2 }}
+                    >
+                      <div style={{
+                        marginBottom: "14px",
+                        display: "flex",
+                        justifyContent: "flex-start",
+                        alignContent: "center",
+                        gap: "16px"
+                      }}>
+                        <img src={audienceIcon} alt="audience-icon" style={{
+                          width: "30px",
+                          height: "30px"
+                        }} />
+                        <h3 className="speaker-block__title">Ideal Audiences</h3>
+                      </div>
+
+                      <div className="speaker-audiences-list">
+                        {speaker.audiences.map((audience, index) => {
+                          const isActive = hoveredAudience === index
+                          return (
+                            <motion.div
+                              key={index}
+                              className={`speaker-audience-row${isActive ? ' speaker-audience-row--active' : ''}`}
+                              onHoverStart={() => setHoveredAudience(index)}
+                              onHoverEnd={() => setHoveredAudience(null)}
+                              initial={{ opacity: 0, x: -8 }}
+                              whileInView={{ opacity: 1, x: 0 }}
+                              viewport={{ once: true }}
+                              transition={{ delay: 0.1 + index * 0.06, duration: 0.35, ease: EASE }}
+                              layout
+                            >
+                              <div className="speaker-audience-row__header">
+                                <span className="speaker-audience-row__label">{audience}</span>
+                              </div>
+                              <AnimatePresence>
+                                {isActive && (
+                                  <motion.div
+                                    className="speaker-audience-row__detail"
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{ duration: 0.25, ease: EASE }}
+                                  >
+                                    <p>
+                                      {briefReasoning
+                                        ? `Recommended for your event. ${speaker.name} has a proven track record engaging ${audience.toLowerCase()} with content tailored to their needs.`
+                                        : `${speaker.name} adapts their delivery and content to resonate deeply with ${audience.toLowerCase()}, ensuring maximum engagement and lasting impact.`
+                                      }
+                                    </p>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </motion.div>
+                          )
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
+
       {/* ========== ROW 3: Related Speakers — full width ========== */}
       {relatedSpeakers.length > 0 && (
-        <section className="section related-speakers-section">
-          <div className="container">
-            <motion.div
-              className="section-header"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-              <span className="section-label">Explore More</span>
-              <h2 className="section-title">Similar Speakers</h2>
-              <p className="section-subtitle">Speakers with complementary expertise</p>
-            </motion.div>
-            <SpeakerGrid speakers={relatedSpeakers} />
-            <motion.div
-              style={{ textAlign: 'center', marginTop: 'var(--space-10)' }}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              <Link to="/speakers" className="btn btn-secondary btn-lg">
-                View All Speakers
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M2.5 7H11.5M11.5 7L7 2.5M11.5 7L7 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </Link>
-            </motion.div>
-          </div>
-        </section>
+        <SimilarSpeakers speakers={relatedSpeakers} />
       )}
     </div>
   )
