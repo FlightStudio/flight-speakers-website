@@ -405,9 +405,7 @@
   }
 
   .compare-table-wrap {
-    /* overflow-x: auto; */
     border-radius: 16px;
-    box-shadow: var(--shadow-sm);
   }
 
   .compare-table {
@@ -682,7 +680,7 @@
 
   .about-page__metrics:has(.metric-container:hover)
     .metric-container:not(:hover) {
-    --wash: #ffffff;
+    --wash: #ffffff44;
   }
 
   .about-page__metrics:has(.metric-container:hover)
@@ -690,10 +688,6 @@
     opacity: 0.35;
   }
 
-  .about-page__metrics:has(.metric-container:hover)
-    .metric-container:not(:hover) {
-    border-color: rgba(0, 0, 0, 0);
-  }
 }
 
 /* Responsive */

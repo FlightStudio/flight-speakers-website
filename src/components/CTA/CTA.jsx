@@ -57,7 +57,7 @@ function CTA({ speakers }) {
                 Describe your event and let our AI<br />find the perfect match
               </p>
               <div style={{
-                minHeight: "120px",
+                minHeight: "200px",
                 flex: "1"
               }}></div>
               <img src={findSpeakers} alt=""
@@ -75,8 +75,6 @@ function CTA({ speakers }) {
                 whileTap={{ scale: 0.97 }}
                 style={{
                   zIndex: "2",
-                  padding: "8px 12px",
-                  fontSize: "12px"
                 }}
               >
                 <svg width="14" height="14" viewBox="0 0 20.022 20.022" fill="none" aria-hidden="true">
@@ -100,7 +98,7 @@ function CTA({ speakers }) {
                 Explore our full roster and<br/>discover the perfect fit
               </p>
               <div style={{
-                minHeight: "120px",
+                minHeight: "200px",
                 flex: "1"
               }}></div>
 
@@ -120,8 +118,6 @@ function CTA({ speakers }) {
                 whileTap={{ scale: 0.97 }}
                 style={{
                   zIndex: "2",
-                  padding: "8px 12px",
-                  fontSize: "12px"
                 }}
               >
                 <span
@@ -131,7 +127,7 @@ function CTA({ speakers }) {
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <path d="M1 7H13M13 7L7 1M13 7L7 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                </motion.button>
+              </motion.button>
             </motion.div>
           </div>
         </motion.div>

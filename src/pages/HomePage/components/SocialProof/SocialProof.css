@@ -171,7 +171,7 @@
 
 .social-proof__metrics:has(.metric-container:hover)
   .metric-container:not(:hover) {
-  --wash: #ffffff;
+  --wash: #ffffff44;
 }
 
 .social-proof__metrics:has(.metric-container:hover)
@@ -179,10 +179,6 @@
   opacity: 0.35;
 }
 
-.social-proof__metrics:has(.metric-container:hover)
-  .metric-container:not(:hover) {
-  border-color: rgba(0, 0, 0, 0);
-}
 
 @media (max-width: 768px) {
   .social-proof__metrics {
