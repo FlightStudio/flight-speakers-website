@@ -84,7 +84,7 @@ function SocialProof() {
               </span>
               <span className="social-proof__metric-label">{stats[1].label}</span>
               <motion.img
-                // src={spotlight}
+                src={null}
                 alt="spotlight"
                 className="social-proof__spotlight yellow"
                 style={{
@@ -101,7 +101,7 @@ function SocialProof() {
               </span>
               <span className="social-proof__metric-label">{stats[2].label}</span>
               <motion.img
-                // src={spotlight}
+                src={null}
                 alt="spotlight"
                 className="social-proof__spotlight blue"
                 style={{

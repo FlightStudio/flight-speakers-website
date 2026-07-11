@@ -586,14 +586,6 @@ function SpeakerDetailPage() {
                           >
                             <div className="speaker-topic-row__header">
                               <span className="speaker-topic-row__label">{topic}</span>
-                              <motion.svg
-                                className="speaker-topic-row__arrow"
-                                width="14" height="14" viewBox="0 0 14 14" fill="none"
-                                animate={{ rotate: isHovered ? 180 : 0 }}
-                                transition={{ duration: 0.25, ease: EASE }}
-                              >
-                                <path d="M3.5 5.5L7 9L10.5 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                              </motion.svg>
                             </div>
                             <AnimatePresence>
                               {isHovered && (
