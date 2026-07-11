@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 
 export default function AdminStatCards({ activeFilter = 'all', onFilterChange, engagementType = 'all' }) {
-  const [stats, setStats] = useState({ total: 0, new: 0, reviewed: 0, accepted: 0, rejected: 0 })
+  const [stats, setStats] = useState({ total: 0, new: 0, reviewed: 0, confirmed: 0, rejected: 0 })
 
   useEffect(() => {
     async function fetchStats() {
@@ -22,7 +22,7 @@ export default function AdminStatCards({ activeFilter = 'all', onFilterChange, e
     { label: 'Total Enquiries', value: stats.total, modifier: '', filter: 'all' },
     { label: 'New', value: stats.new, modifier: 'new', filter: 'new' },
     { label: 'Reviewed', value: stats.reviewed, modifier: 'reviewed', filter: 'reviewed' },
-    { label: 'Accepted', value: stats.accepted, modifier: 'accepted', filter: 'accepted' },
+    { label: 'Confirmed', value: stats.confirmed, modifier: 'confirmed', filter: 'confirmed' },
     { label: 'Rejected', value: stats.rejected, modifier: 'rejected', filter: 'rejected' },
   ]
 

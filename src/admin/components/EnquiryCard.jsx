@@ -66,7 +66,7 @@ function shortBudget(budget, currency) {
   return budget
 }
 
-export default function EnquiryCard({ enquiry }) {
+export default function EnquiryCard({ enquiry, onStatusChange }) {
   const parts = [
     enquiry.event_date && { icon: '📅', text: shortDate(enquiry.event_date) },
     enquiry.event_location && { icon: '📍', text: shortLocation(enquiry.event_location) },
@@ -93,7 +93,7 @@ export default function EnquiryCard({ enquiry }) {
           <span className="enquiry-card__speaker-name">
             {enquiry.speaker_name || 'No speaker selected'}
           </span>
-          <StatusBadge status={enquiry.status} />
+          <StatusBadge status={enquiry.status} onChange={onStatusChange} />
         </div>
       </div>
 

@@ -53,8 +53,8 @@ export async function sendEnquiryEmail(enquiry, templateKey) {
 export async function notifyEnquiryResponse(enquiry, responseType, { email_template } = {}) {
   console.log(`[NOTIFY] Enquiry ${enquiry.id} — ${responseType || 'no status change'}${email_template ? `, email: ${email_template}` : ''}`)
 
-  // Create Monday.com item when enquiry is accepted (fire-and-forget)
-  if (responseType === 'accepted') {
+  // Create Monday.com item when enquiry is confirmed (fire-and-forget)
+  if (responseType === 'confirmed') {
     createMondayItem(enquiry).catch(err => {
       console.error(`[NOTIFY] Monday.com item creation failed for ${enquiry.id}:`, err.message)
     })

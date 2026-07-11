@@ -11,11 +11,12 @@ const router = express.Router()
 
 router.get('/enquiries', requireAdmin, async (req, res) => {
   try {
-    const { status, engagementType, rejectionReason, page = 1, limit = 20, sort = 'newest' } = req.query
+    const { status, engagementType, rejectionReason, urgent, page = 1, limit = 20, sort = 'newest' } = req.query
     const result = await getEnquiries({
       status,
       engagementType,
       rejectionReason,
+      urgent: urgent === 'true',
       page: Math.max(parseInt(page, 10) || 1, 1),
       limit: Math.min(Math.max(parseInt(limit, 10) || 20, 1), 100),
       sort,
@@ -115,7 +116,7 @@ router.patch('/enquiries/:id', requireAdmin, async (req, res) => {
     const updated = await updateEnquiry(req.params.id, updates)
 
     let emailSent
-    if (email_template || (status && ['accepted', 'rejected', 'responded'].includes(status))) {
+    if (email_template || (status && ['confirmed', 'rejected', 'contacted'].includes(status))) {
       ({ emailSent } = await notifyEnquiryResponse(updated, status, { email_template }))
     }
 

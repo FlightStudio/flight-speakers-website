@@ -527,6 +527,17 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '', preSelectedSp
           rows={step.type === 'textarea' ? 5 : undefined}
           autoFocus
         />
+        {step.id === 'organization' && (
+          <label className="mstep-probono-flexible">
+            <input
+              type="checkbox"
+              name="isSpeakersAgency"
+              checked={formData.isSpeakersAgency || false}
+              onChange={handleChange}
+            />
+            <span>Is this a speakers agency?</span>
+          </label>
+        )}
       </div>
     )
   }

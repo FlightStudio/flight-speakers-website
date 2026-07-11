@@ -225,7 +225,7 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
       location: '',
       socialProfiles: { instagram: '', x: '', linkedin: '', youtube: '', tiktok: '' },
       boostNotes: '',
-      heroMediaType: 'image',
+      heroMediaType: 'video',
     }
     if (!initialData) return defaults
     return {

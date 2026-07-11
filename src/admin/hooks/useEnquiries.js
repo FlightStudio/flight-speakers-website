@@ -9,7 +9,9 @@ export function useEnquiries({ status = 'all', engagementType = 'all', rejection
     setIsLoading(true)
     try {
       const params = new URLSearchParams({ page, limit: 20, sort })
-      if (status && status !== 'all') params.set('status', status)
+      // 'urgent' is a virtual filter (event start date within a month), not a status
+      if (status === 'urgent') params.set('urgent', 'true')
+      else if (status && status !== 'all') params.set('status', status)
       if (engagementType && engagementType !== 'all') params.set('engagementType', engagementType)
       if (rejectionReason) params.set('rejectionReason', rejectionReason)
 

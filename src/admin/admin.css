@@ -219,11 +219,39 @@
 }
 .status-badge--reviewed .status-badge__dot { background: #C9A227; }
 
+.status-badge--calendar_meeting {
+  background: #f5f3ff;
+  color: #5b21b6;
+}
+.status-badge--calendar_meeting .status-badge__dot { background: #8b5cf6; }
+
+.status-badge--confirmed,
 .status-badge--accepted {
   background: #ecfdf5;
   color: #166534;
 }
+.status-badge--confirmed .status-badge__dot,
 .status-badge--accepted .status-badge__dot { background: #22c55e; }
+
+.status-badge--contacted,
+.status-badge--responded {
+  background: #eff6ff;
+  color: #1e40af;
+}
+.status-badge--contacted .status-badge__dot,
+.status-badge--responded .status-badge__dot { background: #3b82f6; }
+
+.status-badge--closed_won {
+  background: #f0fdfa;
+  color: #115e59;
+}
+.status-badge--closed_won .status-badge__dot { background: #14b8a6; }
+
+.status-badge--closed_lost {
+  background: #fff1f2;
+  color: #9f1239;
+}
+.status-badge--closed_lost .status-badge__dot { background: #f43f5e; }
 
 .status-badge--rejected {
   background: #f1f5f9;
@@ -231,11 +259,66 @@
 }
 .status-badge--rejected .status-badge__dot { background: #94a3b8; }
 
-.status-badge--responded {
-  background: #eff6ff;
-  color: #1e40af;
+/* Status badge as dropdown trigger */
+.status-badge__wrap {
+  position: relative;
+  display: inline-flex;
 }
-.status-badge--responded .status-badge__dot { background: #3b82f6; }
+
+.status-badge--btn {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.status-badge--btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.status-badge__chevron {
+  opacity: 0.55;
+  flex-shrink: 0;
+}
+
+.status-badge__menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 170px;
+  background: #fff;
+  border: 1px solid #e5e5e2;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  padding: 0.25rem;
+  z-index: 20;
+}
+
+/* Detail header sits at the right edge — open the menu leftwards */
+.enquiry-detail__status-col .status-badge__menu {
+  left: auto;
+  right: 0;
+}
+
+.status-badge__option {
+  display: block;
+  width: 100%;
+  padding: 0.3rem 0.4rem;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.status-badge__option:hover {
+  background: #f5f5f3;
+}
+
+.status-badge__option--active {
+  background: #f5f5f3;
+}
 
 /* ---- Stat Cards ---- */
 .admin-stats {
@@ -267,7 +350,7 @@
 
 .admin-stat-card--active.admin-stat-card--new { border-color: #E85D4C; }
 .admin-stat-card--active.admin-stat-card--reviewed { border-color: #C9A227; }
-.admin-stat-card--active.admin-stat-card--accepted { border-color: #22c55e; }
+.admin-stat-card--active.admin-stat-card--confirmed { border-color: #22c55e; }
 .admin-stat-card--active.admin-stat-card--rejected { border-color: #9ca3af; }
 
 .admin-stat-card__label {
@@ -289,7 +372,7 @@
 
 .admin-stat-card--new .admin-stat-card__value { color: #E85D4C; }
 .admin-stat-card--reviewed .admin-stat-card__value { color: #C9A227; }
-.admin-stat-card--accepted .admin-stat-card__value { color: #22c55e; }
+.admin-stat-card--confirmed .admin-stat-card__value { color: #22c55e; }
 .admin-stat-card--rejected .admin-stat-card__value { color: #9ca3af; }
 
 /* ---- Enquiry List ---- */
@@ -3524,9 +3607,14 @@
 
 .dash-activity__dot--new { background: #E85D4C; }
 .dash-activity__dot--reviewed { background: #C9A227; }
+.dash-activity__dot--calendar_meeting { background: #8b5cf6; }
+.dash-activity__dot--confirmed { background: #22c55e; }
 .dash-activity__dot--accepted { background: #22c55e; }
-.dash-activity__dot--rejected { background: #94a3b8; }
+.dash-activity__dot--contacted { background: #3b82f6; }
 .dash-activity__dot--responded { background: #3b82f6; }
+.dash-activity__dot--closed_won { background: #14b8a6; }
+.dash-activity__dot--closed_lost { background: #f43f5e; }
+.dash-activity__dot--rejected { background: #94a3b8; }
 
 .dash-activity__line {
   flex: 1;
