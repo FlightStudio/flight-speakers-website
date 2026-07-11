@@ -26,17 +26,16 @@
 .social-proof__logo-placeholder {
   width: 120px;
   height: 40px;
-  background: var(--color-gray-200);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.social-proof__logo-placeholder span {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--color-gray-500);
+.social-proof__logo-placeholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .social-proof__metrics {
