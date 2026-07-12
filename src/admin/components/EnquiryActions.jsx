@@ -77,7 +77,7 @@ export default function EnquiryActions({ enquiry, onUpdate }) {
 
   const handleSendAcceptance = () => {
     handleAction({
-      status: 'accepted',
+      status: 'confirmed',
       email_template: ACCEPT_EMAIL.key,
     })
   }
@@ -119,7 +119,7 @@ export default function EnquiryActions({ enquiry, onUpdate }) {
 
   const handleRespond = () => {
     if (!responseMsg.trim()) return
-    handleAction({ status: 'responded', response_message: responseMsg.trim() })
+    handleAction({ status: 'contacted', response_message: responseMsg.trim() })
   }
 
   const handleSaveNotes = () => handleAction({ admin_notes: notes })

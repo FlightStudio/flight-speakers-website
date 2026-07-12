@@ -153,6 +153,7 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const INITIAL_FORM_DATA = {
   name: '',
   organization: '',
+  isSpeakersAgency: false,
   email: '',
   phone: '',
   eventDate: '',

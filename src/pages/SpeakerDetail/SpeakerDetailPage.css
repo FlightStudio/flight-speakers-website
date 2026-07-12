@@ -128,9 +128,9 @@
   }
 
   .speaker-hero__image-col {
-    position: relative;
     height: calc(100vh - var(--header-height) - 48px);
     min-height: 0;
+    width: 100%;
     flex: 1;
     position: sticky;
     top: var(--header-height);
@@ -138,6 +138,7 @@
 
   .speaker-hero__image-wrapper {
     height: 100%;
+    width: 100%;
     max-width: 480px;
     position: relative;
     aspect-ratio: 4/5;
@@ -182,6 +183,8 @@
       transform 0.8s ease,
       background-color 0.8s ease,
       opacity 0.8s ease;
+
+    pointer-events: none;
   }
 
   .speaker-hero__bottom {
@@ -1024,10 +1027,6 @@
     Related Speakers
     ================================ */
 
-  .related-speakers-section {
-    background: linear-gradient(180deg, var(--color-off-white) 0%, #faf8f2 100%);
-  }
-
   .related-speakers-section .speaker-grid {
     grid-template-columns: repeat(auto-fit, clamp(200px, 16vw, 260px));
     justify-content: center;
@@ -1038,12 +1037,7 @@
    Responsive
    ================================ */
 
-@media (max-width: 1024px) {
-  /* .speaker-hero__grid {
-    grid-template-columns: 1fr;
-    gap: 40px;
-  } */
-
+/* @media (max-width: 1024px) {
   .speaker-hero__image-wrapper {
     max-width: 480px;
   }
@@ -1071,7 +1065,7 @@
   .speaker-video-hero__name {
     font-size: clamp(1.25rem, 2.5vw, 2rem);
   }
-}
+} */
 
 @media (max-width: 768px) {
   .speaker-detail-page,
@@ -1081,205 +1075,126 @@
     cursor: inherit !important;
   }
 
-  .speaker-hero {
-    padding: 24px 0 40px;
-  }
+  .speaker-detail-page {
 
-  .speaker-hero__name {
-    font-size: 2.25rem;
-  }
+    .speaker-hero {
+      padding: 24px 0 40px;
+    }
 
-  .speaker-hero__headline {
-    font-size: 16px;
-    margin-bottom: 20px;
-  }
+    .speaker-hero__name {
+      font-size: 2.25rem;
+    }
 
-  .speaker-hero__social {
-    gap: 6px;
-    margin-bottom: 20px;
-  }
+    .speaker-hero__headline {
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+    
+    .speaker-hero__grid {
+      flex-direction: column;
+      align-items: center;
+    }
 
-  .speaker-hero__social-pills {
-    gap: 4px;
-  }
+    .speaker-hero__image-col {
+      position: relative;
+      top: 0;
+      height: calc(100vh - var(--header-height));
+      flex: unset;
+      padding-bottom: 48px;
+    }
 
-  .speaker-hero__social-pill {
-    padding: 5px 10px;
-    font-size: 11px;
-  }
+    .speaker-hero__social {
+      gap: 6px;
+      margin-bottom: 20px;
+    }
 
-  .speaker-hero__actions {
-    flex-direction: column;
-  }
+    .speaker-hero__social-pills {
+      gap: 4px;
+    }
 
-  .speaker-hero__actions .btn {
-    width: 100%;
-    justify-content: center;
-  }
+    .speaker-hero__social-pill {
+      padding: 5px 10px;
+      font-size: 11px;
+    }
 
-  .speaker-body {
-    padding: 32px 0 40px;
-  }
+    .speaker-hero__actions {
+      flex-direction: column;
+    }
 
-  .speaker-block {
-    padding: 20px;
-  }
+    .speaker-hero__actions .btn {
+      width: 100%;
+      justify-content: center;
+    }
 
-  .speaker-topic-row__detail p {
-    padding-left: 0;
-  }
+    .speaker-body {
+      padding: 32px 0 40px;
+    }
 
-  .speaker-nav__back {
-    padding: 8px 14px;
-    font-size: 13px;
-  }
+    .speaker-block {
+      padding: 20px;
+    }
 
-  .speaker-video-hero__back,
-  .speaker-video-hero__select-btn {
-    padding: 5px 10px;
-    font-size: 11px;
-  }
+    .speaker-topic-row__detail p {
+      padding-left: 0;
+    }
 
-  .speaker-video-hero__overlay {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 20px;
-    gap: 16px;
-  }
+    .speaker-nav__back {
+      padding: 8px 14px;
+      font-size: 13px;
+    }
 
-  .speaker-video-hero__actions {
-    flex-direction: row;
-    align-items: center;
-  }
+    .speaker-video-hero__back,
+    .speaker-video-hero__select-btn {
+      padding: 5px 10px;
+      font-size: 11px;
+    }
 
-  .speaker-video-hero__enquire-btn {
-    flex: 1;
-    justify-content: center;
-    padding: 12px 20px;
-    font-size: 14px;
-  }
+    .speaker-video-hero__overlay {
+      flex-direction: column;
+      align-items: stretch;
+      padding: 20px;
+      gap: 16px;
+    }
 
-  .speaker-video-hero__sound-btn {
-    width: 40px;
-    height: 40px;
-  }
+    .speaker-video-hero__actions {
+      flex-direction: row;
+      align-items: center;
+    }
 
-  .speaker-video-hero__headline {
-    font-size: 13px;
-  }
+    .speaker-video-hero__enquire-btn {
+      flex: 1;
+      justify-content: center;
+      padding: 12px 20px;
+      font-size: 14px;
+    }
 
-  .speaker-video-hero__social-pill {
-    padding: 4px 10px;
-    font-size: 11px;
+    .speaker-video-hero__sound-btn {
+      width: 40px;
+      height: 40px;
+    }
+
+    .speaker-video-hero__headline {
+      font-size: 13px;
+    }
+
+    .speaker-video-hero__social-pill {
+      padding: 4px 10px;
+      font-size: 11px;
+    }
+
+    .speaker-body__right {
+      gap: 0;
+    }
   }
 }
 
-@media (max-width: 480px) {
-  .speaker-topic-row {
-    padding: 12px;
+@media (max-width: 640px) {
+  .speaker-detail-page {
+    .speaker-grid {
+      grid-template-columns: unset !important;
+      margin-bottom: 48px;
+    }
   }
-}
-
-/* ================================
-   Dark Theme Overrides
-   ================================ */
-
-[data-theme="dark"] .speaker-detail-page .speaker-nav {
-  background: #111111;
-}
-
-[data-theme="dark"] .speaker-nav__select-btn {
-  color: #e0e0e0;
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.12);
-}
-
-[data-theme="dark"] .speaker-nav__select-btn:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-[data-theme="dark"] .speaker-nav__select-btn--selected {
-  color: #4ade80;
-  background: rgba(34, 197, 94, 0.1);
-  border-color: rgba(34, 197, 94, 0.25);
-}
-
-[data-theme="dark"] .related-speakers-section {
-  background: linear-gradient(180deg, var(--color-off-white) 0%, #111111 100%);
-}
-
-/* Social pills — brighter text for better contrast */
-[data-theme="dark"] .speaker-hero__social-pill {
-  color: #c0c0c0;
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.12);
-}
-
-[data-theme="dark"] .speaker-hero__social-pill:hover {
-  color: #e0e0e0;
-  border-color: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* CTA block — text stays visible on inverted bg */
-/* CTA block is inverted — white bg in dark mode needs dark text */
-[data-theme="dark"] .speaker-block--cta {
-  background: #f0f0f0;
-}
-
-[data-theme="dark"] .speaker-block--cta h3 {
-  color: #0a0a0a;
-}
-
-[data-theme="dark"] .speaker-block--cta .btn {
-  background: #0a0a0a;
-  color: #ffffff;
-}
-
-[data-theme="dark"] .speaker-block--cta .btn:hover {
-  background: #1a1a1a;
-}
-
-[data-theme="dark"] .speaker-block--reasoning {
-  background: linear-gradient(135deg, #0a1a0f 0%, #0d1a10 100%);
-  border-color: #1a3a24;
-}
-
-[data-theme="dark"] .speaker-block--reasoning:hover {
-  border-color: #22553a;
-  box-shadow: 0 4px 20px rgba(34, 197, 94, 0.08), 0 0 0 1px rgba(34, 197, 94, 0.04);
-}
-
-[data-theme="dark"] .speaker-audience-row__check {
-  background: #0a1a0f;
-  border-color: #1a3a24;
-}
-
-[data-theme="dark"] .speaker-block--cta p {
-  color: rgba(0, 0, 0, 0.55);
-}
-
-[data-theme="dark"] .speaker-hero__social-pill--instagram:hover {
-  background: #1f1215;
-  box-shadow: 0 2px 8px rgba(228, 64, 95, 0.15);
-}
-
-[data-theme="dark"] .speaker-hero__social-pill--x:hover {
-  color: #fff;
-  border-color: #fff;
-  background: #1a1a1a;
-}
-
-[data-theme="dark"] .speaker-hero__social-pill--youtube:hover {
-  background: #1f1010;
-  box-shadow: 0 2px 8px rgba(255, 0, 0, 0.12);
-}
-
-[data-theme="dark"] .speaker-hero__social-pill--tiktok:hover {
-  color: #fff;
-  border-color: #fff;
-  background: #1a1a1a;
 }
 
 /* Reduced motion */
@@ -1466,23 +1381,6 @@
   max-height: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-@media (max-width: 768px) {
-  .book {
-    --w: 100px;
-    --h: 145px;
-    --d: 18px;
-  }
-
-  .book-shelf__books {
-    gap: 40px;
-    min-height: 240px;
-  }
-
-  .book-shelf__title {
-    font-size: 11px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

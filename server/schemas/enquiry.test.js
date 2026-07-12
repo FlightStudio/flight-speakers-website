@@ -93,7 +93,7 @@ describe('enquirySchema', () => {
 
 describe('enquiryUpdateSchema', () => {
   it('accepts a status change', () => {
-    const result = enquiryUpdateSchema.safeParse({ status: 'accepted' })
+    const result = enquiryUpdateSchema.safeParse({ status: 'confirmed' })
     expect(result.success).toBe(true)
   })
 

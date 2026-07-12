@@ -21,7 +21,16 @@ export const HAS_BUDGET_OPTIONS = ['Yes', 'No']
 
 export const CURRENCY_CODES = ['USD', 'GBP', 'EUR']
 
-export const ENQUIRY_STATUSES = ['new', 'reviewed', 'accepted', 'rejected', 'responded']
+export const ENQUIRY_STATUSES = [
+  'new',
+  'reviewed',
+  'calendar_meeting',
+  'confirmed',
+  'contacted',
+  'closed_won',
+  'closed_lost',
+  'rejected',
+]
 
 export const EMAIL_TEMPLATES = [
   'enquiry_processing',

@@ -119,7 +119,6 @@ function AboutPage() {
                 marginRight: "auto"
               }}
               onClick={() => {
-                console.log("click")
                 navigate('/speakers')
               }}
             >
@@ -307,7 +306,7 @@ function AboutPage() {
                 </span>
                 <span className="about-page__metric-label">Describe your event in natural language and our AI surfaces speakers who actually fit. Not just keyword matches, but genuine alignment.</span>
                 <motion.img
-                  // src={spotlight}
+                  src={null}
                   alt="spotlight"
                   className="about-page__spotlight red"
                   style={{
@@ -331,7 +330,7 @@ function AboutPage() {
                 <span className="about-page__metric-label">See speakers in action before you book. Every profile includes
                 video so you know exactly what you're getting.</span>
                 <motion.img
-                  // src={spotlight}
+                  src={null}
                   alt="spotlight"
                   className="about-page__spotlight blue"
                   style={{
@@ -463,7 +462,7 @@ function AboutPage() {
                 </span>
                 <span className="about-page__metric-label">We say no to most speakers so we can say yes to the exceptional ones.</span>
                 <motion.img
-                  // src={spotlight}
+                  src={null}
                   alt="spotlight"
                   className="about-page__spotlight red"
                   style={{

@@ -45,7 +45,12 @@ export default function AdminEnquiryDetailPage() {
 
       <div className="admin-detail__columns">
         <div className="admin-detail__left">
-          <EnquiryDetail enquiry={enquiry} additionalSpeakers={speakers.additional || []} sentEmails={sentEmails} />
+          <EnquiryDetail
+            enquiry={enquiry}
+            additionalSpeakers={speakers.additional || []}
+            sentEmails={sentEmails}
+            onStatusChange={newStatus => updateEnquiry({ status: newStatus })}
+          />
           <EnquiryActions enquiry={enquiry} onUpdate={updateEnquiry} />
         </div>
 

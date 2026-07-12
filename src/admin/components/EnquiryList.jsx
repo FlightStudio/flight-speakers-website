@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEnquiries } from '../hooks/useEnquiries'
 import EnquiryCard from './EnquiryCard'
 import EnquiryAnalyticsModal from './EnquiryAnalyticsModal'
 import StatusBadge from './StatusBadge'
+import { ENQUIRY_STATUSES, STATUS_LABELS } from '../constants/statuses'
 
 const CURRENCY_SYMBOLS = { USD: '$', GBP: '£', EUR: '€' }
 
@@ -40,7 +41,9 @@ function formatTableDate(dateStr) {
   return fmt(dateStr)
 }
 
-const FILTERS = ['all', 'new', 'reviewed', 'accepted', 'rejected', 'responded']
+// 'all' and 'urgent' are virtual filters; the rest map to the status column.
+// Urgent = event start date within one month from today.
+const FILTERS = ['all', 'urgent', ...ENQUIRY_STATUSES]
 
 function timeAgo(dateStr) {
   const now = new Date()
@@ -80,23 +83,38 @@ export default function EnquiryList({ engagementType = 'all' }) {
   const [showAnalytics, setShowAnalytics] = useState(false)
   const [rejectionReason, setRejectionReason] = useState('')
   const [stats, setStats] = useState(null)
-  const { enquiries, total, isLoading } = useEnquiries({ status, engagementType, rejectionReason, sort, page })
+  const { enquiries, total, isLoading, refetch } = useEnquiries({ status, engagementType, rejectionReason, sort, page })
 
   // Fetch stats for filter pill counts
-  useEffect(() => {
-    async function fetchStats() {
-      try {
-        const params = new URLSearchParams()
-        if (engagementType && engagementType !== 'all') params.set('engagementType', engagementType)
-        const res = await fetch(`/api/admin/stats?${params}`, { credentials: 'include' })
-        const data = await res.json()
-        if (data.success) setStats(data.stats)
-      } catch (err) {
-        console.error('Failed to fetch stats:', err)
-      }
+  const fetchStats = useCallback(async () => {
+    try {
+      const params = new URLSearchParams()
+      if (engagementType && engagementType !== 'all') params.set('engagementType', engagementType)
+      const res = await fetch(`/api/admin/stats?${params}`, { credentials: 'include' })
+      const data = await res.json()
+      if (data.success) setStats(data.stats)
+    } catch (err) {
+      console.error('Failed to fetch stats:', err)
     }
-    fetchStats()
   }, [engagementType])
+
+  useEffect(() => { fetchStats() }, [fetchStats])
+
+  const updateStatus = useCallback(async (id, newStatus) => {
+    try {
+      const res = await fetch(`/api/admin/enquiries/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status: newStatus }),
+      })
+      const data = await res.json()
+      if (!data.success) console.error('Failed to update status:', data.message)
+    } catch (err) {
+      console.error('Failed to update status:', err)
+    }
+    await Promise.all([refetch(), fetchStats()])
+  }, [refetch, fetchStats])
 
   // Reset page when engagement type changes
   useEffect(() => {
@@ -106,7 +124,7 @@ export default function EnquiryList({ engagementType = 'all' }) {
   const totalPages = Math.ceil(total / 20)
 
   function pillLabel(f) {
-    const label = f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)
+    const label = f === 'all' ? 'All' : f === 'urgent' ? 'Urgent' : (STATUS_LABELS[f] || f)
     if (!stats) return label
     const count = f === 'all' ? stats.total : stats[f]
     return count != null ? `${label} (${count})` : label
@@ -192,7 +210,11 @@ export default function EnquiryList({ engagementType = 'all' }) {
               transition={{ duration: 0.2 }}
             >
               {enquiries.map(enquiry => (
-                <EnquiryCard key={enquiry.id} enquiry={enquiry} />
+                <EnquiryCard
+                  key={enquiry.id}
+                  enquiry={enquiry}
+                  onStatusChange={newStatus => updateStatus(enquiry.id, newStatus)}
+                />
               ))}
             </motion.div>
           ) : (
@@ -280,7 +302,10 @@ export default function EnquiryList({ engagementType = 'all' }) {
                           )}
                         </td>
                         <td>
-                          <StatusBadge status={enquiry.status} />
+                          <StatusBadge
+                            status={enquiry.status}
+                            onChange={newStatus => updateStatus(enquiry.id, newStatus)}
+                          />
                         </td>
                         <td className="enquiry-table__th-right enquiry-table__muted">
                           {timeAgo(enquiry.created_at)}

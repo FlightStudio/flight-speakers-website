@@ -5,11 +5,13 @@ import {
   useMemo
 } from 'react'
 import { motion } from 'framer-motion'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import SpeakerCard from '../../../../components/speakers/SpeakerCard'
 
 function OurSpeakers({ speakers }) {
+  const navigate = useNavigate();
+
   const [activeFilter, setActiveFilter] = useState('all')
   
   const filteredSpeakers = useMemo(() => {

@@ -5,11 +5,17 @@ import { motion } from 'framer-motion'
 import AnimatedCounter from "./components/AnimatedCounter/AnimatedCounter";
 
 import spotlight from "../../../../assets/white-spotlight.png";
+import forbesLogo from "../../../../assets/forbes-logo.png";
+import googleLogo from "../../../../assets/google-logo.png";
+import snapchatLogo from "../../../../assets/snapchat-logo.png";
+import spotifyLogo from "../../../../assets/spotify-logo.png";
+import youtubeLogo from "../../../../assets/youtube-logo.png";
 
 function SocialProof() {
   const logos = [
-    'Adobe', 'Spotify', 'Google', 'LinkedIn', 'Meta',
-    'Microsoft', 'PwC', 'Deloitte', 'Mastercard', 'Revolut'
+    forbesLogo, googleLogo,
+    snapchatLogo, spotifyLogo,
+    youtubeLogo
   ]
 
   const stats = [
@@ -27,7 +33,7 @@ function SocialProof() {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-        >How It Works</motion.span>
+        >Our reach</motion.span>
       </div>
       <div className="container">
         <motion.div
@@ -49,7 +55,7 @@ function SocialProof() {
               <div key={i} className="social-proof__logo">
                 {/* Grey placeholder box for logo */}
                 <div className="social-proof__logo-placeholder">
-                  <span>{logo}</span>
+                  <img src={logo} alt="logo" />
                 </div>
               </div>
             ))}
@@ -84,7 +90,7 @@ function SocialProof() {
               </span>
               <span className="social-proof__metric-label">{stats[1].label}</span>
               <motion.img
-                // src={spotlight}
+                src={null}
                 alt="spotlight"
                 className="social-proof__spotlight yellow"
                 style={{
@@ -101,7 +107,7 @@ function SocialProof() {
               </span>
               <span className="social-proof__metric-label">{stats[2].label}</span>
               <motion.img
-                // src={spotlight}
+                src={null}
                 alt="spotlight"
                 className="social-proof__spotlight blue"
                 style={{

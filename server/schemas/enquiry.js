@@ -21,6 +21,7 @@ export const enquirySchema = z.object({
   name: z.string().min(1).max(200),
   email: z.string().email().max(254),
   organization: z.string().min(1).max(200),
+  isSpeakersAgency: z.boolean().optional(),
   phone: z.string().max(30).optional().nullable(),
 
   // event (required by the form's flow)
