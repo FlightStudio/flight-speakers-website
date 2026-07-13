@@ -233,13 +233,21 @@
 .status-badge--confirmed .status-badge__dot,
 .status-badge--accepted .status-badge__dot { background: #22c55e; }
 
+.status-badge--contract_sent,
 .status-badge--contacted,
 .status-badge--responded {
   background: #eff6ff;
   color: #1e40af;
 }
+.status-badge--contract_sent .status-badge__dot,
 .status-badge--contacted .status-badge__dot,
 .status-badge--responded .status-badge__dot { background: #3b82f6; }
+
+.status-badge--paid_in_full {
+  background: #d1fae5;
+  color: #065f46;
+}
+.status-badge--paid_in_full .status-badge__dot { background: #059669; }
 
 .status-badge--closed_won {
   background: #f0fdfa;
@@ -3610,10 +3618,12 @@
 .dash-activity__dot--calendar_meeting { background: #8b5cf6; }
 .dash-activity__dot--confirmed { background: #22c55e; }
 .dash-activity__dot--accepted { background: #22c55e; }
+.dash-activity__dot--contract_sent { background: #3b82f6; }
 .dash-activity__dot--contacted { background: #3b82f6; }
 .dash-activity__dot--responded { background: #3b82f6; }
 .dash-activity__dot--closed_won { background: #14b8a6; }
 .dash-activity__dot--closed_lost { background: #f43f5e; }
+.dash-activity__dot--paid_in_full { background: #059669; }
 .dash-activity__dot--rejected { background: #94a3b8; }
 
 .dash-activity__line {

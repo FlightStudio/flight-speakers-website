@@ -172,15 +172,16 @@ async function applyMigrations() {
     ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS is_speakers_agency BOOLEAN NOT NULL DEFAULT false;
   `)
 
-  // Expanded enquiry status pipeline (calendar_meeting, confirmed, contacted,
-  // closed_won, closed_lost). Legacy 'accepted'/'responded' rows are remapped
-  // to their closest equivalents before the tighter CHECK goes back on.
+  // Enquiry status pipeline (calendar_meeting, confirmed, contract_sent,
+  // closed_won, closed_lost, paid_in_full). Legacy 'accepted'/'responded'/
+  // 'contacted' rows are remapped to their closest equivalents before the
+  // tighter CHECK goes back on.
   await pool.query(`
     ALTER TABLE enquiries DROP CONSTRAINT IF EXISTS enquiries_status_check;
     UPDATE enquiries SET status = 'confirmed' WHERE status = 'accepted';
-    UPDATE enquiries SET status = 'contacted' WHERE status = 'responded';
+    UPDATE enquiries SET status = 'reviewed' WHERE status IN ('responded', 'contacted');
     ALTER TABLE enquiries ADD CONSTRAINT enquiries_status_check
-      CHECK (status IN ('new', 'reviewed', 'calendar_meeting', 'confirmed', 'contacted', 'closed_won', 'closed_lost', 'rejected'));
+      CHECK (status IN ('new', 'reviewed', 'calendar_meeting', 'confirmed', 'contract_sent', 'closed_won', 'closed_lost', 'paid_in_full', 'rejected'));
   `)
 
   // Log of transactional emails sent per enquiry

@@ -218,7 +218,7 @@ export async function getDashboardAnalytics(days = 14) {
   // Response metrics
   const { rows: [metrics] } = await pool.query(`
     SELECT
-      COUNT(*) FILTER (WHERE status IN ('calendar_meeting', 'confirmed', 'contacted', 'closed_won', 'closed_lost', 'rejected')) AS responded_count,
+      COUNT(*) FILTER (WHERE status IN ('calendar_meeting', 'confirmed', 'contract_sent', 'closed_won', 'closed_lost', 'paid_in_full', 'rejected')) AS responded_count,
       COUNT(*) AS total_count,
       AVG(EXTRACT(EPOCH FROM (responded_at - created_at)) / 3600)
         FILTER (WHERE responded_at IS NOT NULL) AS avg_response_hours,
