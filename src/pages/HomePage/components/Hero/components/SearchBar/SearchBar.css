@@ -111,6 +111,27 @@
   font-family: inherit;
 }
 
+/* Button shares the input's row while the typed text stays under half the
+   container width — SearchBar.jsx measures the text and toggles this class.
+   Compound selector so it also beats Hero.css's mobile column override.
+   On mobile (≤640px) the button always stays on its own row. */
+@media (min-width: 641px) {
+  .hero-search__container.hero-search__container--inline {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+
+  .hero-search__container--inline .hero-search__input {
+    flex: 1;
+    width: auto;
+    margin: 16px 0 16px 16px;
+  }
+
+  .hero-search__container--inline .hero-search__button {
+    flex-shrink: 0;
+  }
+}
+
 .hero-search__placeholder {
   position: absolute;
   left: 0;

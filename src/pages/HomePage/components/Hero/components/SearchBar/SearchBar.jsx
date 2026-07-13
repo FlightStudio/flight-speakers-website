@@ -1,6 +1,6 @@
 import './SearchBar.css';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion';
 
@@ -15,15 +15,40 @@ const autoResize = (el) => {
   el.style.height = `${el.scrollHeight}px`
 }
 
+let measureCtx
+const longestLineWidth = (text, el) => {
+  if (!text) return 0
+  if (!measureCtx) measureCtx = document.createElement('canvas').getContext('2d')
+  const { fontStyle, fontWeight, fontSize, fontFamily } = getComputedStyle(el)
+  measureCtx.font = `${fontStyle} ${fontWeight} ${fontSize} ${fontFamily}`
+  return Math.max(...text.split('\n').map(line => measureCtx.measureText(line).width))
+}
+
 function SearchBar({ searchQuery, setSearchQuery, inputRef }) {
   const navigate = useNavigate()
+  const containerRef = useRef(null)
 
 	const [isFocused, setIsFocused] = useState(false);
   const [typingText, setTypingText] = useState('')
   const [breathing, setBreathing] = useState(false);
+  const [inlineButton, setInlineButton] = useState(true);
 
   useEffect(() => {
     autoResize(inputRef.current)
+  }, [searchQuery, inputRef, inlineButton])
+
+  // Button shares the input's row while the typed text is under half the
+  // container width; past that it drops back to its own row below.
+  useEffect(() => {
+    const update = () => {
+      const container = containerRef.current
+      const textarea = inputRef.current
+      if (!container || !textarea) return
+      setInlineButton(longestLineWidth(searchQuery, textarea) < container.clientWidth * 0.5)
+    }
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
   }, [searchQuery, inputRef])
 
   const SPARKS = [
@@ -88,7 +113,7 @@ function SearchBar({ searchQuery, setSearchQuery, inputRef }) {
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.6, delay: 0.7 }}
 		>
-			<div className={`hero-search__container ${isFocused ? 'hero-search__container--focused' : ''}`}>
+			<div ref={containerRef} className={`hero-search__container ${isFocused ? 'hero-search__container--focused' : ''} ${inlineButton ? 'hero-search__container--inline' : ''}`}>
         <textarea
           data-lenis-prevent
           id="search"
