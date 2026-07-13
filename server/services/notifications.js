@@ -1,6 +1,7 @@
-import { createMondayItem } from './monday.js'
 import { mailer, commonEmailVariables } from './resend/index.js'
 import { logSentEmail } from '../db/email-queries.js'
+import { setEnquiryMondayItem } from '../db/enquiry-queries.js'
+import { moveMondayLeadToDeals } from './monday.js'
 
 const TEMPLATE_SENDERS = {
   enquiry_received: mailer.SEND_ENQUIRY_RECEIVED,
@@ -53,11 +54,14 @@ export async function sendEnquiryEmail(enquiry, templateKey) {
 export async function notifyEnquiryResponse(enquiry, responseType, { email_template } = {}) {
   console.log(`[NOTIFY] Enquiry ${enquiry.id} — ${responseType || 'no status change'}${email_template ? `, email: ${email_template}` : ''}`)
 
-  // Create Monday.com item when enquiry is confirmed (fire-and-forget)
+  // Confirmed enquiries move from the Monday Leads board to the Deals board
+  // (fire-and-forget, one-way — later status changes don't move it back)
   if (responseType === 'confirmed') {
-    createMondayItem(enquiry).catch(err => {
-      console.error(`[NOTIFY] Monday.com item creation failed for ${enquiry.id}:`, err.message)
-    })
+    moveMondayLeadToDeals(enquiry)
+      .then(item => {
+        if (item?.id) return setEnquiryMondayItem(enquiry.id, item.id, item.boardId)
+      })
+      .catch(err => console.error(`[NOTIFY] Monday deals move failed for ${enquiry.id}:`, err.message))
   }
 
   if (!email_template) return { emailSent: undefined }

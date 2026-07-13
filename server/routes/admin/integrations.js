@@ -9,7 +9,7 @@ router.get('/integrations/monday', requireAdmin, async (req, res) => {
   }
 
   try {
-    const boardId = process.env.MONDAY_BOARD_ID || '1153323847'
+    const boardId = process.env.MONDAY_LEADS_BOARD_ID || '5089018278'
     const query = `query ($boardIds: [ID!]) { boards(ids: $boardIds) { id name groups { id title } } }`
     const response = await fetch('https://api.monday.com/v2', {
       method: 'POST',
@@ -30,7 +30,8 @@ router.get('/integrations/monday', requireAdmin, async (req, res) => {
       return res.json({ success: true, connected: false, error: `Board ${boardId} not found` })
     }
 
-    const targetGroup = board.groups?.find(g => g.id === 'group_mkvnqw22')
+    // 'topics' = "New Leads" group, where website enquiries land
+    const targetGroup = board.groups?.find(g => g.id === 'topics')
     res.json({
       success: true,
       connected: true,

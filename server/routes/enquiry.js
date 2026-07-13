@@ -1,8 +1,9 @@
 import express from 'express'
-import { createEnquiry } from '../db/enquiry-queries.js'
+import { createEnquiry, setEnquiryMondayItem } from '../db/enquiry-queries.js'
 import { validate, enquirySchema } from '../schemas/index.js'
 import { addResendContact } from '../services/resend/index.js'
 import { sendEnquiryEmail } from '../services/notifications.js'
+import { createMondayLead } from '../services/monday.js'
 
 const router = express.Router()
 
@@ -31,6 +32,13 @@ router.post('/', async (req, res) => {
 
   sendEnquiryEmail(enquiry, 'enquiry_received')
     .catch(err => console.error(`[RESEND] enquiry received email failed for ${data.email}:`, err.message))
+
+  // Push the new enquiry onto the Monday Leads board (fire-and-forget)
+  createMondayLead(enquiry)
+    .then(item => {
+      if (item?.id) return setEnquiryMondayItem(enquiry.id, item.id, item.boardId)
+    })
+    .catch(err => console.error(`[MONDAY] lead creation failed for ${enquiry.id}:`, err.message))
 
   if (data.newsletter) {
     const [firstName, ...rest] = (data.name || '').trim().split(/\s+/)

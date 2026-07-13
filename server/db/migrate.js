@@ -184,6 +184,12 @@ async function applyMigrations() {
       CHECK (status IN ('new', 'reviewed', 'calendar_meeting', 'confirmed', 'contract_sent', 'closed_won', 'closed_lost', 'paid_in_full', 'rejected'));
   `)
 
+  // Monday.com sync — which Monday item/board an enquiry was pushed to
+  await pool.query(`
+    ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS monday_item_id TEXT;
+    ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS monday_board_id TEXT;
+  `)
+
   // Log of transactional emails sent per enquiry
   await pool.query(`
     CREATE TABLE IF NOT EXISTS sent_emails (

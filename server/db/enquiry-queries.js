@@ -112,6 +112,15 @@ export async function getEnquiries({ status, engagementType, rejectionReason, ur
   return { enquiries: rows, total, page, limit }
 }
 
+// Remember which Monday item a lead was pushed to, so later pipeline steps
+// (deals board, webhooks) can find it again.
+export async function setEnquiryMondayItem(id, mondayItemId, mondayBoardId) {
+  await pool.query(
+    `UPDATE enquiries SET monday_item_id = $2, monday_board_id = $3, updated_at = NOW() WHERE id = $1`,
+    [id, mondayItemId, mondayBoardId]
+  )
+}
+
 export async function getEnquiryById(id) {
   const { rows } = await pool.query('SELECT * FROM enquiries WHERE id = $1', [id])
   return rows[0] || null
