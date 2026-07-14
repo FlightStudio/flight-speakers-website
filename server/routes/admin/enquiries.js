@@ -116,7 +116,7 @@ router.patch('/enquiries/:id', requireAdmin, async (req, res) => {
     const updated = await updateEnquiry(req.params.id, updates)
 
     let emailSent
-    if (email_template || (status && ['confirmed', 'rejected', 'contacted'].includes(status))) {
+    if (email_template || (status && ['confirmed', 'rejected'].includes(status))) {
       ({ emailSent } = await notifyEnquiryResponse(updated, status, { email_template }))
     }
 

@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS enquiries (
     speaker_name TEXT,
     newsletter BOOLEAN NOT NULL DEFAULT false,
     is_speakers_agency BOOLEAN NOT NULL DEFAULT false,
-    status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'reviewed', 'calendar_meeting', 'confirmed', 'contacted', 'closed_won', 'closed_lost', 'rejected')),
+    status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'reviewed', 'calendar_meeting', 'confirmed', 'contract_sent', 'closed_won', 'closed_lost', 'paid_in_full', 'rejected')),
     admin_notes TEXT,
     response_message TEXT,
     reviewed_at TIMESTAMPTZ,

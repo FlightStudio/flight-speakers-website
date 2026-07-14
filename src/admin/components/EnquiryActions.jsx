@@ -119,7 +119,9 @@ export default function EnquiryActions({ enquiry, onUpdate }) {
 
   const handleRespond = () => {
     if (!responseMsg.trim()) return
-    handleAction({ status: 'contacted', response_message: responseMsg.trim() })
+    // Saves the response without moving the enquiry through the pipeline —
+    // status changes are made explicitly via the status badge dropdown.
+    handleAction({ response_message: responseMsg.trim() })
   }
 
   const handleSaveNotes = () => handleAction({ admin_notes: notes })

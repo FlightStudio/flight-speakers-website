@@ -26,9 +26,10 @@ export const ENQUIRY_STATUSES = [
   'reviewed',
   'calendar_meeting',
   'confirmed',
-  'contacted',
+  'contract_sent',
   'closed_won',
   'closed_lost',
+  'paid_in_full',
   'rejected',
 ]
 

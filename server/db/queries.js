@@ -49,6 +49,15 @@ export async function getSpeakerById(id) {
   return rows[0] || null
 }
 
+export async function getSpeakerNamesByIds(ids) {
+  if (!ids?.length) return []
+  const { rows } = await pool.query(
+    `SELECT name FROM speakers WHERE id = ANY($1::text[])`,
+    [ids]
+  )
+  return rows.map(r => r.name)
+}
+
 export async function getRelatedSpeakers(speakerId, topics, limit = 4) {
   const { rows } = await pool.query(
     `SELECT ${SPEAKER_COLUMNS}
