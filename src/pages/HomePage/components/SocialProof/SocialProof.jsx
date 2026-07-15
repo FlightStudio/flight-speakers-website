@@ -3,6 +3,7 @@ import "./SocialProof.css";
 import { motion } from 'framer-motion'
 
 import AnimatedCounter from "./components/AnimatedCounter/AnimatedCounter";
+import ScrollLetterReveal, { SECTION_TITLE_GRADIENT } from "../../../../components/ScrollLetterReveal/ScrollLetterReveal";
 
 import spotlight from "../../../../assets/white-spotlight.png";
 import forbesLogo from "../../../../assets/forbes-logo.png";
@@ -36,14 +37,14 @@ function SocialProof() {
         >Our reach</motion.span>
       </div>
       <div className="container">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-100px' }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="section-title">Trusted by leading<br />organizations</h2>
-        </motion.div>
+        <div>
+          <ScrollLetterReveal
+            as="h2"
+            className="section-title"
+            gradient={SECTION_TITLE_GRADIENT}
+            text={"Trusted by leading\norganizations"}
+          />
+        </div>
 
         <div className="social-proof__track">
           <motion.div

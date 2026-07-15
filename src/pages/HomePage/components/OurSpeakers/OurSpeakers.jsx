@@ -8,6 +8,7 @@ import { motion } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 
 import SpeakerCard from '../../../../components/speakers/SpeakerCard'
+import ScrollLetterReveal, { SECTION_TITLE_GRADIENT } from '../../../../components/ScrollLetterReveal/ScrollLetterReveal'
 
 function OurSpeakers({ speakers }) {
   const navigate = useNavigate();
@@ -39,19 +40,19 @@ function OurSpeakers({ speakers }) {
         flexDirection: "column",
         overflow: "hidden"
       }}>
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-100px' }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="section-title">Exceptional talent,<br />vetted for excellence</h2>
-          <p className="section-subtitle" style={{
-            marginBottom: "28px"
-          }}>
-            Each speaker is personally selected for their ability to captivate and inspire.
-          </p>
-        </motion.div>
+        <div>
+          <ScrollLetterReveal
+            as="h2"
+            className="section-title"
+            gradient={SECTION_TITLE_GRADIENT}
+            text={"Exceptional talent,\nvetted for excellence"}
+          />
+          <ScrollLetterReveal
+            className="section-subtitle"
+            style={{ marginBottom: "28px" }}
+            text="Each speaker is personally selected for their ability to captivate and inspire."
+          />
+        </div>
 
         {/* Speaker Carousel */}
         <div className="speakers-carousel">

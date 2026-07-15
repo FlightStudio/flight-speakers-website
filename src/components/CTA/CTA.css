@@ -20,7 +20,7 @@
 
 .cta-cards {
   display: flex;
-  gap: 24px;
+  gap: 36px;
   justify-content: center;
   margin: 24px auto;
 }
@@ -108,7 +108,7 @@
 }
 
 .cta-card__subtitle {
-  font-size: 13px;
+  font-size: 1rem;
   color: #C2C2C2;
   line-height: 1.5;
   margin: 0 0 18px;

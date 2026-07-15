@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import findSpeakers from "../../assets/find-speakers.png";
 import browseSpeakers from "../../assets/browse-speakers.png";
+import ScrollLetterReveal, { SECTION_TITLE_GRADIENT } from '../ScrollLetterReveal/ScrollLetterReveal';
 
 function CTA({ speakers }) {
   const navigate = useNavigate()
@@ -26,22 +27,16 @@ function CTA({ speakers }) {
         <motion.div
           className="cta-content"
         >
-          <motion.h2
+          <ScrollLetterReveal
+            as="h2"
             className="section-title"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >Ready to find your<br />perfect speaker?</motion.h2>
-          <motion.p
+            gradient={SECTION_TITLE_GRADIENT}
+            text={"Ready to find your\nperfect speaker?"}
+          />
+          <ScrollLetterReveal
             className="section-subtitle"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            Use our AI for instant recommendations, or submit a brief for personalized service within 24 hours.
-          </motion.p>
+            text="Use our AI for instant recommendations, or submit a brief for personalized service within 24 hours."
+          />
           <div className="cta-cards">
             <motion.div
               className="cta-card cta-card--ai"
