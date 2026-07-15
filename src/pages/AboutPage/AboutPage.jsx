@@ -6,6 +6,7 @@ import { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence, useInView, useScroll, useTransform, useSpring } from 'framer-motion';
 import { useSmoothScroll } from '../../hooks/useSmoothScroll';
 import { EASE } from '../../constants/animation';
+import ScrollLetterReveal, { SECTION_TITLE_GRADIENT } from '../../components/ScrollLetterReveal/ScrollLetterReveal';
 
 import browseSpeakers from "../../assets/browse-speakers.png";
 import temp from "../../assets/temp.png";
@@ -191,20 +192,18 @@ function AboutPage() {
             >Why Flight Speakers</motion.span>
         </div>
         <div className="container">
-          <motion.div
-            className="section-header about-compare__header"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="section-title about-compare__title">
-              Built for how brands actually book speakers today.
-            </h2>
-            <p className="section-subtitle">
-              Most bureaus run on rolodexes, gut feel, and PDF one-sheets. We don't. Here's the difference.
-            </p>
-          </motion.div>
+          <div className="section-header about-compare__header">
+            <ScrollLetterReveal
+              as="h2"
+              className="section-title about-compare__title"
+              gradient={SECTION_TITLE_GRADIENT}
+              text={"Built for how brands\nactually book speakers\ntoday."}
+            />
+            <ScrollLetterReveal
+              className="section-subtitle"
+              text="Most bureaus run on rolodexes, gut feel, and PDF one-sheets. We don't. Here's the difference."
+            />
+          </div>
 
           <motion.div
             className="compare-table-wrap"
@@ -279,14 +278,14 @@ function AboutPage() {
           >THE DIFFERENCE</motion.div>
         </div>
         <div className="container">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="section-title">Not just another bureau.<br />A performance partner.</h2>
-          </motion.div>
+          <div>
+            <ScrollLetterReveal
+              as="h2"
+              className="section-title"
+              gradient={SECTION_TITLE_GRADIENT}
+              text={"Not just another bureau.\nA performance partner."}
+            />
+          </div>
 
           <div className="about-page__metrics">
             <div className="about-page__metric left">
@@ -404,45 +403,18 @@ function AboutPage() {
           >About Us</motion.div>
         </div>
         <div className="container">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="section-title">Built by Flight Story</h2>
-          </motion.div>
+          <div>
+            <ScrollLetterReveal
+              as="h2"
+              className="section-title"
+              gradient={SECTION_TITLE_GRADIENT}
+              text="Built by Flight Story"
+            />
+          </div>
           <div className="about-story__content">
-            <motion.p
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-100px' }}
-              transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
-            >
-              Flight Story is a communications agency that works with the world's
-              most ambitious leaders and companies. We've spent years understanding
-              what makes a great speaker, and what makes a great event.
-            </motion.p>
-            <motion.p
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-100px' }}
-              transition={{ duration: 0.6, delay: 0.2, ease: EASE }}
-            >
-              We built Flight Speakers because we saw a gap: traditional
-              speaker bureaus are slow, opaque, and built for volume over quality.
-              We wanted something better.
-            </motion.p>
-            <motion.p
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-100px' }}
-              transition={{ duration: 0.6, delay: 0.3, ease: EASE }}
-            >
-              Our roster is intentionally small. Every speaker is someone we'd
-              personally recommend. And our AI-powered matching ensures you find
-              the right fit for your specific audience and objectives.
-            </motion.p>
+            <ScrollLetterReveal text="Flight Story is a communications agency that works with the world's most ambitious leaders and companies. We've spent years understanding what makes a great speaker, and what makes a great event." />
+            <ScrollLetterReveal text="We built Flight Speakers because we saw a gap: traditional speaker bureaus are slow, opaque, and built for volume over quality. We wanted something better." />
+            <ScrollLetterReveal text="Our roster is intentionally small. Every speaker is someone we'd personally recommend. And our AI-powered matching ensures you find the right fit for your specific audience and objectives." />
           </div>
           <div className="about-page__metrics">
             <div className="about-page__metric left">

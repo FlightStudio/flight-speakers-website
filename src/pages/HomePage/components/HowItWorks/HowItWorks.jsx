@@ -9,6 +9,7 @@ import {
 import { EASE } from '../../../../constants/animation'
 
 import EnhancedAIDemo from './components/EnhancedAIDemo/EnhancedAIDemo'
+import ScrollLetterReveal, { SECTION_TITLE_GRADIENT } from '../../../../components/ScrollLetterReveal/ScrollLetterReveal'
 import { steps } from "./config";
 
 function HowItWorks({ speakers }) {
@@ -34,10 +35,19 @@ function HowItWorks({ speakers }) {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="section-title">AI-powered<br/>speaker matching</h2>
-            <p className="section-subtitle">
-              Describe your event in plain language. Our AI extracts what matters, <span style={{ color: "#676767"}}>scans our curated roster, and surfaces the speakers who'll make the biggest impact.</span>
-            </p>
+            <ScrollLetterReveal
+              as="h2"
+              className="section-title"
+              gradient={SECTION_TITLE_GRADIENT}
+              text={"AI-powered\nspeaker matching"}
+            />
+            <ScrollLetterReveal
+              className="section-subtitle"
+              text={[
+                { text: "Describe your event in plain language. Our AI extracts what matters, " },
+                { text: "scans our curated roster, and surfaces the speakers who'll make the biggest impact.", style: { color: "#676767" } },
+              ]}
+            />
 
             <div className="ai-demo-layout__steps">
               {steps.map((s, i) => (
