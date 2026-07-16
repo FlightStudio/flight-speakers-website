@@ -5,6 +5,7 @@ import { getSentEmailsByEnquiryId } from '../../db/email-queries.js'
 import { getSpeakerById, getRelatedSpeakers } from '../../db/queries.js'
 import { semanticSearch } from '../../services/claude/claude.js'
 import { notifyEnquiryResponse } from '../../services/notifications.js'
+import { moveMondayLeadToDeals } from '../../services/monday.js'
 import { validate, enquiryUpdateSchema } from '../../schemas/index.js'
 
 const router = express.Router()
@@ -40,6 +41,10 @@ router.get('/enquiries/:id', requireAdmin, async (req, res) => {
       await updateEnquiry(enquiry.id, { status: 'reviewed' })
       enquiry.status = 'reviewed'
       enquiry.reviewed_at = new Date().toISOString()
+
+      // Reviewed enquiries move to the Monday Deals board (fire-and-forget)
+      moveMondayLeadToDeals(enquiry)
+        .catch(err => console.error(`[MONDAY] deals move failed for ${enquiry.id}:`, err.message))
     }
 
     // Fetch speaker recommendations
@@ -116,7 +121,7 @@ router.patch('/enquiries/:id', requireAdmin, async (req, res) => {
     const updated = await updateEnquiry(req.params.id, updates)
 
     let emailSent
-    if (email_template || (status && ['confirmed', 'declined'].includes(status))) {
+    if (email_template || status) {
       ({ emailSent } = await notifyEnquiryResponse(updated, status, { email_template }))
     }
 

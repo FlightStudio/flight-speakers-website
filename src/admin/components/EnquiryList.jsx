@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEnquiries } from '../hooks/useEnquiries'
 import EnquiryCard from './EnquiryCard'
+import EnquiryFunnel from './EnquiryFunnel'
 import EnquiryAnalyticsModal from './EnquiryAnalyticsModal'
 import StatusBadge from './StatusBadge'
 import { ENQUIRY_STATUSES, STATUS_LABELS } from '../constants/statuses'
@@ -45,6 +46,12 @@ function formatTableDate(dateStr) {
 // Urgent = event start date within one month from today.
 const FILTERS = ['all', 'urgent', ...ENQUIRY_STATUSES]
 
+const ENGAGEMENT_TABS = [
+  { key: 'all', label: 'All' },
+  { key: 'Paid', label: '$ Fee' },
+  { key: 'Pro Bono', label: 'Pro Bono' },
+]
+
 function timeAgo(dateStr) {
   const now = new Date()
   const date = new Date(dateStr)
@@ -75,7 +82,8 @@ function SortArrows({ column, sort }) {
   )
 }
 
-export default function EnquiryList({ engagementType = 'all' }) {
+export default function EnquiryList() {
+  const [engagementType, setEngagementType] = useState('all')
   const [status, setStatus] = useState('all')
   const [page, setPage] = useState(1)
   const [view, setView] = useState('cards')
@@ -133,24 +141,16 @@ export default function EnquiryList({ engagementType = 'all' }) {
   return (
     <div>
       <div className="enquiry-list__toolbar">
-        <div className="enquiry-filters">
-          {FILTERS.map(f => (
+        <div className="enq-type-tabs">
+          {ENGAGEMENT_TABS.map(tab => (
             <button
-              key={f}
-              className={`enquiry-filter-pill ${status === f ? 'enquiry-filter-pill--active' : ''}`}
-              onClick={() => { setStatus(f); setRejectionReason(''); setPage(1) }}
+              key={tab.key}
+              className={`enq-type-tabs__tab ${engagementType === tab.key ? 'enq-type-tabs__tab--active' : ''}`}
+              onClick={() => setEngagementType(tab.key)}
             >
-              {pillLabel(f)}
+              {tab.label}
             </button>
           ))}
-          {rejectionReason && (
-            <button
-              className="enquiry-filter-pill enquiry-filter-pill--active enquiry-filter-pill--reason"
-              onClick={() => { setRejectionReason(''); setPage(1) }}
-            >
-              {REJECTION_LABELS[rejectionReason] || rejectionReason} &times;
-            </button>
-          )}
         </div>
         <div className="enquiry-list__controls">
           <button
@@ -176,6 +176,17 @@ export default function EnquiryList({ engagementType = 'all' }) {
               <rect x="1" y="12" width="14" height="2" rx="0.5" fill="currentColor"/>
             </svg>
           </button>
+          <button
+            className={`enquiry-list__icon-btn ${view === 'funnel' ? 'enquiry-list__icon-btn--active' : ''}`}
+            onClick={() => setView('funnel')}
+            title="Funnel view"
+          >
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+              <rect x="1" y="1" width="4" height="14" rx="1" fill="currentColor"/>
+              <rect x="6" y="1" width="4" height="10" rx="1" fill="currentColor"/>
+              <rect x="11" y="1" width="4" height="6" rx="1" fill="currentColor"/>
+            </svg>
+          </button>
           <div className="enquiry-list__controls-divider" />
           <button
             className="enquiry-list__icon-btn"
@@ -191,7 +202,32 @@ export default function EnquiryList({ engagementType = 'all' }) {
         </div>
       </div>
 
-      {isLoading ? (
+      {/* Status pills don't apply to the funnel — every status is a column */}
+      {view !== 'funnel' && (
+        <div className="enquiry-filters enquiry-filters--row">
+          {FILTERS.map(f => (
+            <button
+              key={f}
+              className={`enquiry-filter-pill ${status === f ? 'enquiry-filter-pill--active' : ''}`}
+              onClick={() => { setStatus(f); setRejectionReason(''); setPage(1) }}
+            >
+              {pillLabel(f)}
+            </button>
+          ))}
+          {rejectionReason && (
+            <button
+              className="enquiry-filter-pill enquiry-filter-pill--active enquiry-filter-pill--reason"
+              onClick={() => { setRejectionReason(''); setPage(1) }}
+            >
+              {REJECTION_LABELS[rejectionReason] || rejectionReason} &times;
+            </button>
+          )}
+        </div>
+      )}
+
+      {view === 'funnel' ? (
+        <EnquiryFunnel engagementType={engagementType} />
+      ) : isLoading ? (
         <div className="admin-loading">
           <div className="admin-loading__spinner" />
           Loading enquiries...
@@ -324,7 +360,7 @@ export default function EnquiryList({ engagementType = 'all' }) {
         </AnimatePresence>
       )}
 
-      {totalPages > 1 && (
+      {view !== 'funnel' && totalPages > 1 && (
         <div className="enquiry-list__pagination">
           <button
             className="enquiry-list__page-btn"
