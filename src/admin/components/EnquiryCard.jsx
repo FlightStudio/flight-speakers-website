@@ -68,6 +68,7 @@ function shortBudget(budget, currency) {
 
 export default function EnquiryCard({ enquiry, onStatusChange }) {
   const parts = [
+    enquiry.event_name && { icon: '🏷️', text: enquiry.event_name },
     enquiry.event_date && { icon: '📅', text: shortDate(enquiry.event_date) },
     enquiry.event_location && { icon: '📍', text: shortLocation(enquiry.event_location) },
     enquiry.budget_range && { icon: '💰', text: shortBudget(enquiry.budget_range, enquiry.currency) },

@@ -84,6 +84,15 @@ export const STEPS = [
     skippable: false,
   },
   {
+    id: 'eventName',
+    heading: "What's the event called?",
+    field: 'eventName',
+    type: 'text',
+    placeholder: 'e.g. Annual Leadership Summit 2026',
+    required: false,
+    skippable: true,
+  },
+  {
     id: 'eventDate',
     heading: "When's the event?",
     field: 'eventDate',
@@ -156,6 +165,7 @@ const INITIAL_FORM_DATA = {
   isSpeakersAgency: false,
   email: '',
   phone: '',
+  eventName: '',
   eventDate: '',
   eventLocation: '',
   audienceSize: '',

@@ -31,10 +31,10 @@ function EnhancedAIDemo({ speakers: allSpeakers = [] }) {
   // Non-purple palette: brand accent + slate / sky / teal / gold.
   const tokens = [
     { label: 'Leadership', color: '#94a3b8' },     // slate
-    { label: '500 execs', color: '#38bdf8' },      // sky
-    { label: 'Sales kickoff', color: '#14b8a6' },  // teal
-    { label: 'Motivational', color: '#E85D4C' },   // brand accent
-    { label: 'Q3', color: '#C9A227' },             // brand gold
+    { label: '500 execs', color: '#4B96FF' },      // sky
+    { label: 'Sales kickoff', color: '#28C369' },  // teal
+    { label: 'Motivational', color: '#FF234B' },   // brand accent
+    { label: 'Q3', color: '#FFCD37' },             // brand gold
   ]
 
   const demoConfig = [
@@ -331,17 +331,26 @@ function EnhancedAIDemo({ speakers: allSpeakers = [] }) {
       </motion.div>
 
       {/* Footer CTA */}
-      <motion.div
-        className="ai-pipe__footer"
+      <motion.button
+        className="hero-search__button book-a-speaker__btn our-speakers__button"
+        onClick={() => {
+          navigate('/search');
+        }}
+
         initial={{ opacity: 0 }}
         animate={phase >= 4 ? { opacity: 1 } : { opacity: 0 }}
         transition={{ delay: 0.4 }}
+
+        style={{
+          margin: "14px auto 0"
+        }}
       >
-        <Link to="/search" className="ai-pipe__cta">
-          Try it yourself
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </Link>
-      </motion.div>
+        <svg width="18" height="18" viewBox="0 0 20.022 20.022" fill="none" aria-hidden="true">
+          <path d="M 9.451 1.29 C 9.664 0.8 10.358 0.8 10.571 1.29 L 12.945 6.76 C 13.006 6.902 13.119 7.015 13.261 7.077 L 18.732 9.451 C 19.221 9.664 19.221 10.358 18.732 10.571 L 13.261 12.945 C 13.119 13.006 13.006 13.119 12.945 13.261 L 10.571 18.732 C 10.358 19.221 9.664 19.221 9.451 18.732 L 7.077 13.261 C 7.015 13.119 6.902 13.006 6.76 12.945 L 1.29 10.571 C 0.8 10.358 0.8 9.664 1.29 9.451 L 6.76 7.077 C 6.902 7.015 7.015 6.902 7.077 6.76 L 9.451 1.29 Z" fill="currentColor" />
+        </svg>
+
+        Try it yourself
+      </motion.button>
     </div>
   )
 }

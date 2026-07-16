@@ -57,7 +57,7 @@ function Hero() {
           {/* Title with reveal animation — copy from home.html */}
           <h1 className="hero__title">
             <span className="hero__title-line">
-              <RevealText delay={0.3}>Bring the bold voice</RevealText>
+              <RevealText delay={0.3}>Bring the right voice</RevealText>
             </span>
             <span className="hero__title-line">
               <RevealText delay={0.4} y={-10}>to your stage.</RevealText>

@@ -1,55 +1,84 @@
 import { getSpeakerNamesByIds } from '../db/queries.js'
+import { setEnquiryMondayItem } from '../db/enquiry-queries.js'
 
 const MONDAY_API_URL = 'https://api.monday.com/v2'
 
-// Board/column IDs pulled live from the API — see MONDAY_BOARD_MAPPING.md.
-// Account `team-doac`. New website enquiries land on the LEADS board, in the
-// "New Leads" group. The DEALS board (MONDAY_DEALS_BOARD_ID) is fed later in
-// the pipeline, not from the website directly.
-const LEADS_BOARD_ID = '5089018278'
-const LEADS_NEW_LEADS_GROUP = 'topics'
-const LEADS_PRO_BONO_GROUP = 'group_mm1j54qn'
+// Board/column IDs for the July 2026 Monday boards. New website enquiries
+// land on the LEADS board — Paid Leads or Pro-Bono Leads group depending on
+// engagement type — and move to the DEALS board when the enquiry is marked
+// as reviewed. The Leads board is Monday's CRM template, so the item title
+// is the contact's name (the "Create a contact" button reads it).
+const LEADS_BOARD_ID = '1559619026'
+const LEADS_PAID_GROUP = 'topics'             // "Paid Leads"
+const LEADS_PRO_BONO_GROUP = 'group_mm587rnn' // "Pro-Bono Leads"
 
 const LEADS_COLUMNS = {
-  contactName: 'text_mm4d6fzd',       // text — Contact Name
-  email: 'emailfr7pa42d',             // email — Email
-  eventDescribes: 'single_selectf7dzip7', // status — Which best describes your event?
-  speakingFee: 'number9v4u9tzf',      // numbers — Speaking Fee
-  feeCurrency: 'short_text02cz5ldf',  // text — Speaking Fee Currency
-  idealDate: 'dateb2mzkylj',          // date — Ideal Speaking Date
-  dateRange: 'date_range9ain9qt2',    // timeline — Event Date range
-  audience: 'short_textphywpxvf',     // text — Audience
-  synopsis: 'text',                   // text — Event Synopsis (short; full brief goes in the update)
-  speakers: 'multi_selectmsmvx3gc',   // dropdown — Which Speaker… (select all)
-  submittedOn: 'datekk48r20d',        // date — Date of Form Submission
+  company: 'lead_company',         // text — Company
+  email: 'lead_email',             // email — Email
+  phone: 'lead_phone',             // phone — Phone
+  eventType: 'dropdown_mm58av8r',  // dropdown — Event Type (send ids, see below)
+  date: 'date_mm583830',           // date — Date
+  eventName: 'text_mm58aet1',      // text — Event Name
+  location: 'text_mm5896yp',       // text — Location
+  paidOrProBono: 'color_mm58cxd4', // status — Paid or Pro-Bono
+  currency: 'text_mm58e2c5',       // text — Currency
+  budget: 'numeric_mm582k09',      // numbers — Budget
+  brief: 'text_mm58pgtv',          // text — Brief
+  speakers: 'dropdown_mm58bbjc',   // dropdown — Which Speaker are you interested in?
+  audience: 'text_mm58a2kv',       // text — Audience
+  speakerAgency: 'color_mm58d9ke', // status — Speaker Agency
 }
-// Team-managed columns (lead_status, Contacted?, Notes) are never set from here.
-// No Phone column and the Location column needs lat/lng we don't have, so both
-// go into the item update instead (gaps 1 & 2 in MONDAY_BOARD_MAPPING.md).
+// Never set from here: `lead_status` (team triages), `text` (contact's job
+// title — not collected), `numeric_mm58d9vt` (Speaking Fee — negotiated
+// later), `text_mm58b2wc` (Anything else — additionalDetails isn't
+// persisted to the enquiries table yet).
 
-// A lead becomes a deal when the enquiry is confirmed. One-way only — later
-// status changes never move it back to Leads.
-const DEALS_BOARD_ID = '5089018284'
-const DEALS_QUALIFIED_GROUP = 'topics'
+// dropdown_mm58av8r option ids. Sent as ids, not labels — several board
+// labels have irregular spacing ("Conference/ Summit", "Awards/ Gala") that
+// silently fails an exact-text match.
+const EVENT_TYPE_IDS = {
+  'Conference / Summit': 1,
+  'Corporate Offsite': 3,
+  'Leadership Event': 4,
+  'Product Launch': 5,
+  'Sales Kickoff': 6,
+  'Awards / Gala': 7,
+  'Internal Training': 8,
+  'Virtual Event': 9,
+  'Other': 10,
+}
 
+// color_mm58cxd4 indexes — the board spells it "Pro-Bono" (hyphenated), so
+// indexes are safer than label text. Speaker Agency only has "Yes" (index 1);
+// there is no "No" label, so false simply leaves the column empty.
+const ENGAGEMENT_INDEXES = { 'Pro Bono': 0, 'Paid': 1 }
+const SPEAKER_AGENCY_YES_INDEX = 1
+
+// A reviewed enquiry becomes a deal. One-way — later status changes never
+// move it back to Leads.
+const DEALS_BOARD_ID = '1559619030'
+const DEALS_REVIEWED_GROUP = 'group_mm58cvg7' // "Reviewed"
 const DEALS_COLUMNS = {
-  eventName: 'text_mkyqfdc4',      // text — Event Name
-  stage: 'deal_stage',             // status — Stage
-  dealValue: 'deal_value',         // numbers — Deal Value
-  speaker: 'text_mkyns55b',        // text — Speaker
-  eventDate: 'date_mkyn930v',      // date — Event Date
-  email: 'email_mkyqazv9',         // email — Email
-  eventDescribes: 'color_mkyq5veq', // status — Which best describes your event?
+  stage: 'deal_stage',      // status — Stage
+  dealValue: 'deal_value',  // numbers — Deal Value
 }
-// Owner (`deal_owner`) is team-managed; Location needs lat/lng — both skipped.
-
-// enquiry.engagement_type → status labels on `single_selectf7dzip7`
-const ENGAGEMENT_LABELS = {
-  'Paid': 'Paid Speaking Event Request',
-  'Pro Bono': 'Pro-Bono Event Consideration',
+// deal_stage label indexes mirror the enquiry pipeline — enquiry status →
+// stage index. 'new' has no stage: a new enquiry is still a lead.
+const STATUS_STAGE_INDEXES = {
+  reviewed: 4,          // Reviewed
+  calendar_meeting: 15, // Calendar / Meeting
+  negotiation: 3,       // Negotiation
+  confirmed: 0,         // Confirmed
+  contract_sent: 7,     // Contract Sent
+  closed_won: 1,        // Closed Won
+  closed_lost: 2,       // Closed Lost
+  completed_event: 6,   // Completed Event
+  declined: 5,          // Declined
 }
+// Team-managed: deal_owner, deal_contact, deal_expected_close_date,
+// deal_close_probability. deal_forecast_value is read-only.
 
-// Best-effort numeric fee from free-text budget ranges like "5000",
+// Best-effort numeric budget from free-text ranges like "5000",
 // "£5,000" or "£25k-40k" — uses the highest figure mentioned.
 function parseBudgetNumber(budgetRange) {
   if (!budgetRange) return null
@@ -82,15 +111,23 @@ function parseDateString(value) {
 }
 
 // event_date is a string, pipe-delimited when the form sent a range:
-// "2026-03-15|2026-03-20"
-function parseEventDates(eventDate) {
-  if (!eventDate) return { first: null, range: null }
+// "2026-03-15|2026-03-20". The board has a single date column, so only the
+// first date is sent; the raw string still appears in the item update.
+function parseFirstEventDate(eventDate) {
+  if (!eventDate) return null
   const parts = String(eventDate).split('|').map(p => parseDateString(p.trim())).filter(Boolean)
-  if (parts.length === 0) return { first: null, range: null }
-  return {
-    first: parts[0],
-    range: parts.length >= 2 ? { from: parts[0], to: parts[parts.length - 1] } : null,
-  }
+  return parts[0] || null
+}
+
+// Monday's phone column wants a countryShortName alongside the number.
+function phoneCountry(phone) {
+  const p = String(phone).replace(/[\s()-]/g, '')
+  if (p.startsWith('+44')) return 'GB'
+  if (p.startsWith('+353')) return 'IE'
+  if (p.startsWith('+971')) return 'AE'
+  if (p.startsWith('+61')) return 'AU'
+  if (p.startsWith('+1')) return 'US'
+  return ''
 }
 
 function parseRecommendations(recommendations) {
@@ -101,7 +138,7 @@ function parseRecommendations(recommendations) {
   return []
 }
 
-// Dropdown labels for `multi_selectmsmvx3gc`: primary speaker, any additional
+// Dropdown labels for `dropdown_mm58bbjc`: primary speaker, any additional
 // speakers picked on the form, and selected recommendations. Names must match
 // the Monday labels; create_labels_if_missing covers new speakers.
 async function collectSpeakerLabels(enquiry) {
@@ -125,45 +162,55 @@ async function collectSpeakerLabels(enquiry) {
   return [...names]
 }
 
-async function buildColumnValues(enquiry) {
+async function buildLeadColumnValues(enquiry) {
   const cols = {}
 
-  if (enquiry.name) {
-    cols[LEADS_COLUMNS.contactName] = enquiry.name
+  if (enquiry.organization) {
+    cols[LEADS_COLUMNS.company] = enquiry.organization
   }
 
   if (enquiry.email) {
     cols[LEADS_COLUMNS.email] = { email: enquiry.email, text: enquiry.email }
   }
 
-  const engagementLabel = ENGAGEMENT_LABELS[enquiry.engagement_type]
-  if (engagementLabel) {
-    cols[LEADS_COLUMNS.eventDescribes] = { label: engagementLabel }
+  if (enquiry.phone) {
+    cols[LEADS_COLUMNS.phone] = { phone: enquiry.phone, countryShortName: phoneCountry(enquiry.phone) }
   }
 
-  const fee = parseBudgetNumber(enquiry.budget_range)
-  if (fee !== null) {
-    cols[LEADS_COLUMNS.speakingFee] = fee
+  const eventTypeId = EVENT_TYPE_IDS[enquiry.event_type]
+  if (eventTypeId != null) {
+    cols[LEADS_COLUMNS.eventType] = { ids: [eventTypeId] }
+  }
+
+  const firstDate = parseFirstEventDate(enquiry.event_date)
+  if (firstDate) {
+    cols[LEADS_COLUMNS.date] = { date: firstDate }
+  }
+
+  if (enquiry.event_name) {
+    cols[LEADS_COLUMNS.eventName] = enquiry.event_name
+  }
+
+  if (enquiry.event_location) {
+    cols[LEADS_COLUMNS.location] = enquiry.event_location
+  }
+
+  const engagementIndex = ENGAGEMENT_INDEXES[enquiry.engagement_type]
+  if (engagementIndex != null) {
+    cols[LEADS_COLUMNS.paidOrProBono] = { index: engagementIndex }
   }
 
   if (enquiry.currency) {
-    cols[LEADS_COLUMNS.feeCurrency] = enquiry.currency
+    cols[LEADS_COLUMNS.currency] = enquiry.currency
   }
 
-  const { first, range } = parseEventDates(enquiry.event_date)
-  if (first) {
-    cols[LEADS_COLUMNS.idealDate] = { date: first }
-  }
-  if (range) {
-    cols[LEADS_COLUMNS.dateRange] = range
-  }
-
-  if (enquiry.audience_size) {
-    cols[LEADS_COLUMNS.audience] = String(enquiry.audience_size)
+  const budget = parseBudgetNumber(enquiry.budget_range)
+  if (budget !== null) {
+    cols[LEADS_COLUMNS.budget] = budget
   }
 
   if (enquiry.brief) {
-    cols[LEADS_COLUMNS.synopsis] = enquiry.brief.substring(0, 2000)
+    cols[LEADS_COLUMNS.brief] = enquiry.brief.substring(0, 2000)
   }
 
   const speakerLabels = await collectSpeakerLabels(enquiry)
@@ -171,16 +218,19 @@ async function buildColumnValues(enquiry) {
     cols[LEADS_COLUMNS.speakers] = { labels: speakerLabels }
   }
 
-  const submitted = enquiry.created_at ? new Date(enquiry.created_at) : new Date()
-  if (!isNaN(submitted.getTime())) {
-    cols[LEADS_COLUMNS.submittedOn] = { date: submitted.toISOString().split('T')[0] }
+  if (enquiry.audience_size) {
+    cols[LEADS_COLUMNS.audience] = String(enquiry.audience_size)
+  }
+
+  if (enquiry.is_speakers_agency) {
+    cols[LEADS_COLUMNS.speakerAgency] = { index: SPEAKER_AGENCY_YES_INDEX }
   }
 
   return cols
 }
 
-// Carries everything the Leads board has no column for (phone, location,
-// full brief) plus the structured brief the team works from.
+// Human-readable summary posted as an update on the item — carries the full
+// untruncated brief plus everything at a glance.
 function formatUpdateNotes(enquiry) {
   const client = [enquiry.name, enquiry.organization].filter(Boolean).join(', ') || ''
 
@@ -190,6 +240,8 @@ function formatUpdateNotes(enquiry) {
     `*Email:* ${enquiry.email || ''}`,
     '',
     `*Phone:* ${enquiry.phone || ''}`,
+    '',
+    `*Event Name:* ${enquiry.event_name || ''}`,
     '',
     `*Event type:* ${enquiry.event_type || ''}`,
     '',
@@ -217,16 +269,22 @@ async function mondayRequest(token, query, variables) {
   return res.json()
 }
 
-// No dedicated event-name field on the form, so approximate one for the
-// item title, e.g. "Acme Corp — Conference / Summit".
+// CRM leads board: item title is the contact's name.
 function buildItemName(enquiry) {
-  return [enquiry.organization, enquiry.event_type].filter(Boolean).join(' — ')
-    || enquiry.name
-    || `Enquiry ${enquiry.id}`
+  return enquiry.name || enquiry.organization || `Enquiry ${enquiry.id}`
 }
 
-// Creates a Leads-board item for a fresh website enquiry. Returns
-// { id, name, boardId } or null — never throws, callers fire-and-forget.
+async function saveMondayRef(enquiryId, itemId, boardId) {
+  try {
+    await setEnquiryMondayItem(enquiryId, itemId, boardId)
+  } catch (err) {
+    console.error(`[MONDAY] Failed to save monday ref for ${enquiryId}:`, err.message)
+  }
+}
+
+// Creates a Leads-board item for a fresh website enquiry and records the
+// item/board id on the enquiry row. Returns { id, name, boardId } or null —
+// never throws, callers fire-and-forget.
 export async function createMondayLead(enquiry) {
   const token = process.env.MONDAY_API_TOKEN
   const boardId = process.env.MONDAY_LEADS_BOARD_ID || LEADS_BOARD_ID
@@ -236,7 +294,11 @@ export async function createMondayLead(enquiry) {
     return null
   }
 
-  const itemName = buildItemName(enquiry)
+  // Pro-bono enquiries land in the Pro-Bono Leads group; everything else
+  // (Paid, or no engagement type given) goes to Paid Leads.
+  const groupId = enquiry.engagement_type === 'Pro Bono'
+    ? LEADS_PRO_BONO_GROUP
+    : LEADS_PAID_GROUP
 
   const query = `mutation ($boardId: ID!, $groupId: String!, $itemName: String!, $columnValues: JSON!) {
     create_item(board_id: $boardId, group_id: $groupId, item_name: $itemName, column_values: $columnValues, create_labels_if_missing: true) {
@@ -245,18 +307,12 @@ export async function createMondayLead(enquiry) {
     }
   }`
 
-  // Pro-bono enquiries go straight to the Pro-Bono group; everything else
-  // lands in New Leads for triage.
-  const groupId = enquiry.engagement_type === 'Pro Bono'
-    ? LEADS_PRO_BONO_GROUP
-    : LEADS_NEW_LEADS_GROUP
-
   try {
-    const columnValues = await buildColumnValues(enquiry)
+    const columnValues = await buildLeadColumnValues(enquiry)
     const data = await mondayRequest(token, query, {
       boardId: String(boardId),
       groupId,
-      itemName,
+      itemName: buildItemName(enquiry),
       columnValues: JSON.stringify(columnValues),
     })
 
@@ -271,6 +327,8 @@ export async function createMondayLead(enquiry) {
       return null
     }
     console.log(`[MONDAY] Created lead "${item.name}" (ID: ${item.id}) on board ${boardId}`)
+
+    await saveMondayRef(enquiry.id, item.id, String(boardId))
 
     // Post the structured brief as an update (comment) on the item
     try {
@@ -297,45 +355,70 @@ export async function createMondayLead(enquiry) {
   }
 }
 
-async function buildDealColumnValues(enquiry) {
-  const cols = {}
-
-  cols[DEALS_COLUMNS.eventName] = buildItemName(enquiry)
-  cols[DEALS_COLUMNS.stage] = { label: 'Confirmed' }
-
-  const fee = parseBudgetNumber(enquiry.budget_range)
-  if (fee !== null) {
-    cols[DEALS_COLUMNS.dealValue] = fee
+function buildDealColumnValues(enquiry) {
+  const cols = {
+    [DEALS_COLUMNS.stage]: { index: STATUS_STAGE_INDEXES.reviewed },
   }
 
-  const speakerLabels = await collectSpeakerLabels(enquiry)
-  if (speakerLabels.length > 0) {
-    cols[DEALS_COLUMNS.speaker] = speakerLabels.join(', ')
-  }
-
-  const { first } = parseEventDates(enquiry.event_date)
-  if (first) {
-    cols[DEALS_COLUMNS.eventDate] = { date: first }
-  }
-
-  if (enquiry.email) {
-    cols[DEALS_COLUMNS.email] = { email: enquiry.email, text: enquiry.email }
-  }
-
-  const engagementLabel = ENGAGEMENT_LABELS[enquiry.engagement_type]
-  if (engagementLabel) {
-    cols[DEALS_COLUMNS.eventDescribes] = { label: engagementLabel }
+  const value = parseBudgetNumber(enquiry.budget_range)
+  if (value !== null) {
+    cols[DEALS_COLUMNS.dealValue] = value
   }
 
   return cols
 }
 
-// Promotes a confirmed enquiry to the Deals board (Qualified group, Stage:
-// Confirmed). Moves the existing Leads-board item when we have one — updates
+// Mirrors an enquiry status change onto the deal's Stage column. Only acts
+// on items already on the Deals board — moving from Leads happens
+// exclusively via the reviewed transition (moveMondayLeadToDeals), so a
+// status set while the item is still a lead is skipped and Monday catches
+// up at the next stage change after review. Never throws.
+export async function updateMondayDealStage(enquiry, status) {
+  const token = process.env.MONDAY_API_TOKEN
+  const dealsBoardId = String(process.env.MONDAY_DEALS_BOARD_ID || DEALS_BOARD_ID)
+
+  if (!token) {
+    console.log('[MONDAY] No MONDAY_API_TOKEN set, skipping')
+    return null
+  }
+
+  const stageIndex = STATUS_STAGE_INDEXES[status]
+  if (stageIndex == null) return null
+
+  if (!enquiry.monday_item_id || enquiry.monday_board_id !== dealsBoardId) {
+    console.log(`[MONDAY] Enquiry ${enquiry.id} not on deals board, skipping stage update (${status})`)
+    return null
+  }
+
+  try {
+    const setQuery = `mutation ($boardId: ID!, $itemId: ID!, $columnValues: JSON!) {
+      change_multiple_column_values(board_id: $boardId, item_id: $itemId, column_values: $columnValues) { id }
+    }`
+    const data = await mondayRequest(token, setQuery, {
+      boardId: dealsBoardId,
+      itemId: String(enquiry.monday_item_id),
+      columnValues: JSON.stringify({ [DEALS_COLUMNS.stage]: { index: stageIndex } }),
+    })
+
+    if (data.errors?.length) {
+      console.error('[MONDAY] Failed to update deal stage:', JSON.stringify(data.errors))
+      return null
+    }
+
+    console.log(`[MONDAY] Set deal ${enquiry.monday_item_id} stage to "${status}"`)
+    return { id: String(enquiry.monday_item_id), boardId: dealsBoardId }
+  } catch (err) {
+    console.error('[MONDAY] Failed to update deal stage:', err.message)
+    return null
+  }
+}
+
+// Moves a reviewed enquiry to the Deals board (Reviewed group, Stage:
+// Reviewed). Moves the existing Leads-board item when we have one — updates
 // and history travel with it — otherwise creates a fresh deal item. One-way:
-// callers only invoke this on the transition to 'confirmed', and an enquiry
-// already on the Deals board is left alone. Returns { id, name, boardId } or
-// null — never throws, callers fire-and-forget.
+// an enquiry already on the Deals board is left alone, so repeat triggers
+// are harmless. Records the item/board id on the enquiry row. Returns
+// { id, name, boardId } or null — never throws, callers fire-and-forget.
 export async function moveMondayLeadToDeals(enquiry) {
   const token = process.env.MONDAY_API_TOKEN
   const dealsBoardId = String(process.env.MONDAY_DEALS_BOARD_ID || DEALS_BOARD_ID)
@@ -346,12 +429,13 @@ export async function moveMondayLeadToDeals(enquiry) {
   }
 
   if (enquiry.monday_board_id === dealsBoardId) {
-    console.log(`[MONDAY] Enquiry ${enquiry.id} already on deals board, skipping`)
-    return null
+    // Already a deal — just make sure the stage reflects the (re-)review.
+    console.log(`[MONDAY] Enquiry ${enquiry.id} already on deals board — syncing stage instead`)
+    return updateMondayDealStage(enquiry, 'reviewed')
   }
 
   try {
-    const columnValues = await buildDealColumnValues(enquiry)
+    const columnValues = buildDealColumnValues(enquiry)
 
     // Move the existing lead item across if we have one
     if (enquiry.monday_item_id) {
@@ -363,7 +447,7 @@ export async function moveMondayLeadToDeals(enquiry) {
       }`
       const moveData = await mondayRequest(token, moveQuery, {
         boardId: dealsBoardId,
-        groupId: DEALS_QUALIFIED_GROUP,
+        groupId: DEALS_REVIEWED_GROUP,
         itemId: String(enquiry.monday_item_id),
       })
 
@@ -385,6 +469,7 @@ export async function moveMondayLeadToDeals(enquiry) {
           console.error('[MONDAY] Failed to set deal columns after move:', JSON.stringify(setData.errors))
         }
         console.log(`[MONDAY] Moved lead ${moved.id} to deals board ${dealsBoardId}`)
+        await saveMondayRef(enquiry.id, moved.id, dealsBoardId)
         return { id: moved.id, name: moved.name, boardId: dealsBoardId }
       }
     }
@@ -398,7 +483,7 @@ export async function moveMondayLeadToDeals(enquiry) {
     }`
     const createData = await mondayRequest(token, createQuery, {
       boardId: dealsBoardId,
-      groupId: DEALS_QUALIFIED_GROUP,
+      groupId: DEALS_REVIEWED_GROUP,
       itemName: buildItemName(enquiry),
       columnValues: JSON.stringify(columnValues),
     })
@@ -414,6 +499,8 @@ export async function moveMondayLeadToDeals(enquiry) {
       return null
     }
     console.log(`[MONDAY] Created deal "${item.name}" (ID: ${item.id}) on board ${dealsBoardId}`)
+
+    await saveMondayRef(enquiry.id, item.id, dealsBoardId)
 
     // Fresh item has no history from the lead, so attach the enquiry brief
     try {

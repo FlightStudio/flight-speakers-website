@@ -1,5 +1,5 @@
 import express from 'express'
-import { createEnquiry, setEnquiryMondayItem } from '../db/enquiry-queries.js'
+import { createEnquiry } from '../db/enquiry-queries.js'
 import { validate, enquirySchema } from '../schemas/index.js'
 import { addResendContact } from '../services/resend/index.js'
 import { sendEnquiryEmail } from '../services/notifications.js'
@@ -35,9 +35,6 @@ router.post('/', async (req, res) => {
 
   // Push the new enquiry onto the Monday Leads board (fire-and-forget)
   createMondayLead(enquiry)
-    .then(item => {
-      if (item?.id) return setEnquiryMondayItem(enquiry.id, item.id, item.boardId)
-    })
     .catch(err => console.error(`[MONDAY] lead creation failed for ${enquiry.id}:`, err.message))
 
   if (data.newsletter) {

@@ -26,6 +26,7 @@ export const enquirySchema = z.object({
 
   // event (required by the form's flow)
   eventType: z.enum(EVENT_TYPES),
+  eventName: z.string().max(200).optional().nullable(),
   eventDate: z.string().min(1).max(50),
   eventLocation: z.string().min(1).max(200),
   audienceSize: z.string().min(1).max(20),

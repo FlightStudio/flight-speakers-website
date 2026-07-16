@@ -63,6 +63,7 @@ export default function EnquiryDetail({ enquiry, additionalSpeakers = [], sentEm
     { label: 'Organization', value: enquiry.organization },
     { label: 'Speakers Agency', value: enquiry.is_speakers_agency ? 'Yes' : 'No' },
     { label: 'Phone', value: enquiry.phone },
+    { label: 'Event Name', value: enquiry.event_name },
     { label: 'Event Date', value: formatEventDate(enquiry.event_date) },
     { label: 'Location', value: enquiry.event_location },
     { label: 'Audience Size', value: enquiry.audience_size },
@@ -87,7 +88,7 @@ export default function EnquiryDetail({ enquiry, additionalSpeakers = [], sentEm
         </div>
         <div className="enquiry-detail__status-col">
           <StatusBadge status={enquiry.status} onChange={onStatusChange} />
-          {enquiry.status === 'rejected' && enquiry.rejection_reason && (
+          {enquiry.status === 'declined' && enquiry.rejection_reason && (
             <span className="enquiry-detail__rejection-badge">
               {REJECTION_LABELS[enquiry.rejection_reason] || enquiry.rejection_reason}
             </span>

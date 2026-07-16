@@ -81,7 +81,7 @@ function AnimatedNumber({ value, format, duration = 600 }) {
 
 const MODAL_TABS = [
   { key: 'overview', label: 'Overview' },
-  { key: 'rejections', label: 'Rejections' },
+  { key: 'rejections', label: 'Declines' },
 ]
 
 export default function EnquiryAnalyticsModal({ open, onClose, engagementType = 'all', onFilterByReason }) {
@@ -122,7 +122,7 @@ export default function EnquiryAnalyticsModal({ open, onClose, engagementType = 
   // Build card definitions
   const allCards = analytics ? [
     { key: 'revenue', label: 'Revenue', value: formatRevenue(analytics.revenueByCurrency, analytics.dominantCurrency), numericValue: analytics.revenueByCurrency?.find(c => c.currency === analytics.dominantCurrency)?.total || 0, modifier: 'revenue', tab: 'paid' },
-    { key: 'rejected', label: 'Rejected Value', value: formatRevenue(analytics.rejectedByCurrency, analytics.dominantCurrency), numericValue: analytics.rejectedByCurrency?.find(c => c.currency === analytics.dominantCurrency)?.total || 0, modifier: 'rejected', tab: 'paid' },
+    { key: 'rejected', label: 'Declined Value', value: formatRevenue(analytics.rejectedByCurrency, analytics.dominantCurrency), numericValue: analytics.rejectedByCurrency?.find(c => c.currency === analytics.dominantCurrency)?.total || 0, modifier: 'rejected', tab: 'paid' },
     { key: 'acceptance', label: 'Acceptance Rate', numericValue: analytics.acceptanceRate || 0, suffix: '%', modifier: '', tab: 'both' },
     { key: 'avgbudget', label: 'Avg Budget', numericValue: analytics.averageBudget || 0, modifier: '', tab: 'paid' },
     { key: 'probono', label: 'Pro Bono', numericValue: analytics.proBonoCount || 0, modifier: 'probono', tab: 'probono' },
@@ -257,7 +257,7 @@ export default function EnquiryAnalyticsModal({ open, onClose, engagementType = 
                         <div className="enq-modal__summary-divider" />
                         <div className="enq-modal__summary-item">
                           <span className="enq-modal__summary-value">{rejTotal}</span>
-                          <span className="enq-modal__summary-label">Rejected</span>
+                          <span className="enq-modal__summary-label">Declined</span>
                         </div>
                       </div>
                     </motion.div>
@@ -298,7 +298,7 @@ export default function EnquiryAnalyticsModal({ open, onClose, engagementType = 
                               </svg>
                               <div className="enq-modal__pie-center">
                                 <div className="enq-modal__pie-total">{rejTotal}</div>
-                                <div className="enq-modal__pie-total-label">Rejected</div>
+                                <div className="enq-modal__pie-total-label">Declined</div>
                               </div>
                             </div>
 
@@ -354,8 +354,8 @@ export default function EnquiryAnalyticsModal({ open, onClose, engagementType = 
                               <path d="M14 20h12M20 14v12" stroke="#d4d4d4" strokeWidth="2" strokeLinecap="round" />
                             </svg>
                           </div>
-                          <div className="enq-modal__empty-text">No rejections yet</div>
-                          <div className="enq-modal__empty-sub">Rejection analytics will appear here once enquiries are rejected</div>
+                          <div className="enq-modal__empty-text">No declined enquiries yet</div>
+                          <div className="enq-modal__empty-sub">Decline analytics will appear here once enquiries are declined</div>
                         </div>
                       )}
                     </motion.div>

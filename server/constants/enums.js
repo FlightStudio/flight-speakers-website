@@ -25,12 +25,13 @@ export const ENQUIRY_STATUSES = [
   'new',
   'reviewed',
   'calendar_meeting',
+  'negotiation',
   'confirmed',
   'contract_sent',
   'closed_won',
   'closed_lost',
-  'paid_in_full',
-  'rejected',
+  'completed_event',
+  'declined',
 ]
 
 export const EMAIL_TEMPLATES = [

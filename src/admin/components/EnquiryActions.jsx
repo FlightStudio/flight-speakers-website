@@ -107,7 +107,7 @@ export default function EnquiryActions({ enquiry, onUpdate }) {
 
   const handleSendRejection = () => {
     handleAction({
-      status: 'rejected',
+      status: 'declined',
       rejection_reason: selectedRejection.key,
       email_template: selectedRejection.key,
     })
@@ -143,9 +143,7 @@ export default function EnquiryActions({ enquiry, onUpdate }) {
             className="enquiry-actions__btn enquiry-actions__btn--reject"
             onClick={() => setOpenMenu(m => m === 'reject' ? null : 'reject')}
             disabled={isSaving || isInFlow}
-          >
-            Reject
-          </button>
+          >Decline</button>
           {openMenu === 'reject' && (
             <div className="enquiry-actions__reject-menu">
               {REJECTION_EMAILS.map(r => (
