@@ -9,6 +9,7 @@ const FIELDS = [
   { key: 'email', label: 'Email' },
   { key: 'phone', label: 'Phone' },
   { key: 'eventType', label: 'Event Type' },
+  { key: 'eventName', label: 'Event Name' },
   { key: 'eventDate', label: 'Date', format: (val) => formatEventDate(val) },
   { key: 'eventLocation', label: 'Location' },
   { key: 'audienceSize', label: 'Audience' },

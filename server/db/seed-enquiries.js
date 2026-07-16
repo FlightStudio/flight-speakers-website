@@ -11,11 +11,11 @@ const pool = new Pool({
   },
 })
 
-const statuses = ['new', 'reviewed', 'calendar_meeting', 'confirmed', 'contract_sent', 'closed_won', 'closed_lost', 'paid_in_full', 'rejected']
+const statuses = ['new', 'reviewed', 'calendar_meeting', 'negotiation', 'confirmed', 'contract_sent', 'closed_won', 'closed_lost', 'completed_event', 'declined']
 
 const sampleEnquiries = [
   // Steven Bartlett (4 enquiries - very popular)
-  { speakerId: 'steven-bartlett', speakerName: 'Steven Bartlett', name: 'Laura Chen', email: 'laura.chen@techcorp.com', organization: 'TechCorp Global', phone: '+44 7700 900123', eventDate: '2026-04-15', eventLocation: 'London, ExCeL Centre', audienceSize: '2000+', budgetRange: '£20,000-£50,000', eventType: 'conference', brief: 'We are hosting our annual leadership summit and want Steven to deliver a keynote on entrepreneurship and resilience. Our audience is C-suite executives and senior leaders from FTSE 100 companies.', status: 'confirmed', daysAgo: 2 },
+  { speakerId: 'steven-bartlett', speakerName: 'Steven Bartlett', name: 'Laura Chen', email: 'laura.chen@techcorp.com', organization: 'TechCorp Global', phone: '+44 7700 900123', eventName: 'Annual Leadership Summit 2026', eventDate: '2026-04-15', eventLocation: 'London, ExCeL Centre', audienceSize: '2000+', budgetRange: '£20,000-£50,000', eventType: 'conference', brief: 'We are hosting our annual leadership summit and want Steven to deliver a keynote on entrepreneurship and resilience. Our audience is C-suite executives and senior leaders from FTSE 100 companies.', status: 'confirmed', daysAgo: 2 },
   { speakerId: 'steven-bartlett', speakerName: 'Steven Bartlett', name: 'Marcus Williams', email: 'marcus@bravemedia.co', organization: 'Brave Media', phone: '+44 7700 900456', eventDate: '2026-05-20', eventLocation: 'Manchester, Bridgewater Hall', audienceSize: '500-1000', budgetRange: '£10,000-£20,000', eventType: 'corporate-event', brief: 'Looking for Steven to host a fireside chat about mental health and leadership at our creative industries summit. Audience: marketing and creative directors.', status: 'reviewed', daysAgo: 5 },
   { speakerId: 'steven-bartlett', speakerName: 'Steven Bartlett', name: 'Priya Sharma', email: 'priya@futureforward.org', organization: 'Future Forward Foundation', eventDate: '2026-06-10', eventLocation: 'Birmingham NEC', audienceSize: '1000-2000', budgetRange: '£20,000-£50,000', eventType: 'conference', brief: 'Annual youth entrepreneurship conference. We want Steven to inspire 1500 young entrepreneurs aged 18-25 with his story and insights on building businesses.', status: 'new', daysAgo: 1 },
   { speakerId: 'steven-bartlett', speakerName: 'Steven Bartlett', name: 'James Richardson', email: 'james.r@bankgroup.com', organization: 'National Bank Group', phone: '+44 20 7946 0958', eventDate: '2026-03-28', eventLocation: 'London, The Savoy', audienceSize: '200-500', budgetRange: '£50,000+', eventType: 'corporate-event', brief: 'Private leadership dinner for our top 200 executives. We would like Steven for an intimate 30-minute talk on trust and ambition.', status: 'contract_sent', daysAgo: 12 },
@@ -30,7 +30,7 @@ const sampleEnquiries = [
   { speakerId: 'harry-stebbings', speakerName: 'Harry Stebbings', name: 'Alex Wright', email: 'alex@founders.club', organization: 'Founders Club', eventDate: '2026-09-15', eventLocation: 'London, County Hall', audienceSize: '100-200', budgetRange: '£5,000-£10,000', eventType: 'workshop', brief: 'Intimate workshop for early-stage founders on fundraising and scaling. 50 hand-picked founders, looking for 90 mins of insight and Q&A.', status: 'new', daysAgo: 2 },
 
   // Vanessa Van Edwards (2)
-  { speakerId: 'vanessa-van-edwards', speakerName: 'Vanessa Van Edwards', name: 'Karen Mitchell', email: 'karen@salesforce-emea.com', organization: 'Salesforce EMEA', phone: '+44 20 7946 0100', eventDate: '2026-05-18', eventLocation: 'London, O2 Centre', audienceSize: '1000-2000', budgetRange: '£20,000-£50,000', eventType: 'conference', brief: 'Sales kickoff event. Want Vanessa to teach our 1200 sales reps about body language, first impressions, and communication that closes deals.', status: 'paid_in_full', daysAgo: 20 },
+  { speakerId: 'vanessa-van-edwards', speakerName: 'Vanessa Van Edwards', name: 'Karen Mitchell', email: 'karen@salesforce-emea.com', organization: 'Salesforce EMEA', phone: '+44 20 7946 0100', eventName: 'EMEA Sales Kickoff', eventDate: '2026-05-18', eventLocation: 'London, O2 Centre', audienceSize: '1000-2000', budgetRange: '£20,000-£50,000', eventType: 'conference', brief: 'Sales kickoff event. Want Vanessa to teach our 1200 sales reps about body language, first impressions, and communication that closes deals.', status: 'completed_event', daysAgo: 20 },
   { speakerId: 'vanessa-van-edwards', speakerName: 'Vanessa Van Edwards', name: 'Daniel Brooks', email: 'daniel@hrleaders.org', organization: 'HR Leaders Network', eventDate: '2026-08-10', eventLocation: 'Bristol, Watershed', audienceSize: '200-500', budgetRange: '£10,000-£20,000', eventType: 'conference', brief: 'Annual HR conference on workplace culture. Vanessa to present on trust signals and how leaders can communicate more effectively.', status: 'new', daysAgo: 4 },
 
   // Nischa Shah (2)
@@ -39,7 +39,7 @@ const sampleEnquiries = [
 
   // Dr Kristen Holmes (2)
   { speakerId: 'kristen-holmes', speakerName: 'Dr Kristen Holmes', name: 'Sarah Kim', email: 'sarah@performancelab.co', organization: 'Performance Lab', eventDate: '2026-05-30', eventLocation: 'London, Royal Institution', audienceSize: '200-500', budgetRange: '£10,000-£20,000', eventType: 'conference', brief: 'Corporate wellness conference. Kristen to present on sustainable performance, recovery science, and why pushing harder is not the answer.', status: 'new', daysAgo: 3 },
-  { speakerId: 'kristen-holmes', speakerName: 'Dr Kristen Holmes', name: 'Michael Tan', email: 'michael@sportsinnovate.com', organization: 'Sports Innovate', phone: '+44 7900 654321', eventDate: '2026-07-20', eventLocation: 'Manchester, Etihad Campus', audienceSize: '500-1000', budgetRange: '£10,000-£20,000', eventType: 'conference', brief: 'Sports technology conference. Dr Holmes to share insights on biometric data, recovery, and what elite athletes teach us about sustainable peak performance.', status: 'rejected', daysAgo: 22 },
+  { speakerId: 'kristen-holmes', speakerName: 'Dr Kristen Holmes', name: 'Michael Tan', email: 'michael@sportsinnovate.com', organization: 'Sports Innovate', phone: '+44 7900 654321', eventName: 'Sports Tech Conference 2026', eventDate: '2026-07-20', eventLocation: 'Manchester, Etihad Campus', audienceSize: '500-1000', budgetRange: '£10,000-£20,000', eventType: 'conference', brief: 'Sports technology conference. Dr Holmes to share insights on biometric data, recovery, and what elite athletes teach us about sustainable peak performance.', status: 'declined', daysAgo: 22 },
 
   // Davina McCall (3)
   { speakerId: 'davina-mccall', speakerName: 'Davina McCall', name: 'Charlotte Evans', email: 'charlotte@womeninbiz.co.uk', organization: 'Women in Business UK', phone: '+44 7800 111222', eventDate: '2026-04-12', eventLocation: 'London, QEII Centre', audienceSize: '1000-2000', budgetRange: '£20,000-£50,000', eventType: 'conference', brief: 'Annual women in business awards and conference. Davina as keynote speaker on confidence, health, and thriving through change.', status: 'confirmed', daysAgo: 10 },
@@ -58,14 +58,14 @@ const sampleEnquiries = [
   { speakerId: 'vonda-wright', speakerName: 'Dr Vonda Wright', name: 'Robert Chen', email: 'robert@longevityconf.com', organization: 'Longevity Conference', phone: '+1 212 555 0188', eventDate: '2026-10-03', eventLocation: 'New York, Javits Center', audienceSize: '1000-2000', budgetRange: '£10,000-£20,000', eventType: 'conference', brief: 'Longevity and healthspan summit. Dr Wright to present on extending physical capability across demanding executive careers.', status: 'reviewed', daysAgo: 11 },
 
   // Evy Poumpouras (2)
-  { speakerId: 'evy-poumpouras', speakerName: 'Evy Poumpouras', name: 'Martin Hayes', email: 'martin@securitysummit.eu', organization: 'European Security Summit', eventDate: '2026-04-28', eventLocation: 'Brussels, Square Convention Centre', audienceSize: '500-1000', budgetRange: '£20,000-£50,000', eventType: 'conference', brief: 'Security leadership conference. Evy to deliver the keynote on decision-making under pressure, drawn from her Secret Service experience.', status: 'confirmed', daysAgo: 16 },
+  { speakerId: 'evy-poumpouras', speakerName: 'Evy Poumpouras', name: 'Martin Hayes', email: 'martin@securitysummit.eu', organization: 'European Security Summit', eventName: 'European Security Summit 2026', eventDate: '2026-04-28', eventLocation: 'Brussels, Square Convention Centre', audienceSize: '500-1000', budgetRange: '£20,000-£50,000', eventType: 'conference', brief: 'Security leadership conference. Evy to deliver the keynote on decision-making under pressure, drawn from her Secret Service experience.', status: 'confirmed', daysAgo: 16 },
   { speakerId: 'evy-poumpouras', speakerName: 'Evy Poumpouras', name: 'Nicole Turner', email: 'nicole@saleskickoff.com', organization: 'SalesForce Pro', phone: '+44 7700 900789', eventDate: '2026-06-15', eventLocation: 'London, ICC', audienceSize: '500-1000', budgetRange: '£10,000-£20,000', eventType: 'corporate-event', brief: 'Annual sales kickoff. Evy to inspire our sales leaders on courage, responsibility, and performing under intense pressure.', status: 'new', daysAgo: 2 },
 
   // Paul Scanlon (1)
-  { speakerId: 'paul-scanlon', speakerName: 'Paul Scanlon', name: 'Greg Phillips', email: 'greg@teambuilders.co.uk', organization: 'TeamBuilders', eventDate: '2026-08-14', eventLocation: 'Cardiff, Millennium Centre', audienceSize: '200-500', budgetRange: '£5,000-£10,000', eventType: 'corporate-event', brief: 'Team resilience away day. Paul to share his story of recovery and reinvention, connecting sport to workplace resilience.', status: 'reviewed', daysAgo: 13 },
+  { speakerId: 'paul-scanlon', speakerName: 'Paul Scanlon', name: 'Greg Phillips', email: 'greg@teambuilders.co.uk', organization: 'TeamBuilders', eventName: 'Team Resilience Away Day', eventDate: '2026-08-14', eventLocation: 'Cardiff, Millennium Centre', audienceSize: '200-500', budgetRange: '£5,000-£10,000', eventType: 'corporate-event', brief: 'Team resilience away day. Paul to share his story of recovery and reinvention, connecting sport to workplace resilience.', status: 'reviewed', daysAgo: 13 },
 
   // Maggie Sellers (2)
-  { speakerId: 'maggie-sellers', speakerName: 'Maggie Sellers', name: 'Hannah Reed', email: 'hannah@sheleads.org', organization: 'She Leads Network', eventDate: '2026-05-12', eventLocation: 'London, The Ned', audienceSize: '100-200', budgetRange: '£5,000-£10,000', eventType: 'conference', brief: 'Women\'s leadership breakfast. Maggie to speak on redefining success, ambition without apology, and betting on yourself.', status: 'new', daysAgo: 3 },
+  { speakerId: 'maggie-sellers', speakerName: 'Maggie Sellers', name: 'Hannah Reed', email: 'hannah@sheleads.org', organization: 'She Leads Network', eventName: 'She Leads Breakfast', eventDate: '2026-05-12', eventLocation: 'London, The Ned', audienceSize: '100-200', budgetRange: '£5,000-£10,000', eventType: 'conference', brief: 'Women\'s leadership breakfast. Maggie to speak on redefining success, ambition without apology, and betting on yourself.', status: 'new', daysAgo: 3 },
   { speakerId: 'maggie-sellers', speakerName: 'Maggie Sellers', name: 'Zara Khan', email: 'zara@startupweekend.co', organization: 'Startup Weekend UK', eventDate: '2026-09-20', eventLocation: 'Manchester, HOME', audienceSize: '200-500', budgetRange: '£5,000-£10,000', eventType: 'conference', brief: 'Startup weekend closing keynote. Maggie to inspire early-stage founders about the emotional reality of building something from nothing.', status: 'confirmed', daysAgo: 19 },
 ]
 
@@ -77,9 +77,9 @@ async function seedEnquiries() {
     const createdAt = new Date(Date.now() - enq.daysAgo * 24 * 60 * 60 * 1000).toISOString()
 
     await pool.query(
-      `INSERT INTO enquiries (id, name, email, organization, phone, event_date, event_location,
+      `INSERT INTO enquiries (id, name, email, organization, phone, event_name, event_date, event_location,
          audience_size, budget_range, event_type, brief, speaker_id, speaker_name, newsletter, status, created_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
        ON CONFLICT (id) DO NOTHING`,
       [
         id,
@@ -87,6 +87,7 @@ async function seedEnquiries() {
         enq.email,
         enq.organization,
         enq.phone || null,
+        enq.eventName || null,
         enq.eventDate || null,
         enq.eventLocation || null,
         enq.audienceSize || null,

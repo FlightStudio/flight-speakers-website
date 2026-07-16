@@ -231,6 +231,7 @@ export default function EnquiryList({ engagementType = 'all' }) {
                     <tr>
                       <th>Speaker</th>
                       <th>Client</th>
+                      <th>Event</th>
                       <th
                         className="enquiry-table__th-sortable"
                         onClick={() => {
@@ -287,6 +288,9 @@ export default function EnquiryList({ engagementType = 'all' }) {
                           {enquiry.organization && (
                             <div className="enquiry-table__client-org">{enquiry.organization}</div>
                           )}
+                        </td>
+                        <td className="enquiry-table__muted">
+                          {enquiry.event_name || '-'}
                         </td>
                         <td className="enquiry-table__muted">
                           {formatTableDate(enquiry.event_date)}
@@ -347,7 +351,7 @@ export default function EnquiryList({ engagementType = 'all' }) {
         onClose={() => setShowAnalytics(false)}
         engagementType={engagementType}
         onFilterByReason={(reason) => {
-          setStatus('rejected')
+          setStatus('declined')
           setRejectionReason(reason)
           setPage(1)
           setShowAnalytics(false)

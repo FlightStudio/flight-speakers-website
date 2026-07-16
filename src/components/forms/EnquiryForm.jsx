@@ -7,6 +7,7 @@ function EnquiryForm({ speaker = null, prefillBrief = '' }) {
     organization: '',
     email: '',
     phone: '',
+    eventName: '',
     eventDate: '',
     eventLocation: '',
     audienceSize: '',
@@ -55,6 +56,7 @@ function EnquiryForm({ speaker = null, prefillBrief = '' }) {
           organization: '',
           email: '',
           phone: '',
+          eventName: '',
           eventDate: '',
           eventLocation: '',
           audienceSize: '',
@@ -169,6 +171,18 @@ function EnquiryForm({ speaker = null, prefillBrief = '' }) {
 
       <div className="enquiry-form__section">
         <h3 className="enquiry-form__section-title">Event Details</h3>
+        <div className="form-group">
+          <label htmlFor="eventName" className="form-label">Event Name</label>
+          <input
+            type="text"
+            id="eventName"
+            name="eventName"
+            value={formData.eventName}
+            onChange={handleChange}
+            className="form-input"
+            placeholder="e.g. Annual Leadership Summit 2026"
+          />
+        </div>
         <div className="enquiry-form__row">
           <div className="form-group">
             <label htmlFor="eventDate" className="form-label">Event Date</label>

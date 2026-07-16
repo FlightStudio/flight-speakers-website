@@ -172,16 +172,25 @@ async function applyMigrations() {
     ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS is_speakers_agency BOOLEAN NOT NULL DEFAULT false;
   `)
 
-  // Enquiry status pipeline (calendar_meeting, confirmed, contract_sent,
-  // closed_won, closed_lost, paid_in_full). Legacy 'accepted'/'responded'/
-  // 'contacted' rows are remapped to their closest equivalents before the
-  // tighter CHECK goes back on.
+  // Enquiry status pipeline (calendar_meeting, negotiation, confirmed,
+  // contract_sent, closed_won, closed_lost, completed_event). Legacy
+  // 'accepted'/'responded'/'contacted' rows are remapped to their closest
+  // equivalents, and the July 2026 renames ('rejected' → 'declined',
+  // 'paid_in_full' → 'completed_event') are applied before the tighter
+  // CHECK goes back on.
   await pool.query(`
     ALTER TABLE enquiries DROP CONSTRAINT IF EXISTS enquiries_status_check;
     UPDATE enquiries SET status = 'confirmed' WHERE status = 'accepted';
     UPDATE enquiries SET status = 'reviewed' WHERE status IN ('responded', 'contacted');
+    UPDATE enquiries SET status = 'declined' WHERE status = 'rejected';
+    UPDATE enquiries SET status = 'completed_event' WHERE status = 'paid_in_full';
     ALTER TABLE enquiries ADD CONSTRAINT enquiries_status_check
-      CHECK (status IN ('new', 'reviewed', 'calendar_meeting', 'confirmed', 'contract_sent', 'closed_won', 'closed_lost', 'paid_in_full', 'rejected'));
+      CHECK (status IN ('new', 'reviewed', 'calendar_meeting', 'negotiation', 'confirmed', 'contract_sent', 'closed_won', 'closed_lost', 'completed_event', 'declined'));
+  `)
+
+  // "Event Name" question on the enquiry form
+  await pool.query(`
+    ALTER TABLE enquiries ADD COLUMN IF NOT EXISTS event_name TEXT;
   `)
 
   // Monday.com sync — which Monday item/board an enquiry was pushed to

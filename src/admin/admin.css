@@ -225,6 +225,12 @@
 }
 .status-badge--calendar_meeting .status-badge__dot { background: #8b5cf6; }
 
+.status-badge--negotiation {
+  background: #fff7ed;
+  color: #9a3412;
+}
+.status-badge--negotiation .status-badge__dot { background: #f97316; }
+
 .status-badge--confirmed,
 .status-badge--accepted {
   background: #ecfdf5;
@@ -243,10 +249,12 @@
 .status-badge--contacted .status-badge__dot,
 .status-badge--responded .status-badge__dot { background: #3b82f6; }
 
+.status-badge--completed_event,
 .status-badge--paid_in_full {
   background: #d1fae5;
   color: #065f46;
 }
+.status-badge--completed_event .status-badge__dot,
 .status-badge--paid_in_full .status-badge__dot { background: #059669; }
 
 .status-badge--closed_won {
@@ -261,10 +269,12 @@
 }
 .status-badge--closed_lost .status-badge__dot { background: #f43f5e; }
 
+.status-badge--declined,
 .status-badge--rejected {
   background: #f1f5f9;
   color: #475569;
 }
+.status-badge--declined .status-badge__dot,
 .status-badge--rejected .status-badge__dot { background: #94a3b8; }
 
 /* Status badge as dropdown trigger */
@@ -359,7 +369,7 @@
 .admin-stat-card--active.admin-stat-card--new { border-color: #E85D4C; }
 .admin-stat-card--active.admin-stat-card--reviewed { border-color: #C9A227; }
 .admin-stat-card--active.admin-stat-card--confirmed { border-color: #22c55e; }
-.admin-stat-card--active.admin-stat-card--rejected { border-color: #9ca3af; }
+.admin-stat-card--active.admin-stat-card--declined { border-color: #9ca3af; }
 
 .admin-stat-card__label {
   font-size: 0.7rem;
@@ -381,7 +391,7 @@
 .admin-stat-card--new .admin-stat-card__value { color: #E85D4C; }
 .admin-stat-card--reviewed .admin-stat-card__value { color: #C9A227; }
 .admin-stat-card--confirmed .admin-stat-card__value { color: #22c55e; }
-.admin-stat-card--rejected .admin-stat-card__value { color: #9ca3af; }
+.admin-stat-card--declined .admin-stat-card__value { color: #9ca3af; }
 
 /* ---- Enquiry List ---- */
 .enquiry-filters {
@@ -3621,9 +3631,12 @@
 .dash-activity__dot--contract_sent { background: #3b82f6; }
 .dash-activity__dot--contacted { background: #3b82f6; }
 .dash-activity__dot--responded { background: #3b82f6; }
+.dash-activity__dot--negotiation { background: #f97316; }
 .dash-activity__dot--closed_won { background: #14b8a6; }
 .dash-activity__dot--closed_lost { background: #f43f5e; }
+.dash-activity__dot--completed_event { background: #059669; }
 .dash-activity__dot--paid_in_full { background: #059669; }
+.dash-activity__dot--declined { background: #94a3b8; }
 .dash-activity__dot--rejected { background: #94a3b8; }
 
 .dash-activity__line {
