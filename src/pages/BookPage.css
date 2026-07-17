@@ -2,6 +2,13 @@
    Book a Speaker — Gateway Page
    ================================ */
 
+.book-page,
+.book-page *,
+:has(.book-page),
+:has(.book-page) * {
+  cursor: none !important;
+}
+
 .book-page {
   min-height: calc(100vh - var(--header-height));
   display: flex;
@@ -204,6 +211,13 @@
    ================================ */
 
 @media (max-width: 768px) {
+  .book-page,
+  .book-page *,
+  :has(.book-page),
+  :has(.book-page) * {
+    cursor: inherit !important;
+  }
+
   .book-page {
     padding: var(--space-10) var(--space-4);
     justify-content: flex-start;

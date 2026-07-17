@@ -54,13 +54,25 @@
   padding: 0 var(--space-6);
 }
 .analyzing-overlay__title {
-  font-size: clamp(2.5rem, 8vw, 5.5rem);
-  font-weight: 600;
+  font-size: 6.5rem;
+  font-weight: 400;
   color: var(--text-black);
   letter-spacing: -0.03em;
   margin-bottom: var(--space-4);
   text-shadow: 0 2px 40px rgba(0, 0, 0, 0.45);
   z-index: 2;
+}
+
+@media (max-width: 768px) {
+  .analyzing-overlay__title {
+    font-size: 5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero__title {
+    font-size: 3.4rem;
+  }
 }
 
 /* ================================

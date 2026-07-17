@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { EASE } from '../constants/animation'
 import './BookPage.css'
+import Cursor from '../components/Cursor/Cursor'
+import useSmoothScroll from '../hooks/useSmoothScroll'
 
 const SCATTER = [
   { x: -6, y: -5 },
@@ -82,6 +84,8 @@ function SpeakerPreview({ speakers, isHovered }) {
 }
 
 function BookPage() {
+  useSmoothScroll();
+
   const navigate = useNavigate()
   const [speakers, setSpeakers] = useState([])
   const [browseHovered, setBrowseHovered] = useState(false)
@@ -98,69 +102,92 @@ function BookPage() {
   }, [])
 
   return (
-    <div className="book-page">
-      <motion.div
-        className="book-page__header"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: EASE }}
-      >
-        <h1 className="book-page__title">Book a Speaker</h1>
-        <p className="book-page__subtitle">Choose how you'd like to find the perfect speaker</p>
-      </motion.div>
+    <section className="section ai-demo-section" style={{
+      paddingTop: "0 !important"
+    }}>
+      <Cursor />
 
-      <div className="book-options">
-        {/* AI Search Card */}
-        <motion.div
-          className="book-card book-card--ai"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15, ease: EASE }}
-          whileHover={{ y: -6 }}
-          onClick={() => navigate('/search')}
-        >
-          <div className="book-card__visual">
-            <OrbAnimation />
-          </div>
-          <h2 className="book-card__title">AI-Powered Search</h2>
-          <p className="book-card__subtitle">
-            Describe your event and let our AI find the perfect match
-          </p>
-          <span className="book-card__cta">
-            Start Searching
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M1 7H13M13 7L7 1M13 7L7 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </span>
-        </motion.div>
-
-        {/* Browse Card */}
-        <motion.div
-          className="book-card book-card--browse"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3, ease: EASE }}
-          whileHover={{ y: -6 }}
-          onClick={() => navigate('/speakers')}
-          onHoverStart={() => setBrowseHovered(true)}
-          onHoverEnd={() => setBrowseHovered(false)}
-        >
-          <div className="book-card__visual">
-            <SpeakerPreview speakers={speakers} isHovered={browseHovered} />
-          </div>
-          <h2 className="book-card__title">Browse Speakers</h2>
-          <p className="book-card__subtitle">
-            Explore our full roster and discover the perfect fit
-          </p>
-          <span className="book-card__cta">
-            View All Speakers
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M1 7H13M13 7L7 1M13 7L7 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </span>
-        </motion.div>
+      <div className="section-left">
+        <motion.span
+          className="section-label"
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >How It Works</motion.span>
       </div>
-    </div>
+      <div className="container">
+        <div className="book-page" style={{
+          background: "unset"
+        }}>
+          <motion.div
+            className="book-page__header"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: EASE }}
+            style={{
+              textAlign: "left",
+              width: "100%"
+            }}
+          >
+            <h2 className="section-title book-page__title">Book a Speaker</h2>
+            <p className="section-subtitle book-page__subtitle">Choose how you'd like to find the perfect speaker</p>
+          </motion.div>
+
+          <div className="book-options">
+            {/* AI Search Card */}
+            <motion.div
+              className="book-card book-card--ai"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.15, ease: EASE }}
+              whileHover={{ y: -6 }}
+              onClick={() => navigate('/search')}
+            >
+              <div className="book-card__visual">
+                <OrbAnimation />
+              </div>
+              <h2 className="book-card__title">AI-Powered Search</h2>
+              <p className="book-card__subtitle">
+                Describe your event and let our AI find the perfect match
+              </p>
+              <span className="book-card__cta">
+                Start Searching
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M1 7H13M13 7L7 1M13 7L7 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </span>
+            </motion.div>
+
+            {/* Browse Card */}
+            <motion.div
+              className="book-card book-card--browse"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3, ease: EASE }}
+              whileHover={{ y: -6 }}
+              onClick={() => navigate('/speakers')}
+              onHoverStart={() => setBrowseHovered(true)}
+              onHoverEnd={() => setBrowseHovered(false)}
+            >
+              <div className="book-card__visual">
+                <SpeakerPreview speakers={speakers} isHovered={browseHovered} />
+              </div>
+              <h2 className="book-card__title">Browse Speakers</h2>
+              <p className="book-card__subtitle">
+                Explore our full roster and discover the perfect fit
+              </p>
+              <span className="book-card__cta">
+                View All Speakers
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M1 7H13M13 7L7 1M13 7L7 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </span>
+            </motion.div>
+          </div>
+        </div>
+      </div>
+    </section>
   )
 }
 
