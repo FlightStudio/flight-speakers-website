@@ -73,9 +73,9 @@ function isPrivateOrLoopback(ip) {
   return PRIVATE_IP_RE.some(re => re.test(ip))
 }
 
-// Downloads a video from a remote URL, enforcing SSRF protection and the
-// same 100 MB cap as direct uploads. Returns { buffer, mimeType }.
-export async function downloadVideoFromUrl(rawUrl) {
+// Downloads a remote file, enforcing SSRF protection and a size cap.
+// Returns { buffer, mimeType }.
+async function downloadFromUrl(rawUrl, extByMime, maxSize, label) {
   let parsed
   try {
     parsed = new URL(rawUrl)
@@ -97,6 +97,7 @@ export async function downloadVideoFromUrl(rawUrl) {
     }
   }
 
+  const maxMB = Math.round(maxSize / (1024 * 1024))
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), 30_000)
   let response
@@ -107,7 +108,7 @@ export async function downloadVideoFromUrl(rawUrl) {
       headers: { 'User-Agent': 'FlightSpeakers/1.0' },
     })
   } catch (err) {
-    throw new Error('Failed to fetch video: ' + err.message)
+    throw new Error(`Failed to fetch ${label.toLowerCase()}: ` + err.message)
   } finally {
     clearTimeout(timer)
   }
@@ -115,12 +116,12 @@ export async function downloadVideoFromUrl(rawUrl) {
   if (!response.ok) throw new Error(`Remote server returned ${response.status}`)
 
   const contentType = (response.headers.get('content-type') || '').split(';')[0].trim().toLowerCase()
-  if (!VIDEO_EXT_BY_MIME[contentType]) {
+  if (!extByMime[contentType]) {
     throw new Error(`Unsupported content type: ${contentType || 'unknown'}`)
   }
 
   const contentLength = Number(response.headers.get('content-length') || 0)
-  if (contentLength > MAX_VIDEO_SIZE) throw new Error('Video exceeds 100 MB limit')
+  if (contentLength > maxSize) throw new Error(`${label} exceeds ${maxMB} MB limit`)
 
   const chunks = []
   let totalSize = 0
@@ -129,14 +130,24 @@ export async function downloadVideoFromUrl(rawUrl) {
     const { done, value } = await reader.read()
     if (done) break
     totalSize += value.length
-    if (totalSize > MAX_VIDEO_SIZE) {
+    if (totalSize > maxSize) {
       await reader.cancel()
-      throw new Error('Video exceeds 100 MB limit')
+      throw new Error(`${label} exceeds ${maxMB} MB limit`)
     }
     chunks.push(Buffer.from(value))
   }
 
   return { buffer: Buffer.concat(chunks), mimeType: contentType }
+}
+
+// Downloads a video from a remote URL — same 100 MB cap as direct uploads.
+export async function downloadVideoFromUrl(rawUrl) {
+  return downloadFromUrl(rawUrl, VIDEO_EXT_BY_MIME, MAX_VIDEO_SIZE, 'Video')
+}
+
+// Downloads an image from a remote URL — same 5 MB cap as direct uploads.
+export async function downloadImageFromUrl(rawUrl) {
+  return downloadFromUrl(rawUrl, IMAGE_EXT_BY_MIME, MAX_IMAGE_SIZE, 'Image')
 }
 
 export async function uploadToGCS(file, gcsPath) {

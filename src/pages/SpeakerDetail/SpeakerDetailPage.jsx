@@ -413,8 +413,8 @@ function SpeakerDetailPage() {
                   }}
                 />
 
-                {/* <img src={speaker.photo} alt={speaker.name} className="speaker-hero__image" /> */}
-                <img src={temp} alt={speaker.name} className="speaker-hero__image" />
+                <img src={speaker.photo} alt={speaker.name} className="speaker-hero__image" />
+                {/* <img src={temp} alt={speaker.name} className="speaker-hero__image" /> */}
 
                 <div className="speaker-hero__bottom">
                   <div className="left">

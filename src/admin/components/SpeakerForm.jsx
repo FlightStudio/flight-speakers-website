@@ -52,7 +52,7 @@ function TagInput({ label, value, onChange }) {
   )
 }
 
-function DropZone({ label, accept, preview, emptyIcon, uploadingText, idleText, dragOverClass, onUpload, error }) {
+function DropZone({ label, accept, preview, emptyIcon, uploadingText, idleText, dragOverClass, onUpload, error, actions }) {
   const inputRef = useRef(null)
   const [dragOver, setDragOver] = useState(false)
 
@@ -80,6 +80,7 @@ function DropZone({ label, accept, preview, emptyIcon, uploadingText, idleText, 
           onChange={(e) => onUpload(e.target.files[0])}
         />
       </div>
+      {actions}
       {error && (
         <small className="spkr-form__help" style={{ color: '#ef4444' }}>{error}</small>
       )}
@@ -252,6 +253,34 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
 
   const photo = useFileUpload(speakerId, 'photo', 'photo', 'photo', set)
   const video = useFileUpload(speakerId, 'video', 'video', 'videoUrl', set)
+
+  // AI background removal — sends the current photo URL to the server, which
+  // runs it through OpenAI and returns a staged transparent PNG. The speaker
+  // record only changes when the form is saved.
+  const [removingBg, setRemovingBg] = useState(false)
+  const [removeBgError, setRemoveBgError] = useState(null)
+
+  const removeBackground = useCallback(async () => {
+    setRemovingBg(true)
+    setRemoveBgError(null)
+    try {
+      const res = await fetch('/api/admin/uploads/remove-background', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ photo: form.photo }),
+      })
+      const result = await res.json()
+      if (!res.ok || !result.success) {
+        throw new Error(result.message || 'Background removal failed')
+      }
+      set('photo', result.photo)
+    } catch (err) {
+      console.error('Background removal failed:', err)
+      setRemoveBgError(err.message || 'Background removal failed')
+    } finally {
+      setRemovingBg(false)
+    }
+  }, [form.photo, set])
   const videoLink = useVideoLinkUpload(speakerId, set)
   const ytProbe = useYouTubeProbe()
 
@@ -306,6 +335,33 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
           dragOverClass="spkr-form__dropzone--drag"
           onUpload={photo.upload}
           error={photo.error}
+          actions={form.photo && (
+            <div className="spkr-form__photo-tools">
+              <button
+                type="button"
+                className="spkr-form__nobg-btn"
+                onClick={removeBackground}
+                disabled={removingBg || photo.uploading}
+              >
+                {removingBg ? (
+                  <>
+                    <span className="spkr-form__nobg-spinner" />
+                    Removing background…
+                  </>
+                ) : (
+                  <>
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path d="M3 13L13 3M5.5 3H3v2.5M13 10.5V13h-2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    Remove background
+                  </>
+                )}
+              </button>
+              {removeBgError && (
+                <small className="spkr-form__help" style={{ color: '#ef4444' }}>{removeBgError}</small>
+              )}
+            </div>
+          )}
         />
 
         <div className="spkr-form__field spkr-form__field--full">

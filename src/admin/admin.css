@@ -3984,6 +3984,51 @@
   color: var(--color-text-muted, #999);
 }
 
+.spkr-form__photo-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.spkr-form__nobg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  background: #fff;
+  border: 1px solid var(--color-border, #e0e0de);
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: black;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.spkr-form__nobg-btn:hover:not(:disabled) {
+  border-color: var(--color-charcoal, #333);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.spkr-form__nobg-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.spkr-form__nobg-spinner {
+  width: 11px;
+  height: 11px;
+  border: 1.5px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spkr-nobg-spin 0.8s linear infinite;
+}
+
+@keyframes spkr-nobg-spin {
+  to { transform: rotate(360deg); }
+}
+
 .spkr-form__dropzone-img-preview {
   width: 64px;
   height: 64px;
