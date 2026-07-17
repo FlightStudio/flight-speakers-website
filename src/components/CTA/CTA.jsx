@@ -45,7 +45,10 @@ function CTA({ speakers }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              onClick={() => navigate('/search')}
+              onClick={() => {
+                document.getElementById('search')?.scrollIntoView();
+                navigate('/#search')
+              }}
             >
               <h3 className="cta-card__title">AI-Powered Search</h3>
               <p className="cta-card__subtitle">

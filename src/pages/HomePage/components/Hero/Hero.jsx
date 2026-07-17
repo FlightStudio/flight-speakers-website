@@ -43,7 +43,7 @@ function Hero() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0])
 
   return (
-    <section className="hero" ref={heroRef}>
+    <section id="search" className="hero" ref={heroRef}>
 
       <div className="hero__background">
         <img className="hero__spotlight top" src={spotlightRed} alt="hero-bg-top" />

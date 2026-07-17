@@ -91,7 +91,8 @@ function Header() {
                 whileTap={{ scale: 0.97 }}
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  navigate('/book');
+                  document.getElementById('search')?.scrollIntoView();
+                  navigate('/#search');
                 }}
               >
                 <svg width="18" height="18" viewBox="0 0 20.022 20.022" fill="none" aria-hidden="true">
@@ -202,7 +203,7 @@ function Header() {
                   className="btn btn-primary btn-lg w-full"
                   onClick={() => {
                     setMobileMenuOpen(false);
-                    navigate('/book');
+                    navigate('/#search');
                   }}
                 >
                   Book a Speaker

@@ -2,6 +2,13 @@
    Speakers Page — Sticky Selection Bar
    ================================ */
 
+.speakers-page,
+.speakers-page *,
+:has(.speakers-page),
+:has(.speakers-page) * {
+  cursor: none !important;
+}
+
 .speakers-page__sticky-bar {
   position: fixed;
   bottom: 0;
@@ -115,4 +122,13 @@
 
 [data-theme="dark"] .speakers-page__sticky-cta:hover {
   background: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .speakers-page,
+  .speakers-page *,
+  :has(.speakers-page),
+  :has(.speakers-page) * {
+    cursor: inherit !important;
+  }
 }

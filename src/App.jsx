@@ -10,7 +10,6 @@ import AdminApp from './admin/AdminApp'
 import SpeakerPortalPage from './pages/SpeakerPortalPage'
 import SpeakerAvailabilityPage from './pages/SpeakerAvailabilityPage'
 import SpeakersPage from './pages/SpeakersPage'
-import BookPage from './pages/BookPage'
 import NewsPage from './pages/NewsPage'
 import NewsArticlePage from './pages/NewsArticlePage'
 import SpeakerWaitlistPage from './pages/SpeakerWaitlistPage'
@@ -53,7 +52,6 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/book" element={<BookPage />} />
             <Route path="/speakers" element={<SpeakersPage />} />
             <Route path="/speakers/:id" element={<SpeakerDetailPage />} />
             <Route path="/search" element={<SearchResultsPage />} />
