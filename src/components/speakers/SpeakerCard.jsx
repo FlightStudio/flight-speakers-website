@@ -75,8 +75,8 @@ function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScor
         <p className="speaker-card__headline">{speaker.headline}</p>
 
         <motion.img
-          // src={speaker.photo}
-          src={temp}
+          src={speaker.photo}
+          // src={temp}
           alt={speaker.name}
           className="speaker-card__image"
           loading="lazy"

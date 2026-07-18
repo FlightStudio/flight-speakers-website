@@ -130,7 +130,7 @@ function SuccessScreen({ name, speaker, brief, selectedSpeakers = [], aiRecommen
               {generating ? 'Generating...' : 'Download PDF'}
             </button>
 
-            <button
+            {/* <button
               type="button"
               className="mstep-success__action"
               onClick={handleShareEmail}
@@ -140,7 +140,7 @@ function SuccessScreen({ name, speaker, brief, selectedSpeakers = [], aiRecommen
                 <path d="M1 4l6 4 6-4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
               </svg>
               Share via Email
-            </button>
+            </button> */}
           </>
         )}
       </motion.div>

@@ -152,10 +152,24 @@
     position: relative;
     width: 100%;
     height: 100%;
+    margin-bottom: 36px;
     object-fit: contain;
+    object-position: center bottom;
     z-index: 2;
     flex: 1;
     min-height: 0;
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      black 0,
+      black calc(100% - 50px),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      black 0,
+      black calc(100% - 50px),
+      transparent 100%
+    );
   }
 
   .speaker-detail-page__spotlight {

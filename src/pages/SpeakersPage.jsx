@@ -6,8 +6,12 @@ import SpeakerGrid from '../components/speakers/SpeakerGrid'
 import { EASE } from '../constants/animation'
 import { sessionShuffle } from '../utils/shuffle'
 import './SpeakersPage.css'
+import Cursor from '../components/Cursor/Cursor'
+import useSmoothScroll from '../hooks/useSmoothScroll'
 
 export default function SpeakersPage() {
+  useSmoothScroll()
+
   const [speakers, setSpeakers] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedSpeakerIds, setSelectedSpeakerIds] = useState(() => {
@@ -50,19 +54,33 @@ export default function SpeakersPage() {
 
   return (
     <>
-      <section className="section" style={{ paddingTop: 'calc(var(--header-height) + var(--space-10))' }}>
+      <Cursor />
+
+      <section className="section speakers-page" style={{ paddingTop: 'calc(var(--header-height) + var(--space-10))' }}>
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: EASE }}
           >
-            <h1 style={{ fontSize: 'var(--text-4xl)', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--color-charcoal)', marginBottom: '0.5rem' }}>
-              Our Speakers
-            </h1>
-            <p style={{ fontSize: 'var(--text-lg)', color: 'var(--color-gray-600)', maxWidth: 560, marginBottom: 'var(--space-10)' }}>
-              Browse our full roster of world-class speakers across every topic and industry.
-            </p>
+            <motion.h1
+              className='section-title'
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >Our Speakers</motion.h1>
+
+            <motion.p
+              className='section-subtitle'
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              style={{
+                marginBottom: "36px"
+              }}
+            >Browse our full roster of world-class speakers across every topic and industry.</motion.p>
           </motion.div>
 
           {loading ? (

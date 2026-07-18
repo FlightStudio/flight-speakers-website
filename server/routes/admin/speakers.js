@@ -16,6 +16,7 @@ import {
   videoUpload,
   uploadToGCS,
   downloadVideoFromUrl,
+  downloadImageFromUrl,
   IMAGE_EXT_BY_MIME,
   VIDEO_EXT_BY_MIME,
   SPEAKER_ID_RE,
@@ -61,6 +62,49 @@ router.post('/uploads/photo', requireAdmin, imageUpload, async (req, res) => {
   } catch (err) {
     console.error('Staged photo upload error:', err)
     res.status(500).json({ success: false, message: 'Upload failed' })
+  }
+})
+
+// POST /api/admin/uploads/remove-background — strips the background from a
+// speaker photo locally with @imgly/background-removal-node (open-source
+// ONNX segmentation). Unlike generative models, it computes an alpha mask
+// and keeps the subject's original pixels untouched. Takes the photo's URL,
+// returns a staged GCS URL with the transparent PNG — the speaker record
+// only changes when the form is saved, so the original photo is untouched
+// until then.
+router.post('/uploads/remove-background', requireAdmin, async (req, res) => {
+  const { photo } = req.body || {}
+  if (!photo || typeof photo !== 'string') {
+    return res.status(400).json({ success: false, message: 'No photo URL provided' })
+  }
+
+  // Lazy import — the package bundles ~80 MB of ONNX models, so it loads on
+  // first use rather than at server boot.
+  let removeBackground
+  try {
+    ({ removeBackground } = await import('@imgly/background-removal-node'))
+  } catch (err) {
+    console.error('Background removal unavailable:', err.message)
+    return res.status(503).json({ success: false, message: '@imgly/background-removal-node is not installed — run npm install' })
+  }
+
+  try {
+    const { buffer, mimeType } = await downloadImageFromUrl(photo)
+    if (!/^image\/(jpeg|png|webp)$/.test(mimeType)) {
+      return res.status(400).json({ success: false, message: 'Only JPEG, PNG or WebP photos can be processed' })
+    }
+
+    const resultBlob = await removeBackground(new Blob([buffer], { type: mimeType }), {
+      output: { format: 'image/png' },
+    })
+    const outBuffer = Buffer.from(await resultBlob.arrayBuffer())
+
+    const gcsPath = `speakers/staged/${crypto.randomBytes(8).toString('hex')}-nobg.png`
+    const url = await uploadToGCS({ buffer: outBuffer, mimetype: 'image/png' }, gcsPath)
+    res.json({ success: true, photo: url })
+  } catch (err) {
+    console.error('Remove background error:', err.message)
+    res.status(500).json({ success: false, message: err.message || 'Background removal failed' })
   }
 })
 

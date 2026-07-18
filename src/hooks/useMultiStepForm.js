@@ -89,8 +89,8 @@ export const STEPS = [
     field: 'eventName',
     type: 'text',
     placeholder: 'e.g. Annual Leadership Summit 2026',
-    required: false,
-    skippable: true,
+    required: true,
+    skippable: false,
   },
   {
     id: 'eventDate',
@@ -195,6 +195,8 @@ function validateField(field, value, formData) {
       return ''
     case 'eventType':
       return value.trim() ? '' : 'Please select an event type'
+    case 'eventName':
+      return value.trim() ? '' : 'Please enter the event name'
     case 'eventDate':
       return value.trim() ? '' : 'Please select an event date'
     case 'eventLocation':

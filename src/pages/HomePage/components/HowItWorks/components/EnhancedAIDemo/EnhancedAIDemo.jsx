@@ -334,7 +334,7 @@ function EnhancedAIDemo({ speakers: allSpeakers = [] }) {
       <motion.button
         className="hero-search__button book-a-speaker__btn our-speakers__button"
         onClick={() => {
-          navigate('/search');
+          document.getElementById('search')?.scrollIntoView();
         }}
 
         initial={{ opacity: 0 }}

@@ -231,13 +231,13 @@ export default function BriefActions({ speaker, reasoning, matchScore, otherSpea
                 </svg>
                 Download PDF
               </button>
-              <button className="brief-sticky__option" onClick={handleShareEmail} disabled={generating}>
+              {/* <button className="brief-sticky__option" onClick={handleShareEmail} disabled={generating}>
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <rect x="1" y="3" width="12" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.2"/>
                   <path d="M1 4l6 4 6-4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
                 </svg>
                 Share via Email
-              </button>
+              </button> */}
               {showSubmitBrief && (
                 <button className="brief-sticky__option brief-sticky__option--primary" onClick={handleSubmitBrief}>
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -270,13 +270,13 @@ export default function BriefActions({ speaker, reasoning, matchScore, otherSpea
         </svg>
         {generating ? 'Generating...' : 'Download Brief'}
       </button>
-      <button className={`${btnClass} brief-btn--secondary`} onClick={handleShareEmail} disabled={generating}>
+      {/* <button className={`${btnClass} brief-btn--secondary`} onClick={handleShareEmail} disabled={generating}>
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
           <rect x="1" y="3" width="12" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.2"/>
           <path d="M1 4l6 4 6-4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
         </svg>
         Share via Email
-      </button>
+      </button> */}
     </div>
   )
 }

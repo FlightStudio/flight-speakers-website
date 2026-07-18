@@ -178,7 +178,7 @@ function StepReview({ formData, handleChange, goToStep, primarySpeaker = null, p
         </motion.div>
       )}
 
-      {recommendedSpeakers.length === 0 && (recsLoading || formData.brief) && (
+      {/* {recommendedSpeakers.length === 0 && (recsLoading || formData.brief) && (
         <motion.div
           className="mstep-review__recs"
           initial={{ opacity: 0, y: 12 }}
@@ -202,7 +202,7 @@ function StepReview({ formData, handleChange, goToStep, primarySpeaker = null, p
             ))}
           </div>
         </motion.div>
-      )}
+      )} */}
 
       {recommendedSpeakers.length > 0 && (
         <motion.div
