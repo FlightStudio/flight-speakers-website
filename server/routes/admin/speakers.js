@@ -25,6 +25,8 @@ import { isYouTubeUrl, probeYouTubeFormats, downloadYouTubeVideo } from './_yout
 
 const router = express.Router()
 
+const REMOVE_BG_ENDPOINT = 'https://api.remove.bg/v1.0/removebg'
+
 // ── Uploads ────────────────────────────────────────────────────────────────
 
 router.post('/speakers/:id/photo', requireAdmin, imageUpload, async (req, res) => {
@@ -65,27 +67,20 @@ router.post('/uploads/photo', requireAdmin, imageUpload, async (req, res) => {
   }
 })
 
-// POST /api/admin/uploads/remove-background — strips the background from a
-// speaker photo locally with @imgly/background-removal-node (open-source
-// ONNX segmentation). Unlike generative models, it computes an alpha mask
-// and keeps the subject's original pixels untouched. Takes the photo's URL,
-// returns a staged GCS URL with the transparent PNG — the speaker record
-// only changes when the form is saved, so the original photo is untouched
-// until then.
+// POST /api/admin/uploads/remove-background — cuts the subject out of a
+// speaker photo via the remove.bg API. Unlike the generative approach this
+// replaces, remove.bg masks the original pixels, so the subject is untouched
+// and the output keeps the source resolution (capped by the plan's megapixel
+// limit). Takes the photo's URL, returns a staged GCS URL with the
+// transparent PNG — the speaker record only changes when the form is saved,
+// so the original photo is untouched until then. Requires REMOVE_BG_API_KEY.
 router.post('/uploads/remove-background', requireAdmin, async (req, res) => {
   const { photo } = req.body || {}
   if (!photo || typeof photo !== 'string') {
     return res.status(400).json({ success: false, message: 'No photo URL provided' })
   }
-
-  // Lazy import — the package bundles ~80 MB of ONNX models, so it loads on
-  // first use rather than at server boot.
-  let removeBackground
-  try {
-    ({ removeBackground } = await import('@imgly/background-removal-node'))
-  } catch (err) {
-    console.error('Background removal unavailable:', err.message)
-    return res.status(503).json({ success: false, message: '@imgly/background-removal-node is not installed — run npm install' })
+  if (!process.env.REMOVE_BG_API_KEY) {
+    return res.status(503).json({ success: false, message: 'REMOVE_BG_API_KEY is not configured' })
   }
 
   try {
@@ -94,10 +89,34 @@ router.post('/uploads/remove-background', requireAdmin, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Only JPEG, PNG or WebP photos can be processed' })
     }
 
-    const resultBlob = await removeBackground(new Blob([buffer], { type: mimeType }), {
-      output: { format: 'image/png' },
+    const form = new FormData()
+    form.append(
+      'image_file',
+      new Blob([buffer], { type: mimeType }),
+      `photo.${mimeType.split('/')[1]}`
+    )
+    form.append('size', 'auto')
+    form.append('format', 'png')
+
+    const response = await fetch(REMOVE_BG_ENDPOINT, {
+      method: 'POST',
+      headers: { 'X-Api-Key': process.env.REMOVE_BG_API_KEY },
+      body: form,
     })
-    const outBuffer = Buffer.from(await resultBlob.arrayBuffer())
+
+    if (!response.ok) {
+      // remove.bg returns errors as JSON: { errors: [{ title, detail }] }
+      let message = `remove.bg request failed (HTTP ${response.status})`
+      try {
+        const { errors } = await response.json()
+        if (errors?.[0]?.title) message = `remove.bg: ${errors[0].title}`
+      } catch {
+        // non-JSON error body — keep the generic message
+      }
+      throw new Error(message)
+    }
+
+    const outBuffer = Buffer.from(await response.arrayBuffer())
 
     const gcsPath = `speakers/staged/${crypto.randomBytes(8).toString('hex')}-nobg.png`
     const url = await uploadToGCS({ buffer: outBuffer, mimetype: 'image/png' }, gcsPath)

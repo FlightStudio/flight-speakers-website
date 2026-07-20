@@ -55,7 +55,7 @@
 }
 .analyzing-overlay__title {
   font-size: 6.5rem;
-  font-weight: 400;
+  font-weight: 350;
   color: var(--text-black);
   letter-spacing: -0.03em;
   margin-bottom: var(--space-4);
