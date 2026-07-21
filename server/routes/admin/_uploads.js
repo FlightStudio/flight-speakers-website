@@ -156,5 +156,11 @@ export async function uploadToGCS(file, gcsPath) {
     contentType: file.mimetype,
     metadata: { cacheControl: CACHE_ONE_YEAR },
   })
-  return `https://storage.googleapis.com/${GCS_BUCKET}/${gcsPath}`
+  // Cache-bust: objects are cached for a year, but the speaker photo/video
+  // endpoints write to deterministic paths (e.g. speakers/<id>.jpg) and
+  // overwrite in place on re-upload. Without a version marker the URL is
+  // unchanged, so browsers and the GCS edge keep serving the year-old cached
+  // copy and the admin sees the previous image. ?v=<timestamp> makes every
+  // write a distinct URL — new bytes are fetched, old versions stay cacheable.
+  return `https://storage.googleapis.com/${GCS_BUCKET}/${gcsPath}?v=${Date.now()}`
 }

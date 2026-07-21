@@ -6,12 +6,12 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { EASE } from '../../../../constants/animation'
 import { analyzingMessages, analyzingMessagesDelay, ORB_LAYERS } from './config'
 
-import whiteSpotlight from '../../../../assets/orb/white-spotlight.png'
+import whiteSpotlight from '../../../../assets/orb/white-spotlight2.png'
 
 const randomN = (arr, n) => arr.sort(() => Math.random() - 0.5).slice(0, n);
 
 function AnalyzingOverlay({ query }) {
-  const orbs = useMemo(() => randomN(ORB_LAYERS, 3), []);
+  const orbs = useMemo(() => randomN(ORB_LAYERS, 2), []);
 
   const [messageIndex, setMessageIndex] = useState(0)
   useEffect(() => {
@@ -46,7 +46,6 @@ function AnalyzingOverlay({ query }) {
         <motion.div
           className="analyzing-orb"
           aria-hidden="true"
-          style={{ x: "-50%", y: "-50%" }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1, scale: [1, 1.5, 1] }}
           transition={{
