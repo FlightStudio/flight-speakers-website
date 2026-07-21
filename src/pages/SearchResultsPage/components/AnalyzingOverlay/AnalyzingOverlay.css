@@ -14,14 +14,31 @@
 
 /* Glowing orb made of stacked PNG layers */
 .analyzing-orb {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100vmin;
-  height: 100vmin;
+  position: relative;
+  width: 450px;
+  max-width: 80vw;
+  height: 450px;
+  max-height: 80vw;
+  margin: 0 auto;
   z-index: 0;
   pointer-events: none;
+  transform-origin: 50%;
 }
+
+.analyzing-orb::after {
+  content: "";
+  position: absolute;
+  width: 45%;
+  height: 45%;
+  background-color: #130e0e;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  border-radius: 100%;
+}
+
 .analyzing-orb__layer {
   position: absolute;
   inset: 0;
@@ -54,24 +71,27 @@
   padding: 0 var(--space-6);
 }
 .analyzing-overlay__title {
-  font-size: 6.5rem;
-  font-weight: 400;
+  font-size: 3.5rem;
+  font-weight: 350;
   color: var(--text-black);
   letter-spacing: -0.03em;
   margin-bottom: var(--space-4);
   text-shadow: 0 2px 40px rgba(0, 0, 0, 0.45);
   z-index: 2;
+  position: relative;
+  top: -25px;
 }
 
 @media (max-width: 768px) {
   .analyzing-overlay__title {
-    font-size: 5rem;
+    font-size: 3rem;
+    top: 0;
   }
 }
 
 @media (max-width: 640px) {
   .hero__title {
-    font-size: 3.4rem;
+    font-size: 2.5rem;
   }
 }
 

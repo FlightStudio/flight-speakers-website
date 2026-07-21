@@ -177,9 +177,15 @@ function useYouTubeProbe() {
 function useFileUpload(speakerId, endpoint, fieldName, formFieldKey, setFormField) {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState(null)
+  // Tracks the most recent upload so out-of-order responses can't win. If a
+  // user picks a second file before the first finishes, both POSTs race and
+  // whichever resolves last would otherwise set the field — showing/saving the
+  // wrong image. Only the latest request is allowed to touch state.
+  const latestRequestId = useRef(0)
 
   const upload = useCallback(async (file) => {
     if (!file) return
+    const requestId = ++latestRequestId.current
     // Existing speakers write directly; new speakers use staged uploads (no DB
     // write until draft approval). Uses fetch so installAdminFetch injects CSRF.
     const url = speakerId
@@ -192,15 +198,17 @@ function useFileUpload(speakerId, endpoint, fieldName, formFieldKey, setFormFiel
       body.append(fieldName, file)
       const res = await fetch(url, { method: 'POST', body })
       const result = await res.json()
+      if (requestId !== latestRequestId.current) return
       if (!res.ok || !result.success) {
         throw new Error(result.message || 'Upload failed')
       }
       setFormField(formFieldKey, result[formFieldKey] || result.photo || result.videoUrl)
     } catch (err) {
+      if (requestId !== latestRequestId.current) return
       console.error(`${endpoint} upload failed:`, err)
       setError(err.message || 'Upload failed')
     } finally {
-      setUploading(false)
+      if (requestId === latestRequestId.current) setUploading(false)
     }
   }, [speakerId, endpoint, fieldName, formFieldKey, setFormField])
 
