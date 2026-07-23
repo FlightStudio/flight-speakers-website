@@ -12,11 +12,12 @@ import pool from '../db/connection.js'
 
 const router = express.Router()
 
-// SECURITY/UX INVARIANT: boostNotes is admin-only context for AI search ranking.
-// Never expose to public clients.
+// SECURITY/UX INVARIANT: boostNotes is admin-only context for AI search ranking,
+// and `hidden` is an internal moderation flag. Never expose either to public
+// clients.
 function stripInternalFields(speaker) {
   if (!speaker) return speaker
-  const { boostNotes, ...publicFields } = speaker
+  const { boostNotes, hidden, ...publicFields } = speaker
   return publicFields
 }
 
@@ -76,7 +77,7 @@ router.get('/:id', async (req, res, next) => {
   try {
     const speaker = await getSpeakerById(req.params.id)
 
-    if (!speaker) {
+    if (!speaker || speaker.hidden) {
       return res.status(404).json({
         success: false,
         message: 'Speaker not found',

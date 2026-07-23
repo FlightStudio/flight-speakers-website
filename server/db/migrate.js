@@ -27,6 +27,10 @@ async function applyMigrations() {
     ALTER TABLE speakers ADD COLUMN IF NOT EXISTS boost_notes TEXT;
   `)
 
+  await pool.query(`
+    ALTER TABLE speakers ADD COLUMN IF NOT EXISTS hidden BOOLEAN NOT NULL DEFAULT false;
+  `)
+
   // Add hero_media_type. Backfill: speakers that already have a videoUrl are
   // most likely showing the video on their hero today (legacy auto behaviour),
   // so flip them to 'video' on first run. Idempotent via the IS NULL guard.

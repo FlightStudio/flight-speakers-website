@@ -230,6 +230,7 @@ function SpeakerDetailPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const brief = searchParams.get('brief') || ''
+  const spotlightColor = searchParams.get('color') || ''
 
   const enquiryPath = `/enquiry/${id}${brief ? `?brief=${encodeURIComponent(brief)}` : ''}`
 
@@ -408,6 +409,7 @@ function SpeakerDetailPage() {
                   alt="spotlight"
                   className="speaker-detail-page__spotlight"
                   style={{
+                    ...(spotlightColor ? { backgroundColor: spotlightColor } : {}),
                     WebkitMaskImage: `url(${spotlight})`,
                     maskImage: `url(${spotlight})`,
                   }}
@@ -419,7 +421,10 @@ function SpeakerDetailPage() {
                 <div className="speaker-hero__bottom">
                   <div className="left">
                     <h1 className="speaker-hero__title">{speaker.name}</h1>
-                    <span className="speaker-hero__description">{speaker.headline}</span>
+                    <span
+                      className="speaker-hero__description"
+                      style={spotlightColor ? { color: spotlightColor } : undefined}
+                    >{speaker.headline}</span>
                   </div>
                   <div className="right">
                     <motion.button

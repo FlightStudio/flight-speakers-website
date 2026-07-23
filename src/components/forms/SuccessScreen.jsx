@@ -100,7 +100,7 @@ function SuccessScreen({ name, speaker, brief, selectedSpeakers = [], aiRecommen
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.8, ease: EASE }}
       >
-        We've received your enquiry and will be in touch within 24 hours with availability and recommendations.
+        We've received your enquiry, and someone from our team will be in touch within 24 hours to explore your brief. 
       </motion.p>
 
       <motion.div

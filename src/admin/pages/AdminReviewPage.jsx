@@ -162,6 +162,7 @@ function DraftDetailModal({ draft, onApprove, onEdit, onReject, onClose, loading
             <DetailField label="Speaking Format" value={d.speakingFormat} />
             <DetailField label="Video URL" value={d.videoUrl} />
             {d.feeMin != null && <DetailField label="Fee Min" value={`$${Number(d.feeMin).toLocaleString()}`} />}
+            {d.hidden != null && <DetailField label="Site Visibility" value={d.hidden ? 'Hidden from site' : 'Visible on site'} />}
           </div>
 
           {(d.gender || d.ethnicity || d.nationality || d.location) && (

@@ -1,0 +1,46 @@
+.terms-and-conditions-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 96px 24px 96px;
+  line-height: 1.7;
+  font-size: 16px;
+
+  h1 {
+    font-size: 40px;
+    margin: 0 0 48px;
+    line-height: 1.1;
+  }
+
+  h4 {
+    font-size: 24px;
+    margin: 48px 0 16px;
+  }
+
+  h5 {
+    font-size: 19px;
+    margin: 32px 0 12px;
+  }
+  
+  h6 {
+    font-size: 16px;
+    margin: 24px 0 8px;
+  }
+
+  p {
+    margin: 0 0 16px;
+  }
+
+  ul {
+    margin: 0 0 16px;
+    padding-left: 24px;
+  }
+  
+  li {
+    margin-bottom: 8px;
+  }
+
+  a {
+    color: #2563eb;
+    word-break: break-word;
+  }
+}

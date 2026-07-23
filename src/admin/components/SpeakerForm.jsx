@@ -235,6 +235,7 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
       socialProfiles: { instagram: '', x: '', linkedin: '', youtube: '', tiktok: '' },
       boostNotes: '',
       heroMediaType: 'video',
+      hidden: false,
     }
     if (!initialData) return defaults
     return {
@@ -243,6 +244,7 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
       feeMin: initialData.feeMin ?? '',
       boostNotes: initialData.boostNotes ?? '',
       heroMediaType: initialData.heroMediaType ?? (initialData.videoUrl ? 'video' : 'image'),
+      hidden: initialData.hidden ?? false,
     }
   })
 
@@ -309,15 +311,18 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
 
   function handleSubmit(e) {
     e.preventDefault()
-    onSubmit({
-      ...form,
+    const { hidden, ...rest } = form
+    const payload = {
+      ...rest,
       feeMin: form.feeMin === '' ? null : parseInt(form.feeMin, 10),
       gender: form.gender || null,
       ethnicity: form.ethnicity || null,
       nationality: form.nationality || null,
       location: form.location || null,
       heroMediaType: form.heroMediaType,
-    })
+    }
+    if (!portalMode) payload.hidden = !!hidden
+    onSubmit(payload)
   }
 
   return (
@@ -579,6 +584,26 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
       </div>
 
       <div className="spkr-form__divider" aria-hidden="true" />
+
+      {!portalMode && (
+        <div className="spkr-form__field spkr-form__field--internal">
+          <label className="spkr-form__checkbox">
+            <input
+              type="checkbox"
+              className="spkr-form__checkbox-input"
+              checked={!!form.hidden}
+              onChange={e => set('hidden', e.target.checked)}
+            />
+            <span className="spkr-form__checkbox-text">
+              <span className="spkr-form__checkbox-title">Hide from site temporarily</span>
+              <small className="spkr-form__help">
+                Removes this speaker from the public listing, profile page, search and
+                recommendations without deleting them. Uncheck to bring them back.
+              </small>
+            </span>
+          </label>
+        </div>
+      )}
 
       <div className="spkr-form__field spkr-form__field--internal">
         <label className="spkr-form__label spkr-form__label--internal" htmlFor="boostNotes">

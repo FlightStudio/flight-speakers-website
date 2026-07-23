@@ -47,6 +47,11 @@ describe('speakerCreateSchema', () => {
     expect(speakerCreateSchema.safeParse({ ...validCreate, videoUrl: 'https://x.com/v.mp4' }).success).toBe(true)
     expect(speakerCreateSchema.safeParse({ ...validCreate, videoUrl: 'not-a-url' }).success).toBe(false)
   })
+
+  it('accepts a boolean hidden flag but rejects non-booleans', () => {
+    expect(speakerCreateSchema.safeParse({ ...validCreate, hidden: true }).success).toBe(true)
+    expect(speakerCreateSchema.safeParse({ ...validCreate, hidden: 'yes' }).success).toBe(false)
+  })
 })
 
 describe('speakerPatchSchema', () => {
@@ -56,6 +61,11 @@ describe('speakerPatchSchema', () => {
 
   it('accepts a single-field update', () => {
     expect(speakerPatchSchema.safeParse({ headline: 'New headline' }).success).toBe(true)
+  })
+
+  it('accepts a hidden-only update', () => {
+    expect(speakerPatchSchema.safeParse({ hidden: true }).success).toBe(true)
+    expect(speakerPatchSchema.safeParse({ hidden: false }).success).toBe(true)
   })
 
   it('strips unknown fields silently', () => {
@@ -88,6 +98,16 @@ describe('portalDraftSchema', () => {
     const result = portalDraftSchema.safeParse({
       name: 'Self',
       headline: 'My headline',
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects hidden (speakers cannot hide/unhide themselves)', () => {
+    const result = portalDraftSchema.safeParse({
+      name: 'Self',
+      headline: 'My headline',
+      bio: 'My bio',
+      hidden: true,
     })
     expect(result.success).toBe(false)
   })

@@ -12,7 +12,7 @@ const spotlightColors = [
   "#4B96FF",
   "#D24BFF",
   "#FF234B",
-  "#FFCD37"
+  "#28c369ff"
 ]
 
 function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScore, searchBrief = '', selectable = false, isSelected = false, onToggleSelect, index }) {
@@ -21,6 +21,13 @@ function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScor
   const cardRef = useRef(null)
   const prefetchedRef = useRef(false)
   const topicsToShow = speaker.topics.slice(0, 2)
+  const spotlightColor = spotlightColors[index % spotlightColors.length]
+
+  const detailQuery = [
+    searchBrief ? `brief=${encodeURIComponent(searchBrief)}` : null,
+    spotlightColor ? `color=${encodeURIComponent(spotlightColor)}` : null,
+  ].filter(Boolean).join('&')
+  const detailTo = `/speakers/${speaker.id}${detailQuery ? `?${detailQuery}` : ''}`
 
   const handleMouseMove = useCallback((e) => {
     if (!cardRef.current) return
@@ -39,7 +46,7 @@ function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScor
     >
       <Link
         ref={cardRef}
-        to={`/speakers/${speaker.id}${searchBrief ? `?brief=${encodeURIComponent(searchBrief)}` : ''}`}
+        to={detailTo}
         className={`speaker-card${isSelected ? ' speaker-card--selected' : ''}`}
         onMouseEnter={() => {
           setIsHovered(true)
@@ -56,7 +63,7 @@ function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScor
           alt="spotlight"
           className="speaker-card__spotlight"
           style={{
-            backgroundColor: spotlightColors[index % spotlightColors.length],
+            backgroundColor: spotlightColor,
             WebkitMaskImage: `url(${spotlight})`,
             maskImage: `url(${spotlight})`,
           }}
@@ -133,7 +140,6 @@ function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScor
 
         {showReasoning && reasoning && (
           <div className="speaker-card__reasoning-section">
-            <span className="speaker-card__reasoning-label">Custom Why</span>
             <p className="speaker-card__reasoning">{reasoning}</p>
           </div>
         )}

@@ -3161,11 +3161,39 @@
   transform: translateY(-2px);
 }
 
+.speaker-card-admin__photo-wrap {
+  position: relative;
+  width: 100%;
+}
+
 .speaker-card-admin__photo {
   width: 100%;
   aspect-ratio: 1/1;
   object-fit: cover;
   background: #f0f0ee;
+  display: block;
+}
+
+.speaker-card-admin--hidden .speaker-card-admin__photo {
+  opacity: 0.5;
+  filter: grayscale(0.6);
+}
+
+.speaker-card-admin__hidden-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.22rem 0.5rem;
+  border-radius: 9999px;
+  background: rgba(17, 17, 17, 0.82);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  backdrop-filter: blur(2px);
 }
 
 .speaker-card-admin__body {
@@ -5742,6 +5770,36 @@
   margin-top: 0.4rem;
   color: #6b7280;
   font-size: 0.75rem;
+}
+
+.spkr-form__checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  cursor: pointer;
+}
+
+.spkr-form__checkbox-input {
+  width: 16px;
+  height: 16px;
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+  accent-color: var(--color-accent, #6366f1);
+  cursor: pointer;
+}
+
+.spkr-form__checkbox-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.spkr-form__checkbox-title {
+  font-weight: 500;
+  color: black;
+}
+
+.spkr-form__checkbox .spkr-form__help {
+  margin-top: 0.2rem;
 }
 
 .spkr-form__hero-toggle {
