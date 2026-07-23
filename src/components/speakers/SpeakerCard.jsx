@@ -140,7 +140,6 @@ function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScor
 
         {showReasoning && reasoning && (
           <div className="speaker-card__reasoning-section">
-            <span className="speaker-card__reasoning-label">Custom Why</span>
             <p className="speaker-card__reasoning">{reasoning}</p>
           </div>
         )}
