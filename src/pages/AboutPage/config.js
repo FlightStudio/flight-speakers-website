@@ -15,11 +15,11 @@ const COMPARE_ROWS = [
     flight: 'Curated, not commoditised. We represent talent we actively work with — not a directory of 5,000 names.',
     traditional: 'Wide catalogues, thin relationships. Most bureaus have never met half their roster.',
   },
-  {
-    label: 'Content & creative',
-    flight: 'In-house production from the team behind The Diary Of A CEO. Sizzle reels, briefing decks, custom content built around your event.',
-    traditional: 'A speaker headshot and a paragraph bio.',
-  },
+  // {
+  //   label: 'Content & creative',
+  //   flight: 'In-house production from the team behind The Diary Of A CEO. Sizzle reels, briefing decks, custom content built around your event.',
+  //   traditional: 'A speaker headshot and a paragraph bio.',
+  // },
   {
     label: 'Booking experience',
     flight: 'One point of contact, end-to-end. From first enquiry through to post-event wrap.',

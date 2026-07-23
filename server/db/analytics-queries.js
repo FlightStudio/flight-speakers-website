@@ -26,7 +26,7 @@ export async function getSpeakerAnalytics(period = 'all') {
 
   const { rows } = await pool.query(`
     SELECT s.id, s.name, s.photo, s.headline,
-      s.fee_min,
+      s.fee_min, s.hidden,
       COALESCE(v.view_count, 0) AS views,
       COALESCE(e.enquiry_count, 0) AS enquiries,
       COALESCE(r.rec_count, 0) AS recommendations,
@@ -73,6 +73,7 @@ export async function getSpeakerAnalytics(period = 'all') {
     name: r.name,
     photo: r.photo,
     headline: r.headline,
+    hidden: r.hidden,
     feeMin: r.fee_min != null ? parseInt(r.fee_min, 10) : null,
     views: parseInt(r.views, 10),
     enquiries: parseInt(r.enquiries, 10),

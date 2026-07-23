@@ -43,12 +43,14 @@ const baseSpeakerFields = {
 export const speakerCreateSchema = z.object({
   ...baseSpeakerFields,
   feeMin: z.number().int().nonnegative().max(10_000_000).optional().nullable(),
+  hidden: z.boolean().optional(),
 })
 
 // PATCH: every field optional, including the four required-on-create ones
 export const speakerPatchSchema = z.object({
   ...baseSpeakerFields,
   feeMin: z.number().int().nonnegative().max(10_000_000).optional().nullable(),
+  hidden: z.boolean().optional(),
 }).partial()
 
 // Portal: speakers update their own profile but cannot set their fee.
@@ -56,8 +58,11 @@ export const speakerPatchSchema = z.object({
 // than silently stripping it (defence against a malicious portal client).
 // Photo accepts an empty string (speaker may submit before uploading, or upload
 // separately via the dropzone — the draft reviewer can check before approving).
+// `hidden` is an admin-only visibility control — a speaker must not be able to
+// hide or unhide themselves, so reject it here the same way we reject feeMin.
 export const portalDraftSchema = z.object({
   ...baseSpeakerFields,
   photo: z.union([z.string().url().max(1000), z.literal('')]).optional().nullable(),
   feeMin: z.never().optional(),
+  hidden: z.never().optional(),
 }).partial().required({ name: true, headline: true, bio: true })
