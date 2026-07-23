@@ -2,6 +2,7 @@ import { useState, useRef, useImperativeHandle, forwardRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import './AISearchBar.css'
+import star from '../../assets/star.png'
 
 const AISearchBar = forwardRef(function AISearchBar({ variant = 'default', initialQuery = '', onSearch, hideSubmit = false, showEditHint = false }, ref) {
   const [query, setQuery] = useState(initialQuery)
@@ -49,14 +50,11 @@ const AISearchBar = forwardRef(function AISearchBar({ variant = 'default', initi
             <motion.button
               type="submit"
               className="ai-search__button"
-              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               disabled={!query.trim()}
             >
-              Find Speakers
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M2.5 7H11.5M11.5 7L7 2.5M11.5 7L7 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              <img src={star} alt="" />
+              <span>Find Speakers</span>
             </motion.button>
           )}
           {showEditHint && (

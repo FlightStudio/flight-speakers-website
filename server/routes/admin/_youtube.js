@@ -1,9 +1,3 @@
-// YouTube download helpers for admin sizzle-reel uploads — wraps the yt-dlp
-// binary (installed via the Dockerfile; `brew install yt-dlp ffmpeg` for local
-// dev). Used by speakers.js alongside the direct-link path in _uploads.js.
-//
-// All binary calls use execFile with an arg array (never a shell string) and a
-// trailing `--`, so a pasted URL or height can't inject options or commands.
 import { execFile } from 'child_process'
 import { promisify } from 'util'
 import fs from 'fs/promises'
@@ -63,6 +57,33 @@ export function isYouTubeUrl(rawUrl) {
   return YOUTUBE_HOST_RE.some(re => re.test(parsed.hostname))
 }
 
+// Builds the shared anti-blocking flags. Needs a writable dir for the cookies
+// copy (yt-dlp rewrites the file; secret mounts are read-only).
+async function buildAntiBlockArgs(tmpDir) {
+  const args = []
+
+  if (process.env.YTDLP_PLAYER_CLIENT) {
+    args.push('--extractor-args', `youtube:player_client=${process.env.YTDLP_PLAYER_CLIENT}`)
+  }
+  if (process.env.YTDLP_COOKIES_FILE) {
+    const dest = path.join(tmpDir, 'cookies.txt')
+    await fs.copyFile(process.env.YTDLP_COOKIES_FILE, dest)
+    args.push('--cookies', dest)
+  }
+  if (process.env.YTDLP_PROXY) args.push('--proxy', process.env.YTDLP_PROXY)
+  if (process.env.YTDLP_SOURCE_ADDRESS) {
+    args.push('--source-address', process.env.YTDLP_SOURCE_ADDRESS)
+  }
+  if (process.env.YTDLP_SLEEP_REQUESTS) {
+    args.push('--sleep-requests', String(process.env.YTDLP_SLEEP_REQUESTS))
+  }
+  if (process.env.YTDLP_RATE_LIMIT) {
+    args.push('--limit-rate', process.env.YTDLP_RATE_LIMIT)
+  }
+
+  return args
+}
+
 // Lists the distinct video qualities available for a YouTube URL, snapped to
 // ALLOWED_HEIGHTS. Returns { title, formats: [{ height, label }] } sorted desc.
 export async function probeYouTubeFormats(rawUrl) {
@@ -72,7 +93,13 @@ export async function probeYouTubeFormats(rawUrl) {
   try {
     ({ stdout } = await execFileAsync(
       'yt-dlp',
-      ['-J', '--no-warnings', '--no-playlist', '--', rawUrl],
+      [
+        '-J',
+        '--no-warnings',
+        '--no-playlist',
+        '--',
+        rawUrl
+      ],
       { timeout: PROBE_TIMEOUT_MS, maxBuffer: PROBE_MAX_BUFFER },
     ))
   } catch (err) {
@@ -117,6 +144,8 @@ export async function downloadYouTubeVideo(rawUrl, quality) {
 
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ytdl-'))
   try {
+    const antiBlock = await buildAntiBlockArgs(dir)
+
     // Prefer the best H.264 video + AAC audio at-or-below the chosen height,
     // merged to MP4 (guaranteed browser-playable). Fall back to a progressive
     // H.264 stream, then any progressive stream as a last resort.
@@ -137,6 +166,7 @@ export async function downloadYouTubeVideo(rawUrl, quality) {
           '--no-warnings',
           '--max-filesize', String(MAX_VIDEO_SIZE),
           '-o', outTemplate,
+          ...antiBlock,
           '--', rawUrl,
         ],
         { timeout: DOWNLOAD_TIMEOUT_MS, maxBuffer: 4 * 1024 * 1024 },
@@ -146,7 +176,7 @@ export async function downloadYouTubeVideo(rawUrl, quality) {
     }
 
     const files = await fs.readdir(dir)
-    const outFile = files.find(f => f.startsWith('video.'))
+    const outFile = files.find(f => f.startsWith('video.') && f !== 'cookies.txt')
     if (!outFile) throw new Error('Download produced no file (video may exceed 300 MB)')
 
     const filePath = path.join(dir, outFile)
@@ -173,6 +203,9 @@ function snapHeight(height) {
 function parseYtdlpError(err) {
   if (err?.killed || err?.signal === 'SIGTERM') return 'Download timed out'
   const stderr = (err?.stderr || '').toString()
+  if (/Sign in to confirm/i.test(stderr)) {
+    return 'YouTube bot check hit — set YTDLP_COOKIES_FILE (or a proxy) on the service'
+  }
   const line = stderr.split('\n').map(l => l.trim()).find(l => l.startsWith('ERROR:'))
   if (line) return line.replace(/^ERROR:\s*/, '').slice(0, 300)
   if (/ENOENT/.test(err?.message || '')) return 'yt-dlp is not installed on the server'

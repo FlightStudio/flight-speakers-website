@@ -92,7 +92,7 @@ function Header() {
                 onClick={() => {
                   setMobileMenuOpen(false);
                   document.getElementById('search')?.scrollIntoView();
-                  navigate('/#search');
+                  navigate('/search');
                 }}
               >
                 <svg width="18" height="18" viewBox="0 0 20.022 20.022" fill="none" aria-hidden="true">
@@ -203,7 +203,7 @@ function Header() {
                   className="btn btn-primary btn-lg w-full"
                   onClick={() => {
                     setMobileMenuOpen(false);
-                    navigate('/#search');
+                    navigate('/search');
                   }}
                 >
                   Book a Speaker

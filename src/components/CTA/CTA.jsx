@@ -47,7 +47,7 @@ function CTA({ speakers }) {
               transition={{ duration: 0.6 }}
               onClick={() => {
                 document.getElementById('search')?.scrollIntoView();
-                navigate('/#search')
+                navigate('/search')
               }}
             >
               <h3 className="cta-card__title">AI-Powered Search</h3>

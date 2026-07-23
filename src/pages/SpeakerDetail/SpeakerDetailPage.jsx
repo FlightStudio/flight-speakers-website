@@ -581,8 +581,6 @@ function SpeakerDetailPage() {
                           <motion.div
                             key={index}
                             className={`speaker-topic-row${isHovered ? ' speaker-topic-row--active' : ''}`}
-                            onHoverStart={() => setHoveredTopic(index)}
-                            onHoverEnd={() => setHoveredTopic(null)}
                             initial={{ opacity: 0, x: -8 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
@@ -647,8 +645,6 @@ function SpeakerDetailPage() {
                             <motion.div
                               key={index}
                               className={`speaker-audience-row${isActive ? ' speaker-audience-row--active' : ''}`}
-                              onHoverStart={() => setHoveredAudience(index)}
-                              onHoverEnd={() => setHoveredAudience(null)}
                               initial={{ opacity: 0, x: -8 }}
                               whileInView={{ opacity: 1, x: 0 }}
                               viewport={{ once: true }}
