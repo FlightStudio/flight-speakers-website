@@ -15,6 +15,7 @@ import NewsArticlePage from './pages/NewsArticlePage'
 import SpeakerWaitlistPage from './pages/SpeakerWaitlistPage'
 import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy'
 import TermsAndConditions from './pages/TermsAndConditions/TermsAndConditions'
+import SpeakerBriefPreview from './components/brief/SpeakerBriefPreview'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -47,6 +48,10 @@ function App() {
 
       {/* Speaker waitlist — full-screen, no layout shell */}
       <Route path="/join" element={<SpeakerWaitlistPage />} />
+      
+      {import.meta.env.DEV && (
+        <Route path="/speaker-brief" element={<SpeakerBriefPreview />} />
+      )}
 
       {/* All other pages — standard layout with header/footer */}
       <Route path="*" element={

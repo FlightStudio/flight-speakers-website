@@ -3,7 +3,12 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { pdf } from '@react-pdf/renderer'
 import SpeakerBrief from '../brief/SpeakerBrief'
+import { fadeImageBottom } from '../brief/fadeImageBottom'
+import { bustCache } from '../brief/bustCache'
 import { EASE } from '../../constants/animation'
+
+const bustPhotos = (list) =>
+  (list || []).map((s) => (s.photo ? { ...s, photo: bustCache(s.photo) } : s))
 
 function SuccessScreen({ name, speaker, brief, selectedSpeakers = [], aiRecommendations = [] }) {
   const firstName = name ? name.split(' ')[0] : ''
@@ -13,11 +18,12 @@ function SuccessScreen({ name, speaker, brief, selectedSpeakers = [], aiRecommen
     if (!speaker) return
     setGenerating(true)
     try {
+      const photo = speaker.photo ? await fadeImageBottom(bustCache(speaker.photo)) : speaker.photo
       const doc = (
         <SpeakerBrief
-          speaker={speaker}
-          selectedSpeakers={selectedSpeakers}
-          aiRecommendations={aiRecommendations}
+          speaker={{ ...speaker, photo }}
+          selectedSpeakers={bustPhotos(selectedSpeakers)}
+          aiRecommendations={bustPhotos(aiRecommendations)}
           query={brief}
         />
       )

@@ -9,7 +9,12 @@ import { EASE } from '../../constants/animation';
 import ScrollLetterReveal, { SECTION_TITLE_GRADIENT } from '../../components/ScrollLetterReveal/ScrollLetterReveal';
 
 import browseSpeakers from "../../assets/browse-speakers.png";
-import temp from "../../assets/temp.png";
+import speaker1 from "../../assets/about-us-speakers/speaker1.png";
+import speaker2 from "../../assets/about-us-speakers/speaker2.png";
+import speaker3 from "../../assets/about-us-speakers/speaker3.png";
+import speaker4 from "../../assets/about-us-speakers/speaker4.png";
+import speaker5 from "../../assets/about-us-speakers/speaker5.png";
+import speaker6 from "../../assets/about-us-speakers/speaker6.png";
 
 import star from "../../assets/star.png";
 import clockIcon from "../../assets/clock-icon.png";
@@ -41,7 +46,14 @@ function RevealText({ children, delay = 0, y = 0 }) {
   );
 }
 
-const sliderSpeakers = [temp, temp, temp, temp];
+const sliderSpeakers = [
+  speaker1,
+  speaker2,
+  speaker3,
+  speaker4,
+  speaker5,
+  speaker6,
+];
 const SLIDE_INTERVAL = 4_000;
 
 function AboutPage() {
@@ -140,9 +152,9 @@ function AboutPage() {
           }}>
             <AnimatePresence>
               <motion.img
+                className='about-page-slide-speaker-image'
                 key={currentSpeaker}
                 src={sliderSpeakers[currentSpeaker]}
-                // src={temp}
                 alt=""
                 initial={{ opacity: 0, x: 60 }}
                 animate={{ opacity: 1, x: 0 }}
