@@ -178,3 +178,115 @@
     transition: none;
   }
 }
+
+/* ================================================================
+   Large variant (/search) — mirrors the landing hero SearchBar:
+   a 28px translucent pill, an animated "comet" border on focus/hover,
+   and a glassy star button. Colours stay theme-aware (the hero
+   hardcodes a white glass because it sits on a dark spotlight).
+   Keep in visual sync with hero/components/SearchBar/SearchBar.css.
+   ================================================================ */
+@property --comet-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes comet-spin {
+  to { --comet-angle: 360deg; }
+}
+
+.ai-search--large .ai-search__container {
+  border-radius: 28px;
+  /* Resting border matches the hero (.hero-search__container). */
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.02);
+  overflow: visible;
+}
+
+/* The hero glass is always light; on /search's dark theme a black border is
+   invisible, so lift it to a faint white instead. */
+[data-theme="dark"] .ai-search--large .ai-search__container {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Comet border: a bright head with a fading trail spinning around the
+   ring. The mask shows the gradient on the border only, not the fill. */
+.ai-search--large .ai-search__container::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 4px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: conic-gradient(
+    from calc(var(--comet-angle, 0deg) + 45deg),
+    rgba(125, 211, 252, 0) 0deg,
+    rgba(125, 211, 252, 0) 300deg,
+    rgba(125, 211, 252, 0.3) 345deg,
+    rgba(186, 230, 253, 0.7) 358deg,
+    rgba(255, 255, 255, 0.7) 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: comet-spin 3s linear infinite;
+}
+.ai-search--large .ai-search__container:hover::after,
+.ai-search--large .ai-search__container.ai-search__container--focused::after {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ai-search--large .ai-search__container::after { animation: none; }
+}
+
+/* Glassy star button — matches .hero-search__button. */
+.ai-search--large .ai-search__button {
+  position: relative;
+  gap: 8px;
+  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--color-black);
+  border-radius: 100px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.ai-search--large .ai-search__button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.05) 35%,
+    rgba(255, 255, 255, 0) 60%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  filter: invert(var(--reverse-invert));
+}
+.ai-search--large .ai-search__button:not(:disabled):hover {
+  background: #ffffff;
+  color: #000000;
+  transform: translateY(-1px) scale(1.02);
+}
+.ai-search--large .ai-search__button img {
+  height: 1em;
+  filter: invert(var(--reverse-invert));
+}
+.ai-search--large .ai-search__button:not(:disabled):hover img {
+  filter: invert(1);
+}
