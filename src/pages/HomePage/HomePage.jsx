@@ -3,7 +3,6 @@ import './HomePage.css'
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
-import { useSmoothScroll } from '../../hooks/useSmoothScroll'
 import { useMagneticEffect } from '../../hooks/useMagneticEffect'
 import { EASE } from '../../constants/animation'
 import { sessionShuffle } from '../../utils/shuffle'
@@ -73,9 +72,6 @@ function FloatingParticles() {
 }
 
 function HomePage() {
-  // Initialize smooth scrolling
-  useSmoothScroll()
-
   const navigate = useNavigate()
   const inputRef = useRef(null)
 

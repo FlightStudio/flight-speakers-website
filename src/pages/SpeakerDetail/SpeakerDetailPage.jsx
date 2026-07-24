@@ -6,7 +6,6 @@ import { EASE } from '../../constants/animation'
 import './SpeakerDetailPage.css'
 import SimilarSpeakers from './components/SimilarSpeakers/SimilarSpeakers'
 import VideoHero from './components/VideoHero/VideoHero'
-import useSmoothScroll from '../../hooks/useSmoothScroll'
 import Cursor from '../../components/Cursor/Cursor'
 
 import temp from "../../assets/temp.png";
@@ -224,8 +223,6 @@ const platformIcons = {
 }
 
 function SpeakerDetailPage() {
-  useSmoothScroll();
-
   const { id } = useParams()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()

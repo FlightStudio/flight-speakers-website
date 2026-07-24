@@ -1,33 +1,69 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { pdf } from '@react-pdf/renderer'
 import SpeakerBrief from '../brief/SpeakerBrief'
-import { fadeImageBottom } from '../brief/fadeImageBottom'
+import { prepareBriefImage } from '../brief/fadeImageBottom'
 import { bustCache } from '../brief/bustCache'
 import { EASE } from '../../constants/animation'
 
-const bustPhotos = (list) =>
-  (list || []).map((s) => (s.photo ? { ...s, photo: bustCache(s.photo) } : s))
+const HERO_IMAGE = { maxWidth: 900, fadeBottom: true, mime: 'image/png' }
+const CARD_IMAGE = { maxWidth: 240, mime: 'image/jpeg', quality: 0.82 }
+
+const prepCard = (s) =>
+  s.photo
+    ? prepareBriefImage(bustCache(s.photo), CARD_IMAGE).then((photo) => ({ ...s, photo }))
+    : Promise.resolve(s)
 
 function SuccessScreen({ name, speaker, brief, selectedSpeakers = [], aiRecommendations = [] }) {
   const firstName = name ? name.split(' ')[0] : ''
   const [generating, setGenerating] = useState(false)
+  const warmRef = useRef({ key: null, promise: null })
+
+  const buildBriefBlob = useCallback(async () => {
+    const [photo, sel, ai] = await Promise.all([
+      speaker.photo ? prepareBriefImage(bustCache(speaker.photo), HERO_IMAGE) : Promise.resolve(speaker.photo),
+      Promise.all(selectedSpeakers.map(prepCard)),
+      Promise.all(aiRecommendations.map(prepCard)),
+    ])
+    const doc = (
+      <SpeakerBrief
+        speaker={{ ...speaker, photo }}
+        selectedSpeakers={sel}
+        aiRecommendations={ai}
+        query={brief}
+      />
+    )
+    return pdf(doc).toBlob()
+  }, [speaker, selectedSpeakers, aiRecommendations, brief])
+
+  // Start (or reuse) PDF generation. Wired to hover / pointer-down so the brief
+  // is usually ready by the time the button is clicked. Deduped per input set.
+  const warmBrief = useCallback(() => {
+    if (!speaker) return null
+    const key = JSON.stringify({
+      s: speaker.id,
+      sel: selectedSpeakers.map((s) => s.id),
+      ai: aiRecommendations.map((s) => s.id),
+      b: brief,
+    })
+    const cache = warmRef.current
+    if (cache.key === key && cache.promise) return cache.promise
+
+    const promise = buildBriefBlob().catch((err) => {
+      // Don't cache a rejection — let the next hover/click retry.
+      if (warmRef.current.promise === promise) warmRef.current = { key: null, promise: null }
+      throw err
+    })
+    warmRef.current = { key, promise }
+    return promise
+  }, [speaker, selectedSpeakers, aiRecommendations, brief, buildBriefBlob])
 
   const handleDownload = useCallback(async () => {
     if (!speaker) return
     setGenerating(true)
     try {
-      const photo = speaker.photo ? await fadeImageBottom(bustCache(speaker.photo)) : speaker.photo
-      const doc = (
-        <SpeakerBrief
-          speaker={{ ...speaker, photo }}
-          selectedSpeakers={bustPhotos(selectedSpeakers)}
-          aiRecommendations={bustPhotos(aiRecommendations)}
-          query={brief}
-        />
-      )
-      const blob = await pdf(doc).toBlob()
+      const blob = await warmBrief()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -41,7 +77,7 @@ function SuccessScreen({ name, speaker, brief, selectedSpeakers = [], aiRecommen
     } finally {
       setGenerating(false)
     }
-  }, [speaker, selectedSpeakers, aiRecommendations, brief])
+  }, [speaker, warmBrief])
 
   const handleShareEmail = useCallback(() => {
     if (!speaker) return
@@ -128,6 +164,9 @@ function SuccessScreen({ name, speaker, brief, selectedSpeakers = [], aiRecommen
               type="button"
               className="mstep-success__action"
               onClick={handleDownload}
+              onPointerEnter={warmBrief}
+              onPointerDown={warmBrief}
+              onFocus={warmBrief}
               disabled={generating}
             >
               <svg width="16" height="16" viewBox="0 0 14 14" fill="none" aria-hidden="true">
