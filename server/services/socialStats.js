@@ -127,12 +127,14 @@ async function _doRefresh() {
     const stats = {}
 
     for (const [platform, handle] of Object.entries(profiles)) {
-      if (!handle) continue
-      const result = await fetchFollowerCounts(platform, handle)
-      if (result) {
-        stats[platform] = result
-      }
-      // 300ms delay between API calls to be respectful of rate limits
+      try {
+        if (!handle) continue
+        const result = await fetchFollowerCounts(platform, handle)
+        if (result) {
+          stats[platform] = result
+        }
+        // 300ms delay between API calls to be respectful of rate limits
+      } catch (err) { }
       await delay(300)
     }
 

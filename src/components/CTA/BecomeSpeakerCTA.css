@@ -1,0 +1,74 @@
+/* ================================
+   Become a Speaker — waitlist CTA
+   Self-contained dark band so it reads well on both the light speakers
+   listing and the dark speaker profile page.
+   ================================ */
+
+.become-speaker-cta {
+  padding: var(--space-16) 0;
+}
+
+.become-speaker-cta__panel {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: clamp(2.75rem, 5vw, 4.5rem) clamp(1.5rem, 4vw, 3rem);
+  border-radius: var(--radius-2xl);
+  background:
+    radial-gradient(120% 140% at 50% 0%, rgba(255, 205, 55, 0.16), transparent 60%),
+    linear-gradient(180deg, #1c1c1c 0%, #0e0e0e 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.become-speaker-cta__eyebrow {
+  display: inline-block;
+  margin-bottom: 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #FFCD37;
+}
+
+.become-speaker-cta__title {
+  margin: 0 0 14px;
+  font-family: var(--font-primary);
+  font-weight: 600;
+  line-height: 1.05;
+  font-size: clamp(1.9rem, 4vw, 3rem);
+  color: #ffffff;
+}
+
+.become-speaker-cta__subtitle {
+  max-width: 46ch;
+  margin: 0 auto 30px;
+  font-size: clamp(1rem, 1.4vw, 1.125rem);
+  line-height: 1.55;
+  color: #a3a3a3;
+}
+
+/* Reuses the header's "Book a speaker" pill (.hero-search__button
+   .book-a-speaker__btn) for identical shape, gradient border and hover lift —
+   only the fill is swapped to the yellow accent. Two-class specificity keeps
+   the yellow on hover, overriding the header's hover-to-white rule. */
+.become-speaker-cta__btn.hero-search__button {
+  background: #FFCD37;
+  color: #1a1a1a;
+  text-decoration: none;
+  box-shadow: 0 8px 24px -10px rgba(255, 205, 55, 0.75);
+}
+
+.become-speaker-cta__btn.hero-search__button:hover:not(:disabled) {
+  background: #ffd451;
+  color: #1a1a1a;
+}
+
+.become-speaker-cta__btn.hero-search__button:hover:not(:disabled) svg {
+  color: #1a1a1a;
+  transform: translateX(2px);
+}
+
+.become-speaker-cta__btn svg {
+  color: #1a1a1a;
+  transition: transform 0.2s ease;
+}

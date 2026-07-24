@@ -6,6 +6,7 @@ import { EASE } from '../../constants/animation'
 import './SpeakerDetailPage.css'
 import SimilarSpeakers from './components/SimilarSpeakers/SimilarSpeakers'
 import VideoHero from './components/VideoHero/VideoHero'
+import BecomeSpeakerCTA from '../../components/cta/BecomeSpeakerCTA'
 import Cursor from '../../components/Cursor/Cursor'
 
 import temp from "../../assets/temp.png";
@@ -526,7 +527,7 @@ function SpeakerDetailPage() {
                   <div className="speaker-hero__social">
                     <span className="speaker-hero__social-heading">Social Audience</span>
                     <div className="speaker-hero__social-pills">
-                      {socialLinks.map(({ platform, count, handle, url }, i) => (
+                      {socialLinks.map(({ platform, count, handle, url }, i) => count > 0 && ( 
                         <motion.a
                           key={platform}
                           href={url}
@@ -708,6 +709,9 @@ function SpeakerDetailPage() {
       {relatedSpeakers.length > 0 && (
         <SimilarSpeakers speakers={relatedSpeakers} />
       )}
+
+      {/* ========== ROW 4: Become a speaker — waitlist CTA ========== */}
+      <BecomeSpeakerCTA />
     </div>
   )
 }
