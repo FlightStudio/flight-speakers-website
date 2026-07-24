@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import SpeakerGrid from '../components/speakers/SpeakerGrid'
+import BecomeSpeakerCTA from '../components/cta/BecomeSpeakerCTA'
 import { EASE } from '../constants/animation'
 import { sessionShuffle } from '../utils/shuffle'
 import './SpeakersPage.css'
@@ -100,6 +101,8 @@ export default function SpeakersPage() {
           )}
         </div>
       </section>
+
+      {!loading && <BecomeSpeakerCTA />}
 
       <AnimatePresence>
         {selectedSpeakerIds.size > 0 && (

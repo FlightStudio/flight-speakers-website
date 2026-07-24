@@ -12,6 +12,7 @@ const tagArray = z.array(z.string().min(1).max(200)).max(30)
 
 const socialProfileSchema = z.object({
   instagram: z.string().max(200).optional(),
+  facebook: z.string().max(200).optional(),
   x: z.string().max(200).optional(),
   linkedin: z.string().max(200).optional(),
   youtube: z.string().max(200).optional(),

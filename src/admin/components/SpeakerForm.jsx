@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from 'react'
 
 const GENDER_OPTIONS = ['', 'Male', 'Female', 'Non-binary', 'Prefer not to say']
-const SOCIAL_PLATFORMS = ['instagram', 'x', 'linkedin', 'youtube', 'tiktok']
+const SOCIAL_PLATFORMS = ['instagram', 'facebook', 'x', 'linkedin', 'youtube', 'tiktok']
 
 // Mirrors isYouTubeUrl in server/routes/admin/_youtube.js — decides whether the
 // link tab shows the quality picker (YouTube) or a plain download (direct file).
@@ -232,7 +232,7 @@ export default function SpeakerForm({ initialData, onSubmit, saving, portalMode 
       ethnicity: '',
       nationality: '',
       location: '',
-      socialProfiles: { instagram: '', x: '', linkedin: '', youtube: '', tiktok: '' },
+      socialProfiles: { instagram: '', facebook: '', x: '', linkedin: '', youtube: '', tiktok: '' },
       boostNotes: '',
       heroMediaType: 'video',
       hidden: false,
