@@ -2,6 +2,7 @@
 // Used by speakers.js (photo/video uploads + staged photo).
 import multer from 'multer'
 import { Storage } from '@google-cloud/storage'
+import sharp from 'sharp'
 import dns from 'dns/promises'
 import net from 'net'
 
@@ -150,9 +151,38 @@ export async function downloadImageFromUrl(rawUrl) {
   return downloadFromUrl(rawUrl, IMAGE_EXT_BY_MIME, MAX_IMAGE_SIZE, 'Image')
 }
 
+const MAX_IMAGE_DIMENSION = 2048
+
+async function compressImage(buffer, mimetype) {
+  if (!/^image\/(jpeg|png|webp)$/.test(mimetype)) return buffer
+  try {
+    let pipeline = sharp(buffer, { failOn: 'none' })
+      .rotate() // bake in EXIF orientation before metadata is dropped
+      .resize({ width: MAX_IMAGE_DIMENSION, height: MAX_IMAGE_DIMENSION, fit: 'inside', withoutEnlargement: true })
+
+    if (mimetype === 'image/jpeg') {
+      pipeline = pipeline.jpeg({ quality: 85, mozjpeg: true })
+    } else if (mimetype === 'image/png') {
+      pipeline = pipeline.png({ compressionLevel: 9, effort: 10 }) // lossless
+    } else {
+      pipeline = pipeline.webp({ quality: 85 })
+    }
+
+    const out = await pipeline.toBuffer()
+    // Never grow a file — already-optimised images can get bigger on re-encode.
+    return out.length < buffer.length ? out : buffer
+  } catch (err) {
+    console.warn('[uploads] image compression failed, storing original:', err.message)
+    return buffer
+  }
+}
+
 export async function uploadToGCS(file, gcsPath) {
+  const buffer = ALLOWED_IMAGES.test(file.mimetype)
+    ? await compressImage(file.buffer, file.mimetype)
+    : file.buffer
   const blob = bucket.file(gcsPath)
-  await blob.save(file.buffer, {
+  await blob.save(buffer, {
     contentType: file.mimetype,
     metadata: { cacheControl: CACHE_ONE_YEAR },
   })

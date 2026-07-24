@@ -365,6 +365,25 @@ function SpeakerDetailPage() {
 
   const totalFollowing = socialEntries.reduce((sum, e) => sum + e.count, 0)
 
+  // "Social Audience" pills — one per platform the speaker has a profile on
+  // (order matches the design). Shows the follower count when socialStats has
+  // it, otherwise the handle. Every pill links out to the profile.
+  const socialLinks = (() => {
+    const profiles = speaker.socialProfiles || {}
+    const stats = speaker.socialStats || {}
+    return ['instagram', 'x', 'youtube', 'tiktok']
+      .filter((platform) => profiles[platform])
+      .map((platform) => {
+        const data = stats[platform] || {}
+        return {
+          platform,
+          handle: profiles[platform],
+          count: data.followers ?? data.subscribers ?? 0,
+          url: PLATFORM_URLS[platform] ? PLATFORM_URLS[platform](profiles[platform]) : null,
+        }
+      })
+  })()
+
   return (
     <div className="speaker-detail-page">
       <Cursor />
@@ -497,15 +516,11 @@ function SpeakerDetailPage() {
                   borderBottom: "1px solid #ffffff"
                 }}></div>
 
-                {socialEntries.length > 0 && (
+                {socialLinks.length > 0 && (
                   <div className="speaker-hero__social">
-                    {totalFollowing > 0 && (
-                      <span className="speaker-hero__social-total">
-                        {formatFollowers(totalFollowing)} total following
-                      </span>
-                    )}
+                    <span className="speaker-hero__social-heading">Social Audience</span>
                     <div className="speaker-hero__social-pills">
-                      {socialEntries.map(({ platform, count, url }, i) => (
+                      {socialLinks.map(({ platform, count, handle, url }, i) => (
                         <motion.a
                           key={platform}
                           href={url}
@@ -517,7 +532,7 @@ function SpeakerDetailPage() {
                           transition={{ duration: 0.35, delay: 0.4 + i * 0.08, ease: EASE }}
                         >
                           {platformIcons[platform]}
-                          {formatFollowers(count)}
+                          <span>{count > 0 ? formatFollowers(count) : `@${handle}`}</span>
                         </motion.a>
                       ))}
                     </div>
