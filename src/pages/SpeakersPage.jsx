@@ -7,11 +7,8 @@ import { EASE } from '../constants/animation'
 import { sessionShuffle } from '../utils/shuffle'
 import './SpeakersPage.css'
 import Cursor from '../components/Cursor/Cursor'
-import useSmoothScroll from '../hooks/useSmoothScroll'
 
 export default function SpeakersPage() {
-  useSmoothScroll()
-
   const [speakers, setSpeakers] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedSpeakerIds, setSelectedSpeakerIds] = useState(() => {

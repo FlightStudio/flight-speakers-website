@@ -12,7 +12,8 @@ const spotlightColors = [
   "#4B96FF",
   "#D24BFF",
   "#FF234B",
-  "#28c369ff"
+  "#28c369ff",
+  "#ff732c"
 ]
 
 function SpeakerCard({ speaker, showReasoning = false, reasoning = '', matchScore, searchBrief = '', selectable = false, isSelected = false, onToggleSelect, index }) {

@@ -4,17 +4,11 @@ import { COMPARE_ROWS } from './config'
 
 import { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence, useInView, useScroll, useTransform, useSpring } from 'framer-motion';
-import { useSmoothScroll } from '../../hooks/useSmoothScroll';
 import { EASE } from '../../constants/animation';
 import ScrollLetterReveal, { SECTION_TITLE_GRADIENT } from '../../components/ScrollLetterReveal/ScrollLetterReveal';
 
 import browseSpeakers from "../../assets/browse-speakers.png";
-import speaker1 from "../../assets/about-us-speakers/speaker1.png";
-import speaker2 from "../../assets/about-us-speakers/speaker2.png";
-import speaker3 from "../../assets/about-us-speakers/speaker3.png";
-import speaker4 from "../../assets/about-us-speakers/speaker4.png";
-import speaker5 from "../../assets/about-us-speakers/speaker5.png";
-import speaker6 from "../../assets/about-us-speakers/speaker6.png";
+import speaker0 from "../../assets/about-us-speakers/speaker0.png";
 
 import star from "../../assets/star.png";
 import clockIcon from "../../assets/clock-icon.png";
@@ -47,14 +41,9 @@ function RevealText({ children, delay = 0, y = 0 }) {
 }
 
 const sliderSpeakers = [
-  speaker1,
-  speaker2,
-  speaker3,
-  speaker4,
-  speaker5,
-  speaker6,
+  speaker0,
 ];
-const SLIDE_INTERVAL = 4_000;
+const SLIDE_INTERVAL = 4_000_000_000;
 
 function AboutPage() {
   const navigate = useNavigate();
@@ -68,9 +57,6 @@ function AboutPage() {
     }, SLIDE_INTERVAL);
     return () => clearInterval(interval);
   }, []);
-
-  // Initialize smooth scrolling
-  useSmoothScroll()
 
   // Parallax scrolling
   const { scrollYProgress } = useScroll()
@@ -114,10 +100,10 @@ function AboutPage() {
                 textAlign: "left",
                 color: "#C2C2C2",
                 fontSize: "1.2rem",
-                width: "350px",
+                width: "450px",
               }}
             >
-              Flight Speakers combines curated talent with AI-powered matching
+              We built Flight Speakers because we saw a gap: traditional speaker bureaus are slow, opaque, and built for volume over quality. We wanted something better. Flight Speakers combines curated talent with AI-powered matching
               to help you find the perfect voice for your event.
             </motion.p>
             <motion.button
@@ -388,7 +374,7 @@ function AboutPage() {
               >
                 <img src={checkIcon} alt="" className="metric-icon" />
                 <span className="about-page__metric-value">Quality Guarantee</span>
-                <span className="about-page__metric-label">If a speaker doesn't deliver, we make it right. Our reputation depends on every engagement being exceptional.</span>
+                <span className="about-page__metric-label">We believe extraordinary events begin with extraordinary people. That's why every speaker we represent has been handpicked for their expertise, storytelling, and ability to leave a lasting impact.</span>
                 <motion.img
                   alt="spotlight"
                   className="about-page__spotlight purple"
@@ -424,9 +410,12 @@ function AboutPage() {
             />
           </div>
           <div className="about-story__content">
-            <ScrollLetterReveal text="Flight Story is a communications agency that works with the world's most ambitious leaders and companies. We've spent years understanding what makes a great speaker, and what makes a great event." />
+            <ScrollLetterReveal text="Co-founded by Steven Bartlett, Flight Story believes the next generation of media companies won't be built around studios, they'll be built around creators. Flight Story Creator Media exists to help the world's most ambitious talent grow audiences, build businesses, and create lasting cultural impact. Flight Story provides the strategy, infrastructure, and opportunities that transform creators into global brands." />
+            <ScrollLetterReveal text="Our experience building Steven Bartlett into one of the world's most sought-after speakers gives us a unique understanding of what event organisers value, what audiences remember, and what it takes to build a world-class speakers business." />
+
+            {/* <ScrollLetterReveal text="Flight Story is a communications agency that works with the world's most ambitious leaders and companies. We've spent years understanding what makes a great speaker, and what makes a great event." />
             <ScrollLetterReveal text="We built Flight Speakers because we saw a gap: traditional speaker bureaus are slow, opaque, and built for volume over quality. We wanted something better." />
-            <ScrollLetterReveal text="Our roster is intentionally small. Every speaker is someone we'd personally recommend. And our AI-powered matching ensures you find the right fit for your specific audience and objectives." />
+            <ScrollLetterReveal text="Our roster is intentionally small. Every speaker is someone we'd personally recommend. And our AI-powered matching ensures you find the right fit for your specific audience and objectives." /> */}
           </div>
           <div className="about-page__metrics">
             <div className="about-page__metric left">

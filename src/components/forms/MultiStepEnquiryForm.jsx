@@ -330,12 +330,8 @@ function MultiStepEnquiryForm({ speaker = null, prefillBrief = '', preSelectedSp
           name={formData.name}
           speaker={speaker}
           brief={prefillBrief || formData.brief}
-          selectedSpeakers={preSelectedSpeakers.filter(s => s.id !== speaker?.id)}
-          aiRecommendations={recommendedSpeakers.filter(s => s.id !== speaker?.id).map(s => ({
-            ...s,
-            matchScore: recommendedScores[s.id] ?? null,
-            reasoning: recommendedReasonings[s.id] ?? null,
-          }))}
+          selectedSpeakers={briefSelectedSpeakers}
+          aiRecommendations={briefAiRecommendations}
         />
       </div>
     )
